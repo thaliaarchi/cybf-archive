@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace CyBF.BFC.Model.Types
 {
@@ -13,6 +14,19 @@ namespace CyBF.BFC.Model.Types
             this.TypeName = typeName;
             this.TypeArguments = new List<TypeInstance>(typeArguments).AsReadOnly();
             this.Fields = new List<FieldInstance>(fields).AsReadOnly();
+        }
+
+        public override string ToString()
+        {
+            if (this.TypeArguments.Count > 0)
+            {
+                string arguments = string.Join(" ", this.TypeArguments.Select(a => a.ToString()));
+                return "[" + this.TypeName + " " + arguments + "]";
+            }
+            else
+            {
+                return "[" + this.TypeName + "]";
+            }
         }
 
         public abstract int Size();

@@ -31,8 +31,8 @@ namespace CyBF.BFC.Model.Functions
 
             return this.Parameters.MatchSequence(argumentTypes, (p, a) => p.TypeParameter.Match(a));
         }
-
-        public abstract void Compile(BFCompiler compiler, List<BFObject> arguments);
+        
+        public abstract void Compile(BFCompiler compiler, IEnumerable<BFObject> arguments);
 
         protected void ApplyArguments(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {

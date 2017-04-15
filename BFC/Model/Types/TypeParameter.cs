@@ -11,8 +11,20 @@
 
         public virtual bool Match(TypeInstance instance)
         {
-            this.TypeVariable.Value = instance;
-            return true;
+            if (this.TypeVariable.Value == null)
+            {
+                this.TypeVariable.Value = instance;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public virtual void Reset()
+        {
+            this.TypeVariable.Value = null;
         }
     }
 }

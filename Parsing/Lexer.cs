@@ -11,39 +11,34 @@ namespace CyBF.Parsing
 
         private const string _charSubPattern = @"(?:[^""'\\]|\\[0abtnvfr""'\\]|\\x[0-9A-F][0-9A-F])";
         private const string _operatorCharacters = @"!@#$%^&*-+=|\<>?/";
-        
+        private const string _commandCharacters = @"+-[]<>,.@#()*{}";
+
         private Regex _identifierRegex = new Regex(@"[a-zA-Z_][a-zA-Z0-9_]*");
         private Regex _decimalRegex = new Regex(@"[1-9][0-9]*");
         private Regex _hexRegex = new Regex(@"0[x][0-9A-F][0-9A-F]");
         private Regex _charRegex = new Regex("\'" + _charSubPattern + "\'");
         private Regex _stringRegex = new Regex("\"" + _charSubPattern + "*\"");
         private Regex _operatorRegex = new Regex(@"[!@#$%^&*-+=|\\<>?/]+");
-
-        private Regex _normalDelimiterRegex = new Regex(@"[;:,.(){}\[\]]");
-        private Regex _commandDelimiterRegex = new Regex(@"[{}]");
-
-        private Regex _commandRegex = new Regex(@"(?:[+-\[\]<>,.]|[^\S\n])+");
-
+        private Regex _commandRegex = new Regex(@"[+-\[\]<>,.@#()*{}]");
+        private Regex _delimiterRegex = new Regex(@"[;:,.(){}\[\]]");
+        
         private Regex _whitespaceRegex = new Regex(@"\s*(?:`[^\n]*\s*)*");
 
         private Dictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>
         {
+            {"module", TokenType.Keyword_Module },
+            {"import", TokenType.Keyword_Import },
+            {"struct", TokenType.Keyword_Struct },
+            {"def", TokenType.Keyword_Def },
             {"var", TokenType.Keyword_Var },
             {"let", TokenType.Keyword_Let },
-
             {"while", TokenType.Keyword_While },
-
+            {"iterate", TokenType.Keyword_Iterate },
             {"if", TokenType.Keyword_If },
             {"elif", TokenType.Keyword_Elif },
             {"else", TokenType.Keyword_Else },
-            
-            {"def", TokenType.Keyword_Def },
-            {"returns", TokenType.Keyword_Returns },
-            {"end", TokenType.Keyword_End },
-
-            {"type", TokenType.Keyword_Type },
-
-            {"asm", TokenType.Keyword_ASM }
+            {"return", TokenType.Keyword_Return },
+            {"end", TokenType.Keyword_End }
         };
 
         private Dictionary<char, char> _escapeCodes = new Dictionary<char, char>
@@ -58,10 +53,10 @@ namespace CyBF.Parsing
             {'r', '\r'}
         };
 
-        private Dictionary<char, TokenType> _normalDelimiters = new Dictionary<char, TokenType>
+        private Dictionary<char, TokenType> _delimiters = new Dictionary<char, TokenType>
         {
-            {':', TokenType.Colon },
             {';', TokenType.Semicolon },
+            {':', TokenType.Colon },
             {',', TokenType.Comma },
             {'.', TokenType.Period },
             {'(', TokenType.OpenParen },
@@ -72,13 +67,24 @@ namespace CyBF.Parsing
             {']', TokenType.CloseBracket }
         };
 
-        private Dictionary<char, TokenType> _commandDelimiters = new Dictionary<char, TokenType>
+        private Dictionary<char, TokenType> _commands = new Dictionary<char, TokenType>
         {
+            {'+', TokenType.Plus },
+            {'-', TokenType.Minus },
+            {'[', TokenType.OpenBracket },
+            {']', TokenType.CloseBracket },
+            {'<', TokenType.OpenAngle },
+            {'>', TokenType.CloseAngle },
+            {',', TokenType.Comma },
+            {'.', TokenType.Period },
+            {'@', TokenType.At },
+            {'#', TokenType.Hash },
+            {'(', TokenType.OpenParen },
+            {')', TokenType.CloseParen },
+            {'*', TokenType.Asterisk },
             {'{', TokenType.OpenBrace },
             {'}', TokenType.CloseBrace }
         };
-
-        private HashSet<char> _commands = new HashSet<char>("+-[]<>,.");
 
         private Dictionary<char, Func<Token>> _nextTokenizer;
         private Dictionary<char, Func<Token>> _nextCommandTokenizer;
@@ -109,23 +115,28 @@ namespace CyBF.Parsing
             _nextCommandTokenizer['_'] = IdentifierOrKeyword;
 
             for (char c = '1'; c <= '9'; c++)
+            {
                 _nextTokenizer[c] = DecimalNumeric;
+                _nextCommandTokenizer[c] = DecimalNumeric;
+            }
 
             _nextTokenizer['0'] = HexNumeric;
+            _nextCommandTokenizer['0'] = HexNumeric;
+
             _nextTokenizer['\''] = CharacterLiteral;
+            _nextCommandTokenizer['\''] = CharacterLiteral;
+
             _nextTokenizer['\"'] = StringLiteral;
+            _nextCommandTokenizer['\"'] = StringLiteral;
 
             foreach (char c in _operatorCharacters)
                 _nextTokenizer[c] = Operator;
 
-            foreach (char c in _normalDelimiters.Keys)
-                _nextTokenizer[c] = NormalDelimiter;
+            foreach (char c in _delimiters.Keys)
+                _nextTokenizer[c] = Delimiter;
 
-            foreach (char c in _commandDelimiters.Keys)
-                _nextCommandTokenizer[c] = CommandDelimiter;
-
-            foreach (char c in _commands)
-                _nextCommandTokenizer[c] = CommandString;
+            foreach (char c in _commands.Keys)
+                _nextCommandTokenizer[c] = Command;
 
             _nextTokenizer['`'] = Whitespace;
             _nextCommandTokenizer['`'] = Whitespace;
@@ -155,10 +166,10 @@ namespace CyBF.Parsing
                 if (t.TokenType != TokenType.Whitespace || !removeWhitespace)
                     tokens.Add(t);
 
-                if (t.TokenType == TokenType.Keyword_ASM)
+                if (t.TokenType == TokenType.OpenBrace)
                     this.Mode = LexerMode.Command;
 
-                if (this.Mode == LexerMode.Command && t.TokenType == TokenType.CloseBrace)
+                if (t.TokenType == TokenType.CloseBrace)
                     this.Mode = LexerMode.Normal;
 
                 t = this.Next();
@@ -254,33 +265,23 @@ namespace CyBF.Parsing
                 value => 0);
         }
 
-        public Token NormalDelimiter()
+        public Token Delimiter()
         {
             return ParsePattern(
                 "delimiter",
-                _normalDelimiterRegex,
+                _delimiterRegex,
                 value => value,
-                value => _normalDelimiters[value[0]],
+                value => _delimiters[value[0]],
                 value => 0);
         }
 
-        public Token CommandDelimiter()
-        {
-            return ParsePattern(
-                "command delimiter",
-                _commandDelimiterRegex,
-                value => value,
-                value => _commandDelimiters[value[0]],
-                value => 0);
-        }
-
-        public Token CommandString()
+        public Token Command()
         {
             return ParsePattern(
                 "command",
                 _commandRegex,
-                RemoveWhitespace,
-                value => TokenType.CommandString,
+                value => value,
+                value => _commands[value[0]],
                 value => 0);
         }
 

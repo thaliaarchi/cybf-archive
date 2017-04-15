@@ -22,14 +22,14 @@ namespace CyBF.BFC.Model.Functions
             this.Body = new List<Statement>(body).AsReadOnly();
         }
 
-        public override void Compile(BFCompiler compiler, List<BFObject> arguments)
+        public override void Compile(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {
             compiler.TracePush(this.Reference);
-
+            
             this.ApplyArguments(compiler, arguments);
 
             foreach (Statement statement in this.Body)
-                compiler.CompileStatement(statement);
+                statement.Compile(compiler);
 
             compiler.TracePop();
         }

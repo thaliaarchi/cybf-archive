@@ -31,7 +31,7 @@ namespace CyBF.BFC.Model.Types
             this.ApplyArguments(compiler, typeArguments, valueArguments);
 
             foreach (Statement statement in this.SetupStatements)
-                compiler.CompileStatement(statement);
+                statement.Compile(compiler);
 
             int offset = 0;
             List<FieldInstance> instanceFields = new List<FieldInstance>();

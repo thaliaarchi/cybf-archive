@@ -17,5 +17,11 @@
 
             return base.Match(instance);
         }
+
+        public override void Reset()
+        {
+            this.Constraint.Reset();
+            base.Reset();
+        }
     }
 }

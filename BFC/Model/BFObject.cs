@@ -7,10 +7,10 @@ namespace CyBF.BFC.Model
     public class BFObject
     {
         public TypeInstance DataType { get; private set; }
-        public int AllocationId { get; private set; }
+        public string AllocationId { get; private set; }
         public IReadOnlyList<AddressOffset> Offsets { get; private set; }
 
-        public BFObject(TypeInstance dataType, int allocationId, IEnumerable<AddressOffset> offsets)
+        public BFObject(TypeInstance dataType, string allocationId, IEnumerable<AddressOffset> offsets)
         {
             this.DataType = dataType;
             this.AllocationId = allocationId;

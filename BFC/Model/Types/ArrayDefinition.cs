@@ -11,7 +11,7 @@ namespace CyBF.BFC.Model.Types
         public ArrayDefinition()
             : base(
                 new TypeConstraint(StaticName, new TypeParameter[] { new TypeParameter(new TypeVariable()) }),
-                new Variable[] { new Variable() })
+                new Variable[] { new Variable("capacity") })
         {
         }
 

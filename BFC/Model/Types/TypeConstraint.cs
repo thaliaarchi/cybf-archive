@@ -29,5 +29,11 @@ namespace CyBF.BFC.Model.Types
 
             return this.Parameters.MatchSequence(arguments, (p, a) => p.Match(a));
         }
+
+        public void Reset()
+        {
+            foreach (TypeParameter parameter in this.Parameters)
+                parameter.Reset();
+        }
     }
 }

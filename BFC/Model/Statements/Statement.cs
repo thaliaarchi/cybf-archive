@@ -1,12 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CyBF.BFC.Compilation;
+using CyBF.Parsing;
 
 namespace CyBF.BFC.Model.Statements
 {
-    public class Statement
+    public abstract class Statement
     {
+        public Token Reference { get; private set; }
+
+        public Statement(Token reference)
+        {
+            this.Reference = reference;
+        }
+
+        public abstract void Compile(BFCompiler compiler);
     }
 }

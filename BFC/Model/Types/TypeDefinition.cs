@@ -18,11 +18,13 @@ namespace CyBF.BFC.Model.Types
 
         public bool Match(TypeInstance instance)
         {
+            this.Constraint.Reset();
             return this.Constraint.Match(instance);
         }
 
         public bool Match(string typeName, IEnumerable<TypeInstance> arguments)
         {
+            this.Constraint.Reset();
             return this.Constraint.Match(typeName, arguments);
         }
 
