@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CyBF.Utility;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,10 +12,6 @@ namespace CyBF
     {
         static void Main(string[] args)
         {
-            int x = 0;
-            Console.WriteLine(x++);
-            Console.WriteLine(x++);
-            Console.ReadKey();
         }
     }
 }

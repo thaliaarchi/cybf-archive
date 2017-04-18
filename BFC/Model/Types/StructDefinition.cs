@@ -2,6 +2,7 @@
 using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Statements;
 using CyBF.Parsing;
+using System.Linq;
 
 namespace CyBF.BFC.Model.Types
 {
@@ -20,8 +21,8 @@ namespace CyBF.BFC.Model.Types
             : base(constraint, parameters)
         {
             this.Reference = reference;
-            this.SetupStatements = new List<Statement>(setupStatements).AsReadOnly();
-            this.Fields = new List<FieldDefinition>(fields).AsReadOnly();
+            this.SetupStatements = setupStatements.ToList().AsReadOnly();
+            this.Fields = fields.ToList().AsReadOnly();
         }
 
         public override TypeInstance Compile(BFCompiler compiler, IEnumerable<TypeInstance> typeArguments, IEnumerable<BFObject> valueArguments)

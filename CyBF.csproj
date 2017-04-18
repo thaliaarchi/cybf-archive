@@ -81,6 +81,13 @@
     <Compile Include="BFC\Model\Types\TypeParameter.cs" />
     <Compile Include="BFC\Model\Types\TypeVariable.cs" />
     <Compile Include="BFC\Model\Variable.cs" />
+    <Compile Include="BFI\BFInterpreterError.cs" />
+    <Compile Include="BFI\BytecodeInterpreter.cs" />
+    <Compile Include="BFI\ComputationNode.cs" />
+    <Compile Include="BFI\IONode.cs" />
+    <Compile Include="BFI\LoopNode.cs" />
+    <Compile Include="BFI\Node.cs" />
+    <Compile Include="BFI\ProgramNode.cs" />
     <Compile Include="Parsing\Lexer.cs" />
     <Compile Include="Parsing\LexicalError.cs" />
     <Compile Include="Parsing\Parser.cs" />
@@ -91,6 +98,7 @@
     <Compile Include="Parsing\TokenType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\DefaultDictionary.cs" />
     <Compile Include="Utility\Extensions.cs" />
   </ItemGroup>
   <ItemGroup>

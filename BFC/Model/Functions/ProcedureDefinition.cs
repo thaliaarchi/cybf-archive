@@ -2,6 +2,7 @@
 using CyBF.BFC.Compilation;
 using CyBF.Parsing;
 using CyBF.BFC.Model.Statements;
+using System.Linq;
 
 namespace CyBF.BFC.Model.Functions
 {
@@ -19,7 +20,7 @@ namespace CyBF.BFC.Model.Functions
             : base(name, parameters, returnValue)
         {
             this.Reference = reference;
-            this.Body = new List<Statement>(body).AsReadOnly();
+            this.Body = body.ToList().AsReadOnly();
         }
 
         public override void Compile(BFCompiler compiler, IEnumerable<BFObject> arguments)

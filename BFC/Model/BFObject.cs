@@ -1,6 +1,7 @@
 ﻿using CyBF.BFC.Model.Addressing;
 using CyBF.BFC.Model.Types;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CyBF.BFC.Model
 {
@@ -14,7 +15,7 @@ namespace CyBF.BFC.Model
         {
             this.DataType = dataType;
             this.AllocationId = allocationId;
-            this.Offsets = new List<AddressOffset>(offsets).AsReadOnly();
+            this.Offsets = offsets.ToList().AsReadOnly();
         }
     }
 }

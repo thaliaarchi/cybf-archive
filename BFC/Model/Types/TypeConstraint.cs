@@ -1,6 +1,7 @@
 ﻿using CyBF.Utility;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CyBF.BFC.Model.Types
 {
@@ -12,7 +13,7 @@ namespace CyBF.BFC.Model.Types
         public TypeConstraint(string typeName, IEnumerable<TypeParameter> parameters)
         {
             this.TypeName = typeName;
-            this.Parameters = new List<TypeParameter>(parameters).AsReadOnly();
+            this.Parameters = parameters.ToList().AsReadOnly();
         }
 
         public bool Match(TypeInstance instance)
@@ -22,7 +23,7 @@ namespace CyBF.BFC.Model.Types
 
         public bool Match(string typeName, IEnumerable<TypeInstance> arguments)
         {
-            List<TypeInstance> arglist = new List<TypeInstance>(arguments);
+            List<TypeInstance> arglist = arguments.ToList();
 
             if (this.TypeName != typeName)
                 return false;

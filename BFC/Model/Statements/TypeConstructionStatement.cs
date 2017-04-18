@@ -22,8 +22,8 @@ namespace CyBF.BFC.Model.Statements
             : base(reference)
         {
             this.TypeName = typeName;
-            this.TypeArguments = new List<TypeVariable>(typeArguments).AsReadOnly();
-            this.ValueArguments = new List<Variable>(valueArguments).AsReadOnly();
+            this.TypeArguments = typeArguments.ToList().AsReadOnly();
+            this.ValueArguments = valueArguments.ToList().AsReadOnly();
             this.ReturnValue = returnValue;
         }
 

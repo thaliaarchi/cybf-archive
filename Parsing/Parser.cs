@@ -13,7 +13,7 @@ namespace CyBF.Parsing
 
         public Parser(IEnumerable<Token> tokens)
         {
-            _tokens = new List<Token>(tokens);
+            _tokens = tokens.ToList();
 
             if (_tokens.Count == 0)
                 throw new ArgumentException("Tokens list is empty.");

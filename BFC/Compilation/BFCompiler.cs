@@ -14,7 +14,7 @@ namespace CyBF.BFC.Compilation
 {
     public class BFCompiler
     {
-        private StringBuilder _compiledBFA = new StringBuilder();
+        private StringBuilder _compiledCode = new StringBuilder();
         private DefinitionLibrary _definitions = new DefinitionLibrary();
         private Stack<Token> _trace = new Stack<Token>();
         private int _allocationId = 0;
@@ -28,12 +28,12 @@ namespace CyBF.BFC.Compilation
 
         public void Write(string code)
         {
-            _compiledBFA.Append(code);
+            _compiledCode.Append(code);
         }
 
         public void WriteLine(string code)
         {
-            _compiledBFA.AppendLine(code);
+            _compiledCode.AppendLine(code);
         }
 
         public void WriteComments(string comments)
@@ -52,7 +52,7 @@ namespace CyBF.BFC.Compilation
 
         public string GetCode()
         {
-            return _compiledBFA.ToString();
+            return _compiledCode.ToString();
         }
 
         public void TracePush(Token token)

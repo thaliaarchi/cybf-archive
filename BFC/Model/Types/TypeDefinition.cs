@@ -13,7 +13,7 @@ namespace CyBF.BFC.Model.Types
         public TypeDefinition(TypeConstraint constraint, IEnumerable<Variable> parameters)
         {
             this.Constraint = constraint;
-            this.Parameters = new List<Variable>(parameters).AsReadOnly();
+            this.Parameters = parameters.ToList().AsReadOnly();
         }
 
         public bool Match(TypeInstance instance)
@@ -35,7 +35,7 @@ namespace CyBF.BFC.Model.Types
             if (!this.Match(this.Constraint.TypeName, typeArguments))
                 compiler.RaiseSemanticError("Type arguments do not match with type definition constraint.");
 
-            List<BFObject> valueArgumentList = new List<BFObject>(valueArguments);
+            List<BFObject> valueArgumentList = valueArguments.ToList();
 
             if (valueArgumentList.Count != this.Parameters.Count)
                 compiler.RaiseSemanticError("Value argument count does not match type definition parameter count.");

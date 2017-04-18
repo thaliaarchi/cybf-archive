@@ -20,7 +20,7 @@ namespace CyBF.BFC.Model.Functions
         public FunctionDefinition(string name, IEnumerable<FunctionParameter> parameters, Variable returnValue)
         {
             this.Name = name;
-            this.Parameters = new List<FunctionParameter>(parameters).AsReadOnly();
+            this.Parameters = parameters.ToList().AsReadOnly();
             this.ReturnValue = returnValue;
         }
 
@@ -39,7 +39,7 @@ namespace CyBF.BFC.Model.Functions
             if (!this.Match(this.Name, arguments.Select(a => a.DataType)))
                 compiler.RaiseSemanticError("Given arguments failed to match with function definition parameters.");
 
-            List<BFObject> argumentList = new List<BFObject>(arguments);
+            List<BFObject> argumentList = arguments.ToList();
 
             for (int i = 0; i < this.Parameters.Count; i++)
                 this.Parameters[i].Variable.Value = argumentList[i];

@@ -20,7 +20,7 @@ namespace CyBF.BFC.Model.Statements
             : base(reference)
         {
             this.FunctionName = functionName;
-            this.Arguments = new List<Variable>(arguments).AsReadOnly();
+            this.Arguments = arguments.ToList().AsReadOnly();
             this.ReturnValue = returnValue;
         }
 

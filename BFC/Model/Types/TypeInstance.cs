@@ -12,8 +12,8 @@ namespace CyBF.BFC.Model.Types
         public TypeInstance(string typeName, IEnumerable<TypeInstance> typeArguments, IEnumerable<FieldInstance> fields)
         {
             this.TypeName = typeName;
-            this.TypeArguments = new List<TypeInstance>(typeArguments).AsReadOnly();
-            this.Fields = new List<FieldInstance>(fields).AsReadOnly();
+            this.TypeArguments = typeArguments.ToList().AsReadOnly();
+            this.Fields = fields.ToList().AsReadOnly();
         }
 
         public override string ToString()
