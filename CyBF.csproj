@@ -87,7 +87,7 @@
     <Compile Include="BFI\IONode.cs" />
     <Compile Include="BFI\LoopNode.cs" />
     <Compile Include="BFI\Node.cs" />
-    <Compile Include="BFI\ProgramNode.cs" />
+    <Compile Include="BFI\BytecodeBuilder.cs" />
     <Compile Include="Parsing\Lexer.cs" />
     <Compile Include="Parsing\LexicalError.cs" />
     <Compile Include="Parsing\Parser.cs" />

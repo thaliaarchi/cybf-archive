@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CyBF.BFI
 {
-    public class ProgramNode : Node
+    public class BytecodeBuilder
     {
-        public ProgramNode(string code)
+        private List<Node> _children;
+
+        public BytecodeBuilder(string code)
         {
+            _children = this.BuildProgramTree(code);
         }
 
-        public override List<int> Compile()
+        public int[] Compile()
         {
-            throw new NotImplementedException();
+            List<int> instructions = new List<int>();
+
+            foreach (Node child in _children)
+                child.Compile(instructions);
+            
+            return instructions.ToArray();
         }
 
         private List<Node> BuildProgramTree(string code)

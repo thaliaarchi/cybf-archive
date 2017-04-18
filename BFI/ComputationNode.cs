@@ -27,7 +27,7 @@ namespace CyBF.BFI
             return _offsetIncrements[offset];
         }
 
-        public override List<int> Compile()
+        public override void Compile(List<int> programInstructions)
         {
             List<int> offsets = this.GetAffectedOffsets();
 
@@ -35,33 +35,29 @@ namespace CyBF.BFI
             int shiftAmount;
             int incrementAmount;
 
-            List<int> instructions = new List<int>(offsets.Count * 4);
-            
             foreach (int offset in offsets)
             {
                 shiftAmount = offset - currentOffset;
 
                 if (shiftAmount != 0)
                 {
-                    instructions.Add(BytecodeInterpreter.SHIFT);
-                    instructions.Add(shiftAmount);
+                    programInstructions.Add(BytecodeInterpreter.SHIFT);
+                    programInstructions.Add(shiftAmount);
                     currentOffset = offset;
                 }
 
                 incrementAmount = this.GetIncrementAmount(offset);
-                instructions.Add(BytecodeInterpreter.INCREMENT);
-                instructions.Add(incrementAmount);
+                programInstructions.Add(BytecodeInterpreter.ADD);
+                programInstructions.Add(incrementAmount);
             }
 
             shiftAmount = this.NetShift - currentOffset;
 
             if (shiftAmount != 0)
             {
-                instructions.Add(BytecodeInterpreter.SHIFT);
-                instructions.Add(shiftAmount);
+                programInstructions.Add(BytecodeInterpreter.SHIFT);
+                programInstructions.Add(shiftAmount);
             }
-            
-            return instructions;
         }
 
         private void BuildOffsetIncrementTable(string code)

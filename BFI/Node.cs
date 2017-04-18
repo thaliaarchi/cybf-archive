@@ -4,6 +4,6 @@ namespace CyBF.BFI
 {
     public abstract class Node
     {
-        public abstract List<int> Compile();
+        public abstract void Compile(List<int> programInstructions);
     }
 }

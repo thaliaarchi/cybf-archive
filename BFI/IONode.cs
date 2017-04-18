@@ -11,28 +11,24 @@ namespace CyBF.BFI
             _code = code;
         }
 
-        public override List<int> Compile()
+        public override void Compile(List<int> programInstructions)
         {
-            List<int> instructions = new List<int>(_code.Length);
-
             foreach (char c in _code)
             {
                 switch (c)
                 {
                     case ',':
-                        instructions.Add(BytecodeInterpreter.READ);
+                        programInstructions.Add(BytecodeInterpreter.READ);
                         break;
 
                     case '.':
-                        instructions.Add(BytecodeInterpreter.PRINT);
+                        programInstructions.Add(BytecodeInterpreter.PRINT);
                         break;
 
                     default:
                         break;
                 }
             }
-
-            return instructions;
         }
     }
 }
