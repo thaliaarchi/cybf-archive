@@ -2,9 +2,9 @@
 
 namespace CyBF.BFI
 {
-    public class BFInterpreterError : Exception
+    public class BFProgramError : Exception
     {
-        public BFInterpreterError(string message) 
+        public BFProgramError(string message) 
             : base(message)
         {
         }

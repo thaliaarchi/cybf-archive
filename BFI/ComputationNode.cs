@@ -27,7 +27,7 @@ namespace CyBF.BFI
             return _offsetIncrements[offset];
         }
 
-        public override void Compile(List<int> programInstructions)
+        public override void Compile(List<Instruction> program)
         {
             List<int> offsets = this.GetAffectedOffsets();
 
@@ -41,22 +41,20 @@ namespace CyBF.BFI
 
                 if (shiftAmount != 0)
                 {
-                    programInstructions.Add(BytecodeInterpreter.SHIFT);
-                    programInstructions.Add(shiftAmount);
-                    currentOffset = offset;
+                    program.Add(Instruction.Shift(shiftAmount));
+                    currentOffset += shiftAmount;
                 }
 
                 incrementAmount = this.GetIncrementAmount(offset);
-                programInstructions.Add(BytecodeInterpreter.ADD);
-                programInstructions.Add(incrementAmount);
+                program.Add(Instruction.Add(incrementAmount));
             }
 
             shiftAmount = this.NetShift - currentOffset;
 
             if (shiftAmount != 0)
             {
-                programInstructions.Add(BytecodeInterpreter.SHIFT);
-                programInstructions.Add(shiftAmount);
+                program.Add(Instruction.Shift(shiftAmount));
+                currentOffset += shiftAmount;
             }
         }
 

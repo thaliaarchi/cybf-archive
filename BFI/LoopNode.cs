@@ -12,7 +12,7 @@ namespace CyBF.BFI
             _children = children.ToList();
         }
 
-        public override void Compile(List<int> programInstructions)
+        public override void Compile(List<Instruction> program)
         {
             if (this.IsLinearizable())
             {
@@ -21,32 +21,24 @@ namespace CyBF.BFI
                 foreach (int offset in node.GetAffectedOffsets())
                 {
                     if (offset != 0)
-                    {
-                        programInstructions.Add(BytecodeInterpreter.ADDSCALE);
-                        programInstructions.Add(node.GetIncrementAmount(offset));
-                        programInstructions.Add(offset);
-                    }
+                        program.Add(Instruction.AddScale(offset, node.GetIncrementAmount(offset)));
                 }
 
-                programInstructions.Add(BytecodeInterpreter.ZERO);
+                program.Add(Instruction.Zero());
             }
             else
             {
-                int loopBeginInstruction = programInstructions.Count;
-                programInstructions.Add(BytecodeInterpreter.JUMPIFZERO);
-                programInstructions.Add(0);
-                int loopBodyBegin = programInstructions.Count;
-
+                int loopBeginAddress = program.Count;
+                program.Add(Instruction.JumpIfZero(0));
+                
                 foreach (Node child in _children)
-                    child.Compile(programInstructions);
+                    child.Compile(program);
 
-                int loopEndInstruction = programInstructions.Count;
-                programInstructions.Add(BytecodeInterpreter.JUMPIF);
-                programInstructions.Add(0);
-                int loopFollowBegin = programInstructions.Count;
+                int loopEndAddress = program.Count;
+                program.Add(Instruction.JumpIf(0));
 
-                programInstructions[loopBeginInstruction + 1] = loopFollowBegin;
-                programInstructions[loopEndInstruction + 1] = loopBodyBegin;
+                program[loopBeginAddress] = Instruction.JumpIfZero(loopEndAddress + 1);
+                program[loopEndAddress] = Instruction.JumpIf(loopBeginAddress + 1);
             }
         }
 

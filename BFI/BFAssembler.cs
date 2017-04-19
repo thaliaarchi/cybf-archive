@@ -3,22 +3,22 @@ using System.Collections.Generic;
 
 namespace CyBF.BFI
 {
-    public class BytecodeBuilder
+    public class BFAssembler
     {
         private List<Node> _children;
 
-        public BytecodeBuilder(string code)
+        public BFAssembler(string code)
         {
             _children = this.BuildProgramTree(code);
         }
 
-        public int[] Compile()
+        public Instruction[] Compile()
         {
-            List<int> instructions = new List<int>();
+            List<Instruction> instructions = new List<Instruction>();
 
             foreach (Node child in _children)
                 child.Compile(instructions);
-            
+
             return instructions.ToArray();
         }
 
@@ -56,22 +56,23 @@ namespace CyBF.BFI
 
                     case ']':
 
-                        LoopNode loopNode = new LoopNode(nodes);
-
                         if (stack.Count == 0)
-                            throw new BFInterpreterError("Unmatched ] operator found.");
+                            throw new BFProgramError("Unmatched ] operator found.");
 
+                        LoopNode loopNode = new LoopNode(nodes);
                         nodes = stack.Pop();
                         nodes.Add(loopNode);
+                        index++;
                         break;
 
                     default:
+                        index++;
                         break;
                 }
             }
 
             if (stack.Count > 0)
-                throw new BFInterpreterError("Unmatched [ operator found.");
+                throw new BFProgramError("Unmatched [ operator found.");
 
             return nodes;
         }

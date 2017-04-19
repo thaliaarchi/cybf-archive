@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CyBF.BFI
 {
@@ -11,18 +12,18 @@ namespace CyBF.BFI
             _code = code;
         }
 
-        public override void Compile(List<int> programInstructions)
+        public override void Compile(List<Instruction> program)
         {
             foreach (char c in _code)
             {
                 switch (c)
                 {
                     case ',':
-                        programInstructions.Add(BytecodeInterpreter.READ);
+                        program.Add(Instruction.Read());
                         break;
 
                     case '.':
-                        programInstructions.Add(BytecodeInterpreter.PRINT);
+                        program.Add(Instruction.Print());
                         break;
 
                     default:

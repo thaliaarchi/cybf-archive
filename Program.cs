@@ -1,4 +1,5 @@
-﻿using CyBF.Utility;
+﻿using CyBF.BFI;
+using CyBF.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,28 @@ namespace CyBF
     {
         static void Main(string[] args)
         {
+            Console.BufferWidth = 200;
+
+            string bfcode;
+
+            using (StreamReader reader = new StreamReader("bftest.txt"))
+                bfcode = reader.ReadToEnd();
+
+            BFAssembler assembler = new BFAssembler(bfcode);
+            Interpreter interpreter = new Interpreter();
+            Instruction[] program = assembler.Compile();
+
+            StringBuilder assemblerOutput = new StringBuilder();
+            foreach (Instruction instruction in program)
+                assemblerOutput.AppendLine(instruction.ToString());
+
+            using (StreamWriter writer = new StreamWriter("assembler output.txt"))
+                writer.Write(assemblerOutput.ToString());
+
+            interpreter.Run(program);
+
+            Console.WriteLine("Done");
+            Console.ReadKey();
         }
     }
 }
