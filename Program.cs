@@ -13,8 +13,6 @@ namespace CyBF
     {
         static void Main(string[] args)
         {
-            Console.BufferWidth = 200;
-
             string bfcode;
 
             using (StreamReader reader = new StreamReader("bftest.txt"))
@@ -31,10 +29,8 @@ namespace CyBF
             using (StreamWriter writer = new StreamWriter("assembler output.txt"))
                 writer.Write(assemblerOutput.ToString());
 
-            interpreter.Run(program);
-
-            Console.WriteLine("Done");
-            Console.ReadKey();
+            AsciiConsoleStream consoleStream = new AsciiConsoleStream();
+            interpreter.Run(program, consoleStream, consoleStream);
         }
     }
 }
