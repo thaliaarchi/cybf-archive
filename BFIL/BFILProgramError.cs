@@ -19,7 +19,7 @@ namespace CyBF.BFIL
         {
             _message =
                 "Line " + referenceToken.PositionInfo.LineNumber.ToString() + "\n" +
-                referenceToken.PositionInfo.Line + "\n" +
+                referenceToken.PositionInfo.Line.TrimEnd() + "\n" +
                 new string(' ', referenceToken.PositionInfo.LinePosition) + "^\n" +
                 referenceToken.ToString() + "\n" +
                 message;

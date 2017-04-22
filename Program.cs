@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CyBF.Parsing;
 
 namespace CyBF
 {
@@ -14,10 +15,8 @@ namespace CyBF
     {
         static void Main(string[] args)
         {
-            Console.BufferWidth = 200;
-
-            //try
-            //{
+            try
+            {
                 string code;
 
                 using (var reader = new StreamReader("code.txt"))
@@ -34,12 +33,27 @@ namespace CyBF
 
                 AsciiConsoleStream io = new AsciiConsoleStream();
                 interpreter.Run(instructions, io, io);
-            //}
-            //catch(Exception ex)
-            //{
-            //    Console.WriteLine(ex.ToString());
-            //    Console.ReadKey();
-            //}
+            }
+            catch(LexicalError ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Console.ReadKey();
+            }
+            catch(SyntaxError ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Console.ReadKey();
+            }
+            catch (BFILProgramError ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Console.ReadKey();
+            }
+            catch (BFProgramError ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Console.ReadKey();
+            }
         }
     }
 }

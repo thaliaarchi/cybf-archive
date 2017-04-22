@@ -14,8 +14,7 @@ namespace CyBF.Parsing
         private const string _commandCharacters = @"+-[]<>,.@:#()*{}";
 
         private Regex _identifierRegex = new Regex(@"[a-zA-Z_][a-zA-Z0-9_]*");
-        private Regex _decimalRegex = new Regex(@"[1-9][0-9]*");
-        private Regex _hexRegex = new Regex(@"0[x][0-9A-F][0-9A-F]");
+        private Regex _decimalRegex = new Regex(@"[0-9]+");
         private Regex _charRegex = new Regex("\'" + _charSubPattern + "\'");
         private Regex _stringRegex = new Regex("\"" + _charSubPattern + "*\"");
         private Regex _operatorRegex = new Regex(@"[!@#$%^&*-+=|\\<>?/]+");
@@ -132,15 +131,12 @@ namespace CyBF.Parsing
             _nextTokenizer['_'] = IdentifierOrKeyword;
             _nextCommandTokenizer['_'] = IdentifierOrKeyword;
 
-            for (char c = '1'; c <= '9'; c++)
+            for (char c = '0'; c <= '9'; c++)
             {
                 _nextTokenizer[c] = DecimalNumeric;
                 _nextCommandTokenizer[c] = DecimalNumeric;
             }
-
-            _nextTokenizer['0'] = HexNumeric;
-            _nextCommandTokenizer['0'] = HexNumeric;
-
+            
             _nextTokenizer['\''] = CharacterLiteral;
             _nextCommandTokenizer['\''] = CharacterLiteral;
 
@@ -243,17 +239,7 @@ namespace CyBF.Parsing
                 value => TokenType.Numeric, 
                 value => int.Parse(value));
         }
-
-        public Token HexNumeric()
-        {
-            return ParsePattern(
-                "hexadecimal numeric",
-                _hexRegex,
-                value => value,
-                value => TokenType.Numeric,
-                value => int.Parse(value.Substring(2), System.Globalization.NumberStyles.AllowHexSpecifier));
-        }
-
+        
         public Token CharacterLiteral()
         {
             return ParsePattern(
@@ -343,7 +329,7 @@ namespace CyBF.Parsing
 
                 if (value[i] == 'x')
                 {
-                    string hexcode = value.Substring(i + 1, 3);
+                    string hexcode = value.Substring(i + 1, 2);
                     byte byteValue = byte.Parse(hexcode, System.Globalization.NumberStyles.AllowHexSpecifier);
                     builder.Append(Encoding.ASCII.GetChars(new byte[] { byteValue })[0]);
 

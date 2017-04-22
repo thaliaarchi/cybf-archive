@@ -19,7 +19,7 @@ namespace CyBF.Parsing
             _message =
                 token.PositionInfo.Source + "\n" +
                 "Line " + token.PositionInfo.LineNumber.ToString() + "\n" +
-                token.PositionInfo.Line + "\n" +
+                token.PositionInfo.Line.TrimEnd() + "\n" +
                 new string(' ', token.PositionInfo.LinePosition) + "^\n" +
                 "Expected " + expected + "\n" +
                 "Received " + token.ToString();

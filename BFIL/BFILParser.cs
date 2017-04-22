@@ -93,93 +93,98 @@ namespace CyBF.BFIL
         public BFILDeclarationStatement ParseDeclarationStatement()
         {
             Token reference = _parser.Match(TokenType.At);
-            Token variable = _parser.Match(TokenType.Identifier);
-            _parser.Match(TokenType.Colon);
-            Token size = _parser.Match(TokenType.Numeric);
+            Token identifier = _parser.Match(TokenType.Identifier);
 
-            return new BFILDeclarationStatement(reference, variable.Value, size.NumericValue);
+            if (_parser.Matches(TokenType.Hash))
+            {
+                _parser.Next();
+                List<Token> dataTokens = ParseDataTokens();
+                List<byte> bytes = ConvertDataTokensToBytes(dataTokens);
+                return new BFILDeclarationStatement(reference, identifier.Value, bytes);
+            }
+            else
+            {
+                _parser.Match(TokenType.Colon);
+                Token size = _parser.Match(TokenType.Numeric);
+                return new BFILDeclarationStatement(reference, identifier.Value, size.NumericValue);
+            }
         }
 
         public BFILReferenceStatement ParseReferenceStatement()
         {
-            Token token = _parser.Match(TokenType.Identifier);
-            return new BFILReferenceStatement(token, token.Value);
+            Token identifier = _parser.Match(TokenType.Identifier);
+            return new BFILReferenceStatement(identifier, identifier.Value);
         }
 
         public BFILWriteStatement ParseWriteStatement()
         {
-            _parser.Match(TokenType.Hash);
+            Token reference = _parser.Match(TokenType.Hash);
+            List<Token> dataTokens = ParseDataTokens();
+            List<byte> bytes = ConvertDataTokensToBytes(dataTokens);
 
-            if (_parser.Matches(TokenType.Numeric))
+            return new BFILWriteStatement(reference, bytes);
+        }
+
+        public List<Token> ParseDataTokens()
+        {
+            List<Token> dataTokens = new List<Token>();
+
+            if (_parser.Matches(TokenType.Numeric, TokenType.String))
             {
-                Token token = _parser.Next();
-                return new BFILWriteStatement(token, ConvertNumericToken(token));
-            }
-            else if (_parser.Matches(TokenType.String))
-            {
-                Token token = _parser.Next();
-                return new BFILWriteStatement(token, ConvertStringToken(token));
+                dataTokens.Add(_parser.Next());
             }
             else
             {
-                Token referenceToken = _parser.Match(TokenType.OpenParen);
+                _parser.Match(TokenType.OpenParen);
+                dataTokens.Add(_parser.Match(TokenType.Numeric, TokenType.String));
 
-                List<byte> bytes = new List<byte>();
-
-                while (!_parser.Matches(TokenType.CloseParen))
+                while (_parser.Matches(TokenType.Comma))
                 {
-                    Token token = _parser.Match(TokenType.Numeric, TokenType.String);
-
-                    if (token.TokenType == TokenType.Numeric)
-                        bytes.AddRange(ConvertNumericToken(token));
-                    else
-                        bytes.AddRange(ConvertStringToken(token));
+                    _parser.Next();
+                    dataTokens.Add(_parser.Match(TokenType.Numeric, TokenType.String));
                 }
 
                 _parser.Match(TokenType.CloseParen);
-
-                return new BFILWriteStatement(referenceToken, bytes);
             }
+
+            return dataTokens;
         }
 
-        private byte[] ConvertNumericToken(Token token)
+        public List<byte> ConvertDataTokensToBytes(IEnumerable<Token> dataTokens)
         {
-            if (token.TokenType != TokenType.Numeric)
-                throw new SyntaxError(token, "numeric");
+            List<byte> data = new List<byte>();
 
-            int value = token.NumericValue;
-
-            if (value < 0 || 255 < value)
-                throw new SyntaxError(token, "value within byte range [0-255]");
-
-            return new byte[] { (byte)value };
-        }
-
-        private byte[] ConvertStringToken(Token token)
-        {
-            if (token.TokenType != TokenType.String)
-                throw new SyntaxError(token, "string");
-
-            string str = token.Value;
-            byte[] bytes;
-
-            try
+            foreach (Token token in dataTokens)
             {
-                int strlen = str.Length;
-                int bytelen = 2 + Encoding.UTF8.GetByteCount(str);
+                if (token.TokenType == TokenType.Numeric)
+                {
+                    if (token.NumericValue < 0 || 255 < token.NumericValue)
+                        throw new SyntaxError(token, "value within byte range [0-255]");
 
-                bytes = new byte[bytelen];
-                bytes[0] = 0;
-                bytes[bytelen - 1] = 0;
+                    data.Add((byte)token.NumericValue);
+                }
+                else if (token.TokenType == TokenType.String)
+                {
+                    data.Add(0);
 
-                Encoding.UTF8.GetBytes(str, 0, strlen, bytes, 1);
-            }
-            catch (EncoderFallbackException)
-            {
-                throw new SyntaxError(token, "utf-8 encoding");
+                    try
+                    {
+                        data.AddRange(Encoding.UTF8.GetBytes(token.Value));
+                    }
+                    catch (EncoderFallbackException)
+                    {
+                        throw new SyntaxError(token, "utf-8 encoding");
+                    }
+
+                    data.Add(0);
+                }
+                else
+                {
+                    throw new SyntaxError(token, "data value");
+                }
             }
 
-            return bytes;
+            return data;
         }
     }
 }
