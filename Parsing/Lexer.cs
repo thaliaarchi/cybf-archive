@@ -11,7 +11,7 @@ namespace CyBF.Parsing
 
         private const string _charSubPattern = @"(?:[^""'\\]|\\[0abtnvfr""'\\]|\\x[0-9A-F][0-9A-F])";
         private const string _operatorCharacters = @"!@#$%^&*-+=|\<>?/";
-        private const string _commandCharacters = @"+-[]<>,.@#()*{}";
+        private const string _commandCharacters = @"+-[]<>,.@:#()*{}";
 
         private Regex _identifierRegex = new Regex(@"[a-zA-Z_][a-zA-Z0-9_]*");
         private Regex _decimalRegex = new Regex(@"[1-9][0-9]*");
@@ -19,7 +19,7 @@ namespace CyBF.Parsing
         private Regex _charRegex = new Regex("\'" + _charSubPattern + "\'");
         private Regex _stringRegex = new Regex("\"" + _charSubPattern + "*\"");
         private Regex _operatorRegex = new Regex(@"[!@#$%^&*-+=|\\<>?/]+");
-        private Regex _commandRegex = new Regex(@"[+-\[\]<>,.@#()*{}]");
+        private Regex _commandRegex = new Regex(@"[+-\[\]<>,.@:#()*{}]");
         private Regex _delimiterRegex = new Regex(@"[;:,.(){}\[\]]");
         
         private Regex _whitespaceRegex = new Regex(@"\s*(?:`[^\n]*\s*)*");
@@ -78,6 +78,7 @@ namespace CyBF.Parsing
             {',', TokenType.Comma },
             {'.', TokenType.Period },
             {'@', TokenType.At },
+            {':', TokenType.Colon },
             {'#', TokenType.Hash },
             {'(', TokenType.OpenParen },
             {')', TokenType.CloseParen },
@@ -90,11 +91,28 @@ namespace CyBF.Parsing
         private Dictionary<char, Func<Token>> _nextCommandTokenizer;
 
         public enum LexerMode { Normal, Command }
-        public LexerMode Mode { get; set; }
 
-        public Lexer(string sourceName, string source)
+        public bool LockMode { get; set; }
+
+        private LexerMode _mode;
+        public LexerMode Mode
         {
-            _scanner = new Scanner(sourceName, source);
+            get
+            {
+                return _mode;
+            }
+            set
+            {
+                if (this.LockMode)
+                    throw new InvalidOperationException();
+
+                _mode = value;
+            }
+        }
+
+        public Lexer(string code, string source)
+        {
+            _scanner = new Scanner(code, source);
 
             _nextTokenizer = new Dictionary<char, Func<Token>>();
             _nextCommandTokenizer = new Dictionary<char, Func<Token>>();
@@ -152,6 +170,7 @@ namespace CyBF.Parsing
                 }
             }
 
+            this.LockMode = false;
             this.Mode = LexerMode.Normal;
         }
 
@@ -166,10 +185,10 @@ namespace CyBF.Parsing
                 if (t.TokenType != TokenType.Whitespace || !removeWhitespace)
                     tokens.Add(t);
 
-                if (t.TokenType == TokenType.OpenBrace)
+                if (t.TokenType == TokenType.OpenBrace && !this.LockMode)
                     this.Mode = LexerMode.Command;
 
-                if (t.TokenType == TokenType.CloseBrace)
+                if (t.TokenType == TokenType.CloseBrace && !this.LockMode)
                     this.Mode = LexerMode.Normal;
 
                 t = this.Next();
@@ -314,7 +333,7 @@ namespace CyBF.Parsing
 
             for (int i = 1; i < value.Length - 1; i++)
             {
-                if (i != '\\')
+                if (value[i] != '\\')
                 {
                     builder.Append(value[i]);
                     continue;
@@ -368,14 +387,14 @@ namespace CyBF.Parsing
             if (_scanner.EndOfSource)
             {
                 message =
-                    _scanner.SourceName + "\n" + 
+                    _scanner.Source + "\n" + 
                     "Unexpected end of source found.\n" +
                     "Expected " + expected;
             }
             else
             {
                 message =
-                    _scanner.SourceName + "\n" +
+                    _scanner.Source + "\n" +
                     "Line " + _scanner.LineNumber.ToString() + "\n" +
                     _scanner.Line + "\n" +
                     new string(' ', _scanner.LinePosition) + "^\n" +

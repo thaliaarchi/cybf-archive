@@ -17,7 +17,7 @@ namespace CyBF.Parsing
         public SyntaxError(Token token, string expected)
         {
             _message =
-                token.PositionInfo.SourceName + "\n" +
+                token.PositionInfo.Source + "\n" +
                 "Line " + token.PositionInfo.LineNumber.ToString() + "\n" +
                 token.PositionInfo.Line + "\n" +
                 new string(' ', token.PositionInfo.LinePosition) + "^\n" +

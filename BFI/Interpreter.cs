@@ -4,9 +4,16 @@ namespace CyBF.BFI
 {
     public class Interpreter
     {
+        public int InitialMemoryCapacity { get; set; }
+
+        public Interpreter()
+        {
+            this.InitialMemoryCapacity = 30000;
+        }
+
         public void Run(Instruction[] instructions, Stream input, Stream output)
         {
-            byte[] memory = new byte[30000];
+            byte[] memory = new byte[this.InitialMemoryCapacity];
 
             int iptr = 0;
             int memptr = 0;
@@ -29,15 +36,20 @@ namespace CyBF.BFI
                         break;
 
                     case Operation.AddScale:
-                        int offsetAddress = memptr + instruction.Operand;
-                        CheckCapacity(ref memory, offsetAddress);
-                        memory[offsetAddress] = (byte)(memory[offsetAddress] + memory[memptr] * instructions[iptr].Factor);
+
+                        if (memory[memptr] > 0)
+                        {
+                            int offsetAddress = memptr + instruction.Operand;
+                            CheckAddress(ref memory, offsetAddress);
+                            memory[offsetAddress] = (byte)(memory[offsetAddress] + memory[memptr] * instructions[iptr].Factor);
+                        }
+
                         iptr++;
                         break;
 
                     case Operation.Shift:
                         memptr += instruction.Operand;
-                        CheckCapacity(ref memory, memptr);
+                        CheckAddress(ref memory, memptr);
                         iptr++;
                         break;
 
@@ -65,8 +77,11 @@ namespace CyBF.BFI
             }
         }
 
-        private void CheckCapacity(ref byte[] array, int address)
+        private void CheckAddress(ref byte[] array, int address)
         {
+            if (address < 0)
+                throw new BFProgramError("Negative memory address referenced.");
+
             if (array.Length <= address)
             {
                 byte[] resized = new byte[(address + 1) * 2];

@@ -5,8 +5,8 @@ namespace CyBF.Parsing
 {
     public class Scanner
     {
-        public string SourceName { get; private set; }
         public string Source { get; private set; }
+        public string Code { get; private set; }
         public int Position { get; private set; }
         public int LineNumber { get; private set; }
         public int LinePosition { get; private set; }
@@ -16,10 +16,10 @@ namespace CyBF.Parsing
 
         public bool EndOfSource { get { return this.CurrentValue == -1; } }
 
-        public Scanner(string sourceName, string source)
+        public Scanner(string code, string source)
         {
-            this.SourceName = sourceName;
             this.Source = source;
+            this.Code = code;
             this.Position = 0;
             this.LineNumber = 1;
             this.LinePosition = 0;
@@ -29,12 +29,12 @@ namespace CyBF.Parsing
 
         public PositionInfo GetPositionInfo()
         {
-            return new PositionInfo(this.SourceName, this.Source, this.Position, this.LineNumber, this.LinePosition, this.Line);
+            return new PositionInfo(this.Source, this.Code, this.Position, this.LineNumber, this.LinePosition, this.Line);
         }
         
         public bool ReadPattern(Regex regex, out string result)
         {
-            Match match = regex.Match(this.Source, this.Position);
+            Match match = regex.Match(this.Code, this.Position);
             
             if (match.Success)
             {
@@ -53,7 +53,7 @@ namespace CyBF.Parsing
         {
             int oldPosition = this.Position;
 
-            if (newPosition <= oldPosition || this.Source.Length < newPosition)
+            if (newPosition <= oldPosition || this.Code.Length < newPosition)
                 throw new ArgumentOutOfRangeException("newPosition");
 
             this.Position = newPosition;
@@ -62,7 +62,7 @@ namespace CyBF.Parsing
             {
                 this.LinePosition++;
 
-                if (this.Source[i] == '\n')
+                if (this.Code[i] == '\n')
                 {
                     this.LinePosition = 0;
                     this.LineNumber++;
@@ -79,44 +79,44 @@ namespace CyBF.Parsing
             int endIndex;
             int length;
 
-            if (this.Source == string.Empty)
+            if (this.Code == string.Empty)
                 return string.Empty;
 
             if (this.Position == 0)
             {
                 startIndex = 0;
-                endIndex = this.Source.IndexOf('\n');
+                endIndex = this.Code.IndexOf('\n');
 
                 if (endIndex == -1)
-                    endIndex = this.Source.Length - 1;
+                    endIndex = this.Code.Length - 1;
             }
-            else if (this.Position < this.Source.Length)
+            else if (this.Position < this.Code.Length)
             {
-                startIndex = this.Source.LastIndexOf('\n', this.Position - 1) + 1;
-                endIndex = this.Source.IndexOf('\n', this.Position);
+                startIndex = this.Code.LastIndexOf('\n', this.Position - 1) + 1;
+                endIndex = this.Code.IndexOf('\n', this.Position);
 
                 if (endIndex == -1)
-                    endIndex = this.Source.Length - 1;
+                    endIndex = this.Code.Length - 1;
             }
             else
             {
-                if (this.Source.Length == 1)
+                if (this.Code.Length == 1)
                     startIndex = 0;
                 else
-                    startIndex = this.Source.LastIndexOf('\n', this.Source.Length - 2) + 1;
+                    startIndex = this.Code.LastIndexOf('\n', this.Code.Length - 2) + 1;
 
-                endIndex = this.Source.Length - 1;
+                endIndex = this.Code.Length - 1;
             }
 
             length = endIndex - startIndex + 1;
 
-            return this.Source.Substring(startIndex, length);
+            return this.Code.Substring(startIndex, length);
         }
 
         private int GetCurrentValue()
         {
-            if (this.Position < this.Source.Length)
-                return this.Source[this.Position];
+            if (this.Position < this.Code.Length)
+                return this.Code[this.Position];
             else
                 return -1;
         }

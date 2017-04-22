@@ -1,5 +1,6 @@
 ﻿using CyBF.BFI;
 using CyBF.Utility;
+using CyBF.BFIL;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,24 +14,32 @@ namespace CyBF
     {
         static void Main(string[] args)
         {
-            string bfcode;
+            Console.BufferWidth = 200;
 
-            using (StreamReader reader = new StreamReader("bftest.txt"))
-                bfcode = reader.ReadToEnd();
+            //try
+            //{
+                string code;
 
-            BFAssembler assembler = new BFAssembler(bfcode);
-            Interpreter interpreter = new Interpreter();
-            Instruction[] program = assembler.Compile();
+                using (var reader = new StreamReader("code.txt"))
+                    code = reader.ReadToEnd();
 
-            StringBuilder assemblerOutput = new StringBuilder();
-            foreach (Instruction instruction in program)
-                assemblerOutput.AppendLine(instruction.ToString());
+                BFILParser parser = new BFILParser(code, "code.txt");
+                BFILProgram program = parser.ParseProgram();
+                BFILAssembler assembler = new BFILAssembler();
+                string brainfuck = assembler.AssembleProgram(program);
 
-            using (StreamWriter writer = new StreamWriter("assembler output.txt"))
-                writer.Write(assemblerOutput.ToString());
+                BFAssembler bytecodeAssembler = new BFAssembler(brainfuck);
+                Instruction[] instructions = bytecodeAssembler.Compile();
+                Interpreter interpreter = new Interpreter();
 
-            AsciiConsoleStream consoleStream = new AsciiConsoleStream();
-            interpreter.Run(program, consoleStream, consoleStream);
+                AsciiConsoleStream io = new AsciiConsoleStream();
+                interpreter.Run(instructions, io, io);
+            //}
+            //catch(Exception ex)
+            //{
+            //    Console.WriteLine(ex.ToString());
+            //    Console.ReadKey();
+            //}
         }
     }
 }
