@@ -28,7 +28,7 @@ namespace CyBF.BFIL
             _referenceOrder.Add(variable);
         }
 
-        public void AddReserved(Variable variable)
+        public void RegisterWithoutReference(Variable variable)
         {
             _variables[variable.Name] = variable;
         }

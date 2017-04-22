@@ -9,19 +9,20 @@ namespace CyBF.Parsing
     {
         private Scanner _scanner;
 
-        private const string _charSubPattern = @"(?:[^""'\\]|\\[0abtnvfr""'\\]|\\x[0-9A-F][0-9A-F])";
+        private const string _charSubPattern = @"(?:[^'\\]|\\[0abtnvfr""'\\]|\\x[0-9A-F][0-9A-F])";
+        private const string _stringSubPattern = @"(?:[^""\\]|\\[0abtnvfr""'\\]|\\x[0-9A-F][0-9A-F])";
         private const string _operatorCharacters = @"!@#$%^&*-+=|\<>?/";
         private const string _commandCharacters = @"+-[]<>,.@:#()*{}";
 
-        private Regex _identifierRegex = new Regex(@"[a-zA-Z_][a-zA-Z0-9_]*");
-        private Regex _decimalRegex = new Regex(@"[0-9]+");
-        private Regex _charRegex = new Regex("\'" + _charSubPattern + "\'");
-        private Regex _stringRegex = new Regex("\"" + _charSubPattern + "*\"");
-        private Regex _operatorRegex = new Regex(@"[!@#$%^&*-+=|\\<>?/]+");
-        private Regex _commandRegex = new Regex(@"[+-\[\]<>,.@:#()*{}]");
-        private Regex _delimiterRegex = new Regex(@"[;:,.(){}\[\]]");
+        private Regex _identifierRegex = new Regex(@"\G[a-zA-Z_][a-zA-Z0-9_]*");
+        private Regex _decimalRegex = new Regex(@"\G[0-9]+");
+        private Regex _charRegex = new Regex(@"\G'" + _charSubPattern + @"'");
+        private Regex _stringRegex = new Regex(@"\G""" + _stringSubPattern + @"*""");
+        private Regex _operatorRegex = new Regex(@"\G[!@#$%^&*-+=|\\<>?/]+");
+        private Regex _commandRegex = new Regex(@"\G[+-\[\]<>,.@:#()*{}]");
+        private Regex _delimiterRegex = new Regex(@"\G[;:,.(){}\[\]]");
         
-        private Regex _whitespaceRegex = new Regex(@"\s*(?:`[^\n]*\s*)*");
+        private Regex _whitespaceRegex = new Regex(@"\G\s*(?:`[^\n]*\s*)*");
 
         private Dictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>
         {

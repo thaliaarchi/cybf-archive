@@ -18,6 +18,7 @@ namespace CyBF.BFIL
         {
             foreach (byte b in this.Data)
             {
+                bfoutput.Append("[-]");
                 bfoutput.Append(new string('+', b));
                 bfoutput.Append(">");
             }

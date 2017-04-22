@@ -36,22 +36,22 @@ namespace CyBF
             }
             catch(LexicalError ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.Message);
                 Console.ReadKey();
             }
             catch(SyntaxError ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.Message);
                 Console.ReadKey();
             }
             catch (BFILProgramError ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.Message);
                 Console.ReadKey();
             }
             catch (BFProgramError ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.Message);
                 Console.ReadKey();
             }
         }

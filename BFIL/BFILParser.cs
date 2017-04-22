@@ -106,6 +106,10 @@ namespace CyBF.BFIL
             {
                 _parser.Match(TokenType.Colon);
                 Token size = _parser.Match(TokenType.Numeric);
+
+                if (size.NumericValue <= 0)
+                    throw new BFILProgramError(reference, "Invalid declared variable size.");
+
                 return new BFILDeclarationStatement(reference, identifier.Value, size.NumericValue);
             }
         }
