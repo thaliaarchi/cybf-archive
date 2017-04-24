@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CyBF.BFC.Compilation
+namespace CyBF.BFC.Model
 {
     public class SemanticError : Exception
     {
@@ -34,6 +34,11 @@ namespace CyBF.BFC.Compilation
             }
 
             _message = builder.ToString();
+        }
+
+        public SemanticError(string message, params Token[] tokens)
+            : this(message, (IEnumerable<Token>) tokens)
+        {
         }
     }
 }

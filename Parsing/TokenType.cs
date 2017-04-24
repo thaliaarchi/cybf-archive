@@ -31,7 +31,6 @@ namespace CyBF.Parsing
         Asterisk,
 
         Keyword_Module,
-        Keyword_Import,
         Keyword_Struct,
         Keyword_Def,
         Keyword_Var,

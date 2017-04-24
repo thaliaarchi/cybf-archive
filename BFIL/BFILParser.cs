@@ -22,8 +22,9 @@ namespace CyBF.BFIL
 
         public BFILParser(string code, string source)
         {
-            Lexer lexer = new Lexer(code, source);
+            Lexer lexer = new Lexer();
 
+            lexer.SetInput(code, source);
             lexer.Mode = Lexer.LexerMode.Command;
             lexer.LockMode = true;
 

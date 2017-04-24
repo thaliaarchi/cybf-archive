@@ -27,7 +27,6 @@ namespace CyBF.Parsing
         private Dictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>
         {
             {"module", TokenType.Keyword_Module },
-            {"import", TokenType.Keyword_Import },
             {"struct", TokenType.Keyword_Struct },
             {"def", TokenType.Keyword_Def },
             {"var", TokenType.Keyword_Var },
@@ -110,9 +109,9 @@ namespace CyBF.Parsing
             }
         }
 
-        public Lexer(string code, string source)
+        public Lexer()
         {
-            _scanner = new Scanner(code, source);
+            _scanner = new Scanner(string.Empty, string.Empty);
 
             _nextTokenizer = new Dictionary<char, Func<Token>>();
             _nextCommandTokenizer = new Dictionary<char, Func<Token>>();
@@ -169,6 +168,11 @@ namespace CyBF.Parsing
 
             this.LockMode = false;
             this.Mode = LexerMode.Normal;
+        }
+
+        public void SetInput(string code, string source)
+        {
+            _scanner = new Scanner(code, source);
         }
 
         public List<Token> GetAllTokens(bool removeWhitespace = true)
