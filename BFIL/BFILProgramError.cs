@@ -1,9 +1,10 @@
 ﻿using CyBF.Parsing;
+using CyBF.Utility;
 using System;
 
 namespace CyBF.BFIL
 {
-    public class BFILProgramError : Exception
+    public class BFILProgramError : CyBFException
     {
         private string _message;
 

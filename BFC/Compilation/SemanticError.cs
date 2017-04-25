@@ -1,11 +1,12 @@
 ﻿using CyBF.Parsing;
+using CyBF.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CyBF.BFC.Model
+namespace CyBF.BFC.Compilation
 {
-    public class SemanticError : Exception
+    public class SemanticError : CyBFException
     {
         private string _message;
 

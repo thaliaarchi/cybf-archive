@@ -1,8 +1,9 @@
-﻿using CyBF.Parsing;
+﻿using CyBF.BFC.Model;
+using CyBF.Parsing;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CyBF.BFC.Model.Modules
+namespace CyBF.BFC.Compilation
 {
     public class Module
     {

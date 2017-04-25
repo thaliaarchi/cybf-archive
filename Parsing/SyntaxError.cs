@@ -1,8 +1,9 @@
-﻿using System;
+﻿using CyBF.Utility;
+using System;
 
 namespace CyBF.Parsing
 {
-    public class SyntaxError : Exception
+    public class SyntaxError : CyBFException
     {
         private string _message;
 

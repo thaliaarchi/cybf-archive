@@ -44,17 +44,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BFC\Compilation\BFCompiler.cs" />
-    <Compile Include="BFC\Model\Modules\Module.cs" />
-    <Compile Include="BFC\Model\SemanticError.cs" />
+    <Compile Include="BFC\Compilation\ModelBuilder.cs" />
+    <Compile Include="BFC\Compilation\Module.cs" />
+    <Compile Include="BFC\Compilation\SemanticError.cs" />
     <Compile Include="BFC\Model\Addressing\AddressOffset.cs" />
     <Compile Include="BFC\Model\Addressing\FunctionalAddressOffset.cs" />
     <Compile Include="BFC\Model\Addressing\NumericAddressOffset.cs" />
     <Compile Include="BFC\Model\BFObject.cs" />
-    <Compile Include="BFC\Model\DefinitionLibrary.cs" />
+    <Compile Include="BFC\Compilation\DefinitionLibrary.cs" />
     <Compile Include="BFC\Model\Functions\FunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\FunctionParameter.cs" />
     <Compile Include="BFC\Model\Functions\ProcedureDefinition.cs" />
-    <Compile Include="BFC\Model\Modules\ModuleLibrary.cs" />
+    <Compile Include="BFC\Compilation\ModuleLibrary.cs" />
     <Compile Include="BFC\Model\Statements\CommandStatement.cs" />
     <Compile Include="BFC\Model\Statements\Commands\Command.cs" />
     <Compile Include="BFC\Model\Statements\Commands\LoopCommand.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\AsciiConsoleStream.cs" />
+    <Compile Include="Utility\CyBFException.cs" />
     <Compile Include="Utility\DefaultDictionary.cs" />
     <Compile Include="Utility\Extensions.cs" />
   </ItemGroup>

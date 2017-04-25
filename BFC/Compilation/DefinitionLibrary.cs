@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CyBF.BFC.Model
+namespace CyBF.BFC.Compilation
 {
     public class DefinitionLibrary
     {
