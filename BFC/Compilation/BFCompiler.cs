@@ -18,6 +18,7 @@ namespace CyBF.BFC.Compilation
         private DefinitionLibrary _definitions = new DefinitionLibrary();
         private Stack<Token> _trace = new Stack<Token>();
         private int _allocationId = 0;
+        private int _variableId = 0;
 
         public bool Verbose { get; set; }
 
@@ -78,6 +79,11 @@ namespace CyBF.BFC.Compilation
         public string NewAllocationId(string prefix)
         {
             return prefix + (_allocationId++).ToString();
+        }
+
+        public Variable NewVariable()
+        {
+            return new Variable("v" + _variableId.ToString() + "_");
         }
 
         public void RaiseSemanticError(string message)

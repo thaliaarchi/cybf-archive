@@ -47,6 +47,8 @@
     <Compile Include="BFC\Compilation\ModelBuilder.cs" />
     <Compile Include="BFC\Compilation\Module.cs" />
     <Compile Include="BFC\Compilation\SemanticError.cs" />
+    <Compile Include="BFC\Compilation\SymbolTable.cs" />
+    <Compile Include="BFC\Compilation\SymbolTableFrame.cs" />
     <Compile Include="BFC\Model\Addressing\AddressOffset.cs" />
     <Compile Include="BFC\Model\Addressing\FunctionalAddressOffset.cs" />
     <Compile Include="BFC\Model\Addressing\NumericAddressOffset.cs" />
@@ -56,7 +58,7 @@
     <Compile Include="BFC\Model\Functions\FunctionParameter.cs" />
     <Compile Include="BFC\Model\Functions\ProcedureDefinition.cs" />
     <Compile Include="BFC\Compilation\ModuleLibrary.cs" />
-    <Compile Include="BFC\Model\Statements\CommandStatement.cs" />
+    <Compile Include="BFC\Model\Statements\CommandBlockStatement.cs" />
     <Compile Include="BFC\Model\Statements\Commands\Command.cs" />
     <Compile Include="BFC\Model\Statements\Commands\LoopCommand.cs" />
     <Compile Include="BFC\Model\Statements\Commands\OperatorStringCommand.cs" />

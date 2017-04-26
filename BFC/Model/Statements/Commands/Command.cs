@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CyBF.BFC.Compilation;
 
 namespace CyBF.BFC.Model.Statements.Commands
 {
-    class Command
+    public abstract class Command
     {
+        public abstract void Compile(BFCompiler compiler);
     }
 }
