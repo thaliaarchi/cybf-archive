@@ -69,9 +69,9 @@ namespace CyBF.BFC.Compilation
                 parser.Matches(TokenType.CloseParen);
             }
 
-            Module module = new Module(reference, name.Value, tokens);
+            Module module = new Module(reference, name.ProcessedValue, tokens);
 
-            this.Add(module, dependencies.Select(t => t.Value));
+            this.Add(module, dependencies.Select(t => t.ProcessedValue));
         }
 
         public void AddFromFile(string path)

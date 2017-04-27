@@ -25,7 +25,7 @@ namespace CyBF.BFC.Model.Statements
             int size = this.DataType.Value.Size();
 
             if (size > 0)
-                compiler.WriteLine("@" + allocationId + ":" + size.ToString());
+                compiler.Write("@" + allocationId + ":" + size.ToString());
         }
     }
 }

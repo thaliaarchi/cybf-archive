@@ -48,30 +48,5 @@ namespace CyBF.Parsing
 
             return types.Contains(token.TokenType);
         }
-
-        public List<T> ParseDelimitedList<T>(TokenType delimiter, Func<T> parsefn)
-        {
-            List<T> result = new List<T>();
-
-            result.Add(parsefn());
-
-            while (this.Matches(delimiter))
-            {
-                this.Next();
-                result.Add(parsefn());
-            }
-
-            return result;
-        }
-
-        public List<T> ParseTerminatedList<T>(TokenType terminator, Func<T> parsefn)
-        {
-            List<T> result = new List<T>();
-
-            while (!this.Matches(terminator))
-                result.Add(parsefn());
-
-            return result;
-        }
     }
 }

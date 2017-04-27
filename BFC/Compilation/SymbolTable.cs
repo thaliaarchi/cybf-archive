@@ -26,7 +26,7 @@ namespace CyBF.BFC.Compilation
         public void Pop()
         {
             if (_frames.Parent == null)
-                throw new InvalidOperationException("Attempted to pop top-level SymbolTableFrame.");
+                throw new InvalidOperationException("Attempted to pop top-level symbol table frame.");
 
             _frames = _frames.Parent;
         }

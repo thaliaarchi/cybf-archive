@@ -8,7 +8,7 @@ namespace CyBF.BFC.Compilation
         private Dictionary<string, Variable> _variables;
 
         public SymbolTableFrame Parent { get; private set; }
-
+        
         public Variable this[string name]
         {
             get

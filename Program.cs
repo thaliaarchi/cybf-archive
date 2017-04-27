@@ -15,6 +15,9 @@ namespace CyBF
     {
         static void Main(string[] args)
         {
+            Stack<int> x = new Stack<int>();
+            x.Pop();
+            Console.ReadKey();
         }
     }
 }

@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BFC\Compilation\BFCompiler.cs" />
+    <Compile Include="BFC\Compilation\Environment.cs" />
     <Compile Include="BFC\Compilation\ModelBuilder.cs" />
     <Compile Include="BFC\Compilation\Module.cs" />
     <Compile Include="BFC\Compilation\SemanticError.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="BFC\Model\Addressing\NumericAddressOffset.cs" />
     <Compile Include="BFC\Model\BFObject.cs" />
     <Compile Include="BFC\Compilation\DefinitionLibrary.cs" />
+    <Compile Include="BFC\Model\CyBFString.cs" />
     <Compile Include="BFC\Model\Functions\FunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\FunctionParameter.cs" />
     <Compile Include="BFC\Model\Functions\ProcedureDefinition.cs" />
@@ -65,6 +67,7 @@
     <Compile Include="BFC\Model\Statements\Commands\RepeatCommand.cs" />
     <Compile Include="BFC\Model\Statements\Commands\VariableReferenceCommand.cs" />
     <Compile Include="BFC\Model\Statements\Commands\WriteCommand.cs" />
+    <Compile Include="BFC\Model\Statements\ConstStatement.cs" />
     <Compile Include="BFC\Model\Statements\FunctionCallStatement.cs" />
     <Compile Include="BFC\Model\Statements\Statement.cs" />
     <Compile Include="BFC\Model\Statements\TypeConstructionStatement.cs" />
@@ -78,6 +81,8 @@
     <Compile Include="BFC\Model\Types\ConstrainedTypeParameter.cs" />
     <Compile Include="BFC\Model\Types\FieldDefinition.cs" />
     <Compile Include="BFC\Model\Types\FieldInstance.cs" />
+    <Compile Include="BFC\Model\Types\StringDefinition.cs" />
+    <Compile Include="BFC\Model\Types\StringInstance.cs" />
     <Compile Include="BFC\Model\Types\StructDefinition.cs" />
     <Compile Include="BFC\Model\Types\StructInstance.cs" />
     <Compile Include="BFC\Model\Types\TypeConstraint.cs" />
@@ -123,6 +128,7 @@
     <Compile Include="Utility\CyBFException.cs" />
     <Compile Include="Utility\DefaultDictionary.cs" />
     <Compile Include="Utility\Extensions.cs" />
+    <Compile Include="Utility\StackedDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -195,7 +195,7 @@ namespace CyBF.Parsing
                 t = this.Next();
             }
 
-            tokens.Add(new Token(_scanner.GetPositionInfo(), TokenType.EndOfSource, string.Empty, 0));
+            tokens.Add(new Token(_scanner.GetPositionInfo(), TokenType.EndOfSource, string.Empty, string.Empty, 0));
 
             return tokens;
         }
@@ -357,12 +357,12 @@ namespace CyBF.Parsing
         {
             PositionInfo currentPosition = _scanner.GetPositionInfo();
 
-            string value;
+            string rawValue;
 
-            if (_scanner.ReadPattern(pattern, out value))
+            if (_scanner.ReadPattern(pattern, out rawValue))
             {
-                value = processValue(value);
-                return new Token(currentPosition, getTokenType(value), value, getNumericValue(value));
+                string processedValue = processValue(rawValue);
+                return new Token(currentPosition, getTokenType(rawValue), rawValue, processedValue, getNumericValue(rawValue));
             }
             else
             {

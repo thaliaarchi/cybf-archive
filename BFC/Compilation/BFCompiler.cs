@@ -15,10 +15,10 @@ namespace CyBF.BFC.Compilation
     public class BFCompiler
     {
         private StringBuilder _compiledCode = new StringBuilder();
+        private Dictionary<int, CyBFString> _cachedStringLiterals = new Dictionary<int, CyBFString>();
         private DefinitionLibrary _definitions = new DefinitionLibrary();
         private Stack<Token> _trace = new Stack<Token>();
-        private int _allocationId = 0;
-        private int _variableId = 0;
+        private int _allocationAutonum = 1;
 
         public bool Verbose { get; set; }
 
@@ -35,6 +35,11 @@ namespace CyBF.BFC.Compilation
         public void WriteLine(string code)
         {
             _compiledCode.AppendLine(code);
+        }
+
+        public void WriteLine()
+        {
+            _compiledCode.AppendLine();
         }
 
         public void WriteComments(string comments)
@@ -78,12 +83,17 @@ namespace CyBF.BFC.Compilation
 
         public string NewAllocationId(string prefix)
         {
-            return prefix + (_allocationId++).ToString();
+            return prefix + "_" + (_allocationAutonum++).ToString();
+        }
+        
+        public bool ContainsCachedString(int id)
+        {
+            return _cachedStringLiterals.ContainsKey(id);
         }
 
-        public Variable NewVariable()
+        public CyBFString GetCachedString(int id)
         {
-            return new Variable("v" + _variableId.ToString() + "_");
+            return _cachedStringLiterals[id];
         }
 
         public void RaiseSemanticError(string message)

@@ -1,12 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CyBF.BFC.Compilation;
+using CyBF.Parsing;
 
 namespace CyBF.BFC.Model.Statements.Commands
 {
-    class OperatorStringCommand
+    public class OperatorStringCommand : Command
     {
+        public string Operators { get; private set; }
+
+        public OperatorStringCommand(Token reference, string operators) 
+            : base(reference)
+        {
+            this.Operators = operators;
+        }
+
+        public override void Compile(BFCompiler compiler)
+        {
+            compiler.Write(this.Operators);
+        }
     }
 }

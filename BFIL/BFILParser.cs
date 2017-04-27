@@ -79,12 +79,12 @@ namespace CyBF.BFIL
             StringBuilder commandString = new StringBuilder();
 
             Token reference = _parser.Match(_commandTokenTypes);
-            commandString.Append(reference.Value);
+            commandString.Append(reference.ProcessedValue);
 
             while(_parser.Matches(_commandTokenTypes) && 
                 reference.PositionInfo.LineNumber == _parser.Current.PositionInfo.LineNumber)
             {
-                commandString.Append(_parser.Current.Value);
+                commandString.Append(_parser.Current.ProcessedValue);
                 _parser.Next();
             }
 
@@ -101,7 +101,7 @@ namespace CyBF.BFIL
                 _parser.Next();
                 List<Token> dataTokens = ParseDataTokens();
                 List<byte> bytes = ConvertDataTokensToBytes(dataTokens);
-                return new BFILDeclarationStatement(reference, identifier.Value, bytes);
+                return new BFILDeclarationStatement(reference, identifier.ProcessedValue, bytes);
             }
             else
             {
@@ -111,14 +111,14 @@ namespace CyBF.BFIL
                 if (size.NumericValue <= 0)
                     throw new BFILProgramError(reference, "Invalid declared variable size.");
 
-                return new BFILDeclarationStatement(reference, identifier.Value, size.NumericValue);
+                return new BFILDeclarationStatement(reference, identifier.ProcessedValue, size.NumericValue);
             }
         }
 
         public BFILReferenceStatement ParseReferenceStatement()
         {
             Token identifier = _parser.Match(TokenType.Identifier);
-            return new BFILReferenceStatement(identifier, identifier.Value);
+            return new BFILReferenceStatement(identifier, identifier.ProcessedValue);
         }
 
         public BFILWriteStatement ParseWriteStatement()
@@ -174,7 +174,7 @@ namespace CyBF.BFIL
 
                     try
                     {
-                        data.AddRange(Encoding.UTF8.GetBytes(token.Value));
+                        data.AddRange(Encoding.UTF8.GetBytes(token.ProcessedValue));
                     }
                     catch (EncoderFallbackException)
                     {
