@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using CyBF.Parsing;
 
 namespace CyBF.BFIL
@@ -29,6 +31,16 @@ namespace CyBF.BFIL
 
             if (startingAddress != endingAddress)
                 throw new BFILProgramError(this.ReferenceToken, "Loop does not end on starting variable.");
+        }
+
+        public override void PrintDebugSource(StringBuilder output, ReferenceTable variables, int indent)
+        {
+            output.AppendLine(new string('\t', indent) + "[");
+
+            foreach (BFILStatement statement in this.Body)
+                statement.PrintDebugSource(output, variables, indent + 1);
+
+            output.AppendLine(new string('\t', indent) + "]");
         }
     }
 }

@@ -48,8 +48,6 @@
     <Compile Include="BFC\Compilation\ModelBuilder.cs" />
     <Compile Include="BFC\Compilation\Module.cs" />
     <Compile Include="BFC\Compilation\SemanticError.cs" />
-    <Compile Include="BFC\Compilation\SymbolTable.cs" />
-    <Compile Include="BFC\Compilation\SymbolTableFrame.cs" />
     <Compile Include="BFC\Model\Addressing\AddressOffset.cs" />
     <Compile Include="BFC\Model\Addressing\FunctionalAddressOffset.cs" />
     <Compile Include="BFC\Model\Addressing\NumericAddressOffset.cs" />
@@ -70,6 +68,7 @@
     <Compile Include="BFC\Model\Statements\ConstStatement.cs" />
     <Compile Include="BFC\Model\Statements\FunctionCallStatement.cs" />
     <Compile Include="BFC\Model\Statements\Statement.cs" />
+    <Compile Include="BFC\Model\Statements\StringStatement.cs" />
     <Compile Include="BFC\Model\Statements\TypeConstructionStatement.cs" />
     <Compile Include="BFC\Model\Statements\VariableDeclarationStatement.cs" />
     <Compile Include="BFC\Model\Types\ArrayDefinition.cs" />

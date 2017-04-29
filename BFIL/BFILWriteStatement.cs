@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using CyBF.Parsing;
 
 namespace CyBF.BFIL
@@ -12,6 +14,9 @@ namespace CyBF.BFIL
             : base(reference)
         {
             this.Data = data.ToList().AsReadOnly();
+
+            if (this.Data.Count == 0)
+                throw new BFILProgramError(reference, "Empty write statement.");
         }
 
         public override void Compile(BFStringBuilder bfoutput, ReferenceTable variables, ref int currentAddress)
@@ -24,6 +29,16 @@ namespace CyBF.BFIL
             }
 
             bfoutput.Append(new string('<', this.Data.Count));
+        }
+
+        public override void PrintDebugSource(StringBuilder output, ReferenceTable variables, int indent)
+        {
+            output.Append(new string('\t', indent) + "# ");
+
+            if (this.Data.Count > 1)
+                output.AppendLine("(" + string.Join(", ", this.Data) + ")");
+            else
+                output.AppendLine(this.Data[0].ToString());
         }
     }
 }

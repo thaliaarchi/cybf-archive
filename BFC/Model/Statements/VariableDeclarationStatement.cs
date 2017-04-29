@@ -19,13 +19,13 @@ namespace CyBF.BFC.Model.Statements
 
         public override void Compile(BFCompiler compiler)
         {
-            string allocationId = compiler.NewAllocationId(this.Variable.Name);
-            this.Variable.Value = new BFObject(this.DataType.Value, allocationId, new AddressOffset[] { });
+            BFObject bfobj = new BFObject(this.DataType.Value, this.Variable.Name);
+            this.Variable.Value = bfobj;
 
             int size = this.DataType.Value.Size();
 
             if (size > 0)
-                compiler.Write("@" + allocationId + ":" + size.ToString());
+                compiler.Write("@" + bfobj.AllocationId + ":" + size.ToString());
         }
     }
 }

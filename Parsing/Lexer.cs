@@ -362,7 +362,7 @@ namespace CyBF.Parsing
             if (_scanner.ReadPattern(pattern, out rawValue))
             {
                 string processedValue = processValue(rawValue);
-                return new Token(currentPosition, getTokenType(rawValue), rawValue, processedValue, getNumericValue(rawValue));
+                return new Token(currentPosition, getTokenType(processedValue), rawValue, processedValue, getNumericValue(processedValue));
             }
             else
             {

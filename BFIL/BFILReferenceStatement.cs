@@ -1,4 +1,6 @@
-﻿using CyBF.Parsing;
+﻿using System;
+using System.Text;
+using CyBF.Parsing;
 
 namespace CyBF.BFIL
 {
@@ -22,6 +24,18 @@ namespace CyBF.BFIL
                 bfoutput.Append(new string('>', variable.Address - currentAddress));
 
             currentAddress = variable.Address;
+        }
+
+        public override void PrintDebugSource(StringBuilder output, ReferenceTable variables, int indent)
+        {
+            output.Append(new string('\t', indent));
+
+            string debugName = this.Name;
+
+            if (variables.Contains(this.Name))
+                debugName = variables[this.Name].DebugName;
+
+            output.AppendLine(debugName);
         }
     }
 }

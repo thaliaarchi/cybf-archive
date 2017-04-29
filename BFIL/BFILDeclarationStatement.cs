@@ -1,6 +1,8 @@
 ﻿using CyBF.Parsing;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using System.Text;
 
 namespace CyBF.BFIL
 {
@@ -13,7 +15,7 @@ namespace CyBF.BFIL
         private BFILReferenceStatement _variableReference;
         private BFILWriteStatement _variableWrite;
 
-        public BFILDeclarationStatement(Token reference, string name, int size) 
+        public BFILDeclarationStatement(Token reference, string name, int size)
             : base(reference)
         {
             this.Name = name;
@@ -39,6 +41,21 @@ namespace CyBF.BFIL
         {
             _variableReference.Compile(bfoutput, variables, ref currentAddress);
             _variableWrite.Compile(bfoutput, variables, ref currentAddress);
+        }
+
+        public override void PrintDebugSource(StringBuilder output, ReferenceTable variables, int indent)
+        {
+            output.Append(new string('\t', indent));
+
+            string debugName = this.Name;
+
+            if (variables.Contains(this.Name))
+                debugName = variables[this.Name].DebugName;
+
+            if (this.Data.Count == 0)
+                output.AppendLine("@" + debugName + ":" + this.Size.ToString());
+            else
+                output.AppendLine("@" + debugName + "#(" + string.Join(", ", this.Data) + ")");
         }
     }
 }

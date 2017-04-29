@@ -1,19 +1,32 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace CyBF.BFIL
 {
     public class BFILAssembler
     {
-        public string AssembleProgram(BFILProgram program)
+        public string AssembleProgram(BFILProgram program, out string debuggingSource)
         {
             BFStringBuilder bfoutput = new BFStringBuilder();
+            StringBuilder debugOutput = new StringBuilder();
             ReferenceTable variables = ProcessProgramVariables(program);
+
             int currentAddress = 0;
 
             foreach (BFILStatement statement in program.Statements)
+            {
+                statement.PrintDebugSource(debugOutput, variables, 0);
                 statement.Compile(bfoutput, variables, ref currentAddress);
+            }
 
+            debuggingSource = debugOutput.ToString();
             return bfoutput.ToString();
+        }
+
+        public string AssembleProgram(BFILProgram program)
+        {
+            string debuggingSource;
+            return AssembleProgram(program, out debuggingSource);
         }
 
         public ReferenceTable ProcessProgramVariables(BFILProgram program)

@@ -14,46 +14,22 @@ namespace CyBF.BFC.Compilation
 {
     public class BFCompiler
     {
-        private StringBuilder _compiledCode = new StringBuilder();
-        private Dictionary<int, CyBFString> _cachedStringLiterals = new Dictionary<int, CyBFString>();
         private DefinitionLibrary _definitions = new DefinitionLibrary();
+
+        private StringBuilder _compiledCode = new StringBuilder();
         private Stack<Token> _trace = new Stack<Token>();
-        private int _allocationAutonum = 1;
 
-        public bool Verbose { get; set; }
+        private int _cachedStringAutonum = 0;
+        private Dictionary<int, CyBFString> _cachedStringLiterals = new Dictionary<int, CyBFString>();
 
-        public BFCompiler()
+        public BFCompiler(DefinitionLibrary library)
         {
-            this.Verbose = false;
+            _definitions = library;
         }
 
         public void Write(string code)
         {
             _compiledCode.Append(code);
-        }
-
-        public void WriteLine(string code)
-        {
-            _compiledCode.AppendLine(code);
-        }
-
-        public void WriteLine()
-        {
-            _compiledCode.AppendLine();
-        }
-
-        public void WriteComments(string comments)
-        {
-            if (this.Verbose)
-            {
-                using (var reader = new StringReader(comments))
-                {
-                    string line;
-
-                    while ((line = reader.ReadLine()) != null)
-                        this.WriteLine("`" + line);
-                }
-            }
         }
 
         public string GetCode()
@@ -70,7 +46,7 @@ namespace CyBF.BFC.Compilation
         {
             _trace.Pop();
         }
-        
+
         public List<FunctionDefinition> MatchFunction(string name, IEnumerable<TypeInstance> arguments)
         {
             return _definitions.MatchFunction(name, arguments);
@@ -79,11 +55,6 @@ namespace CyBF.BFC.Compilation
         public List<TypeDefinition> MatchType(string name, IEnumerable<TypeInstance> arguments)
         {
             return _definitions.MatchType(name, arguments);
-        }
-
-        public string NewAllocationId(string prefix)
-        {
-            return prefix + "_" + (_allocationAutonum++).ToString();
         }
         
         public bool ContainsCachedString(int id)
@@ -94,6 +65,13 @@ namespace CyBF.BFC.Compilation
         public CyBFString GetCachedString(int id)
         {
             return _cachedStringLiterals[id];
+        }
+
+        public int CacheString(CyBFString value)
+        {
+            int id = _cachedStringAutonum++;
+            _cachedStringLiterals[id] = value;
+            return id;
         }
 
         public void RaiseSemanticError(string message)

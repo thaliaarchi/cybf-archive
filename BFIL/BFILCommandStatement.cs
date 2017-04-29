@@ -1,4 +1,5 @@
-﻿using CyBF.Parsing;
+﻿using System.Text;
+using CyBF.Parsing;
 
 namespace CyBF.BFIL
 {
@@ -15,6 +16,11 @@ namespace CyBF.BFIL
         public override void Compile(BFStringBuilder bfoutput, ReferenceTable variables, ref int currentAddress)
         {
             bfoutput.Append(this.Commands);
+        }
+
+        public override void PrintDebugSource(StringBuilder output, ReferenceTable variables, int indent)
+        {
+            output.AppendLine(new string('\t', indent) + this.Commands);
         }
     }
 }

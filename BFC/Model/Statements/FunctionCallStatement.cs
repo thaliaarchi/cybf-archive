@@ -28,8 +28,6 @@ namespace CyBF.BFC.Model.Statements
         {
             compiler.TracePush(this.Reference);
 
-            string signature = this.BuildSignature();
-
             List<FunctionDefinition> matches = compiler.MatchFunction(this.FunctionName, this.Arguments.Select(v => v.Value.DataType));
 
             if (matches.Count == 0)
@@ -48,12 +46,11 @@ namespace CyBF.BFC.Model.Statements
                 foreach (ProcedureDefinition proc in procedures)
                     references.Add(proc.Reference);
 
+                string signature = this.BuildSignature();
                 throw new SemanticError("Ambiguous function call: " + signature, references);
             }
 
             FunctionDefinition definition = matches.Single();
-
-            compiler.WriteComments(signature);
             definition.Compile(compiler, this.Arguments.Select(v => v.Value));
 
             this.ReturnValue.Value = definition.ReturnValue.Value;

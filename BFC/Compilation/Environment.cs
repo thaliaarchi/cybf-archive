@@ -12,13 +12,41 @@ namespace CyBF.BFC.Compilation
         private Stack<List<Statement>> _statementStack;
         private List<Statement> _currentStatements;
 
+        public IReadOnlyList<Statement> CurrentStatements
+        {
+            get
+            {
+                return _currentStatements.AsReadOnly();
+            }
+        }
+
         public Environment()
         {
             _symbolTable = new StackedDictionary<string, Variable>();
             _statementStack = new Stack<List<Statement>>();
             _currentStatements = new List<Statement>();
         }
-        
+
+        public void Define(Variable variable)
+        {
+            _symbolTable[variable.Name] = variable;
+        }
+
+        public bool Defines(string variableName)
+        {
+            return _symbolTable.ContainsKey(variableName);
+        }
+
+        public Variable Lookup(string variableName)
+        {
+            return _symbolTable[variableName];
+        }
+
+        public bool TryLookup(string variableName, out Variable variable)
+        {
+            return _symbolTable.TryGetValue(variableName, out variable);
+        }
+
         public void Append(Statement statement)
         {
             _currentStatements.Add(statement);

@@ -44,6 +44,10 @@ namespace CyBF.BFC.Model.Statements.Commands
                     throw new SemanticError("Invalid variable type for write operation.", this.Reference);
                 }
             }
+
+            compiler.Write("#(");
+            compiler.Write(string.Join(", ", writeArguments));
+            compiler.Write(")");
         }
     }
 }
