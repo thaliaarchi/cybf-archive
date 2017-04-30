@@ -14,20 +14,30 @@ namespace CyBF.BFC.Model.Functions
     public abstract class FunctionDefinition
     {
         public string Name { get; private set; }
-        public IReadOnlyList<FunctionParameter> Parameters { get; private set; }
         public Variable ReturnValue { get; private set; }
+        public IReadOnlyList<FunctionParameter> Parameters { get; private set; }
 
-        public FunctionDefinition(string name, IEnumerable<FunctionParameter> parameters, Variable returnValue)
+        public FunctionDefinition(string name, Variable returnValue, IEnumerable<FunctionParameter> parameters)
         {
             this.Name = name;
-            this.Parameters = parameters.ToList().AsReadOnly();
             this.ReturnValue = returnValue;
+            this.Parameters = parameters.ToList().AsReadOnly();
+        }
+
+        public FunctionDefinition(string name, params TypeConstraint[] constraints)
+        {
+            this.Name = name;
+            this.ReturnValue = new Variable();
+            this.Parameters = constraints.Select(c => new FunctionParameter(c)).ToList().AsReadOnly();
         }
 
         public bool Match(string functionName, IEnumerable<TypeInstance> argumentTypes)
         {
             if (this.Name != functionName)
                 return false;
+
+            foreach (FunctionParameter parameter in this.Parameters)
+                parameter.TypeParameter.Reset();
 
             return this.Parameters.MatchSequence(argumentTypes, (p, a) => p.TypeParameter.Match(a));
         }

@@ -5,7 +5,7 @@
         public int Value { get; private set; }
 
         public ConstInstance(int value)
-            : base(ConstDefinition.StaticName, new TypeInstance[] { }, new FieldInstance[] { })
+            : base(ConstDefinition.StaticName)
         {
             this.Value = value;
         }

@@ -8,9 +8,7 @@ namespace CyBF.BFC.Model.Types
         public const string StaticName = "Byte";
 
         public ByteDefinition()
-            : base(
-                new TypeConstraint(StaticName, new TypeParameter[] { }), 
-                new Variable[] { })
+            : base(new TypeConstraint(StaticName))
         {
         }
 

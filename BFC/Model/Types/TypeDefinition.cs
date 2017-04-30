@@ -10,10 +10,21 @@ namespace CyBF.BFC.Model.Types
         public string TypeName { get { return this.Constraint.TypeName; } }
         public IReadOnlyList<Variable> Parameters { get; private set; }
         
+        public TypeDefinition(TypeConstraint constraint)
+        {
+            this.Constraint = constraint;
+            this.Parameters = new List<Variable>(0).AsReadOnly();
+        }
+
         public TypeDefinition(TypeConstraint constraint, IEnumerable<Variable> parameters)
         {
             this.Constraint = constraint;
             this.Parameters = parameters.ToList().AsReadOnly();
+        }
+
+        public TypeDefinition(TypeConstraint constraint, params Variable[] parameters)
+            : this(constraint, (IEnumerable<Variable>)parameters)
+        {
         }
 
         public bool Match(TypeInstance instance)

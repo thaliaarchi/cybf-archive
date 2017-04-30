@@ -54,6 +54,7 @@
     <Compile Include="BFC\Model\BFObject.cs" />
     <Compile Include="BFC\Compilation\DefinitionLibrary.cs" />
     <Compile Include="BFC\Model\CyBFString.cs" />
+    <Compile Include="BFC\Model\Functions\ConstAddOperatorDefinition.cs" />
     <Compile Include="BFC\Model\Functions\FunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\FunctionParameter.cs" />
     <Compile Include="BFC\Model\Functions\ProcedureDefinition.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="BFC\Model\Statements\Statement.cs" />
     <Compile Include="BFC\Model\Statements\StringStatement.cs" />
     <Compile Include="BFC\Model\Statements\TypeConstructionStatement.cs" />
+    <Compile Include="BFC\Model\Statements\VariableAssignmentStatement.cs" />
     <Compile Include="BFC\Model\Statements\VariableDeclarationStatement.cs" />
     <Compile Include="BFC\Model\Types\ArrayDefinition.cs" />
     <Compile Include="BFC\Model\Types\ArrayInstance.cs" />

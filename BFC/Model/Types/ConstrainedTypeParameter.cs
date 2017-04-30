@@ -4,6 +4,11 @@
     {
         public TypeConstraint Constraint { get; private set; }
 
+        public ConstrainedTypeParameter(TypeConstraint constraint)
+        {
+            this.Constraint = constraint;
+        }
+
         public ConstrainedTypeParameter(TypeVariable typeVariable, TypeConstraint constraint) 
             : base(typeVariable)
         {

@@ -4,6 +4,11 @@
     {
         public TypeVariable TypeVariable { get; private set; }
 
+        public TypeParameter()
+        {
+            this.TypeVariable = new TypeVariable();
+        }
+
         public TypeParameter(TypeVariable typeVariable)
         {
             this.TypeVariable = typeVariable;

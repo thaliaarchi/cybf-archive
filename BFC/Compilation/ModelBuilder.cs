@@ -1,7 +1,10 @@
 ﻿using CyBF.BFC.Model;
+using CyBF.BFC.Model.Functions;
 using CyBF.BFC.Model.Statements;
 using CyBF.BFC.Model.Statements.Commands;
+using CyBF.BFC.Model.Types;
 using CyBF.Parsing;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,14 +15,14 @@ namespace CyBF.BFC.Compilation
         private Parser _parser;
         private DefinitionLibrary _library;
         private Environment _environment;
-        private int _variableAutonum;
         
         public ModelBuilder(IEnumerable<Token> programTokens)
         {
             _parser = new Parser(programTokens);
             _library = new DefinitionLibrary();
             _environment = new Environment();
-            _variableAutonum = 1;
+
+            _library.DefineFunction(new ConstAddOperatorDefinition());
         }
 
         public string Compile()
@@ -30,11 +33,6 @@ namespace CyBF.BFC.Compilation
                 statement.Compile(compiler);
 
             return compiler.GetCode();
-        }
-
-        public Variable NewVariable()
-        {
-            return new Variable("var" + (_variableAutonum++).ToString());
         }
 
         public Variable LookupVariable(Token variableNameToken)
@@ -52,8 +50,36 @@ namespace CyBF.BFC.Compilation
         {
             while (!_parser.Matches(TokenType.EndOfSource))
             {
-                ParseCommandBlockStatement();
+                ParseStatement();
             }
+        }
+
+        public void ParseStatement()
+        {
+            if (_parser.Matches(TokenType.Keyword_Let))
+                ParseLetForm();
+
+            else if (_parser.Matches(TokenType.OpenBrace))
+                ParseCommandBlockStatement();
+
+            else
+                throw new NotImplementedException();    
+        }
+
+        public void ParseLetForm()
+        {
+            Token reference = _parser.Match(TokenType.Keyword_Let);
+
+            Token identifier = _parser.Match(TokenType.Identifier);
+            Variable declaredVariable = new Variable(identifier.ProcessedValue);
+            _environment.Define(declaredVariable);
+
+            _parser.Match(TokenType.Colon);
+            Variable expressionResult = ParseExpression();
+            _parser.Match(TokenType.Semicolon);
+
+            Statement statement = new VariableAssignmentStatement(reference, declaredVariable, expressionResult);
+            _environment.Append(statement);
         }
 
         public void ParseCommandBlockStatement()
@@ -136,13 +162,9 @@ namespace CyBF.BFC.Compilation
             _parser.Match(TokenType.CloseParen);
             _parser.Match(TokenType.Asterisk);
 
-            Variable counterVariable;
-
-            if (_parser.Matches(TokenType.Identifier))
-                counterVariable = LookupVariable(_parser.Next());
-            else
-                counterVariable = ParseLiteralStatement();
-
+            Variable counterVariable = _parser.Matches(TokenType.Identifier) ?
+                LookupVariable(_parser.Next()) : ParseLiteralExpression();
+            
             return new RepeatCommand(reference, commands, counterVariable);
         }
 
@@ -165,7 +187,7 @@ namespace CyBF.BFC.Compilation
                 _parser.Next();
 
             Variable variable = _parser.Matches(TokenType.Identifier) ?
-                LookupVariable(_parser.Next()) : ParseLiteralStatement();
+                LookupVariable(_parser.Next()) : ParseLiteralExpression();
 
             variables.Add(variable);
 
@@ -176,7 +198,7 @@ namespace CyBF.BFC.Compilation
                     _parser.Next();
 
                     variable = _parser.Matches(TokenType.Identifier) ?
-                        LookupVariable(_parser.Next()) : ParseLiteralStatement();
+                        LookupVariable(_parser.Next()) : ParseLiteralExpression();
 
                     variables.Add(variable);
                 }
@@ -187,21 +209,119 @@ namespace CyBF.BFC.Compilation
             return new WriteCommand(reference, variables);
         }
         
-        public Variable ParseLiteralStatement()
+        public Variable ParseExpression()
         {
-            Token reference = _parser.Match(TokenType.String, TokenType.Numeric);
-            Variable returnValue = NewVariable();
+            Variable left = ParseUnaryExpression();
+
+            if (_parser.Matches(TokenType.Operator))
+            {
+                Token operatorToken = _parser.Next();
+                Variable right = ParseExpression();
+                Variable returnValue = new Variable();
+
+                _environment.Append(
+                    new FunctionCallStatement(
+                        operatorToken,
+                        operatorToken.ProcessedValue,
+                        new Variable[] { left, right },
+                        returnValue));
+
+                return returnValue;
+            }
+
+            return left;
+        }
+
+        public Variable ParseUnaryExpression()
+        {
+            if (_parser.Matches(TokenType.Operator))
+            {
+                Token operatorToken = _parser.Next();
+                Variable argument = ParseUnaryExpression();
+                Variable returnValue = new Variable();
+
+                _environment.Append(
+                    new FunctionCallStatement(
+                        operatorToken, 
+                        operatorToken.ProcessedValue, 
+                        new Variable[] { argument }, 
+                        returnValue));
+
+                return returnValue;
+            }
+
+            return ParseAtomicExpression();
+        }
+
+        public Variable ParseAtomicExpression()
+        {
+            if (_parser.Matches(TokenType.Numeric, TokenType.String))
+                return ParseLiteralExpression();
+
+            if (_parser.Matches(TokenType.OpenParen))
+                return ParseParenthesizedExpression();
+
+            if (_parser.MatchesLookahead(TokenType.Identifier, TokenType.OpenParen))
+                return ParseFunctionCallExpression();
+
+            return ParseVariableExpression();
+        }
+
+        public Variable ParseFunctionCallExpression()
+        {
+            Token nameToken = _parser.Match(TokenType.Identifier);
+            List<Variable> arguments = new List<Variable>();
+            Variable returnValue = new Variable();
+
+            _parser.Match(TokenType.OpenParen);
+
+            if (!_parser.Matches(TokenType.CloseParen))
+            {
+                arguments.Add(ParseExpression());
+
+                while(_parser.Matches(TokenType.Comma))
+                {
+                    _parser.Next();
+                    arguments.Add(ParseExpression());
+                }
+            }
+
+            _parser.Match(TokenType.CloseParen);
+
+            _environment.Append(new FunctionCallStatement(nameToken, nameToken.ProcessedValue, arguments, returnValue));
+
+            return returnValue;
+        }
+
+        public Variable ParseVariableExpression()
+        {
+            Token nameToken = _parser.Match(TokenType.Identifier);
+            return LookupVariable(nameToken);
+        }
+
+        public Variable ParseParenthesizedExpression()
+        {
+            _parser.Match(TokenType.OpenParen);
+            Variable result = ParseExpression();
+            _parser.Match(TokenType.CloseParen);
+
+            return result;
+        }
+
+        public Variable ParseLiteralExpression()
+        {
+            Token token = _parser.Match(TokenType.String, TokenType.Numeric);
+            Variable returnValue = new Variable();
             Statement statement;
 
-            if (reference.TokenType == TokenType.String)
-                statement = new StringStatement(reference, new CyBFString(reference.RawValue, reference.ProcessedValue), returnValue);
+            if (token.TokenType == TokenType.String)
+                statement = new StringStatement(token, new CyBFString(token.RawValue, token.ProcessedValue), returnValue);
             else
-                statement = new ConstStatement(reference, reference.NumericValue, returnValue);
+                statement = new ConstStatement(token, token.NumericValue, returnValue);
 
             _environment.Append(statement);
 
             return returnValue;
-
         }
     }
 }

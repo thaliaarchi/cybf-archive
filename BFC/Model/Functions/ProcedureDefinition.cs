@@ -12,12 +12,12 @@ namespace CyBF.BFC.Model.Functions
         public IReadOnlyList<Statement> Body { get; private set; }
 
         public ProcedureDefinition(
-            Token reference, 
-            string name, 
-            IEnumerable<FunctionParameter> parameters, 
-            IEnumerable<Statement> body,
-            Variable returnValue) 
-            : base(name, parameters, returnValue)
+            Token reference,
+            string name,
+            Variable returnValue,
+            IEnumerable<FunctionParameter> parameters,
+            IEnumerable<Statement> body)
+            : base(name, returnValue, parameters)
         {
             this.Reference = reference;
             this.Body = body.ToList().AsReadOnly();

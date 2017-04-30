@@ -3,7 +3,7 @@
     public class ByteInstance : TypeInstance
     {
         public ByteInstance() 
-            : base(ByteDefinition.StaticName, new TypeInstance[] { }, new FieldInstance[] { })
+            : base(ByteDefinition.StaticName)
         {
         }
 

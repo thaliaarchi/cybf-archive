@@ -48,5 +48,19 @@ namespace CyBF.Parsing
 
             return types.Contains(token.TokenType);
         }
+
+        public bool MatchesLookahead(params TokenType[] types)
+        {
+            if (types.Length > _tokens.Count - _currentIndex)
+                return false;
+
+            for (int i = 0; i < types.Length; i++)
+            {
+                if (types[i] != _tokens[_currentIndex + i].TokenType)
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

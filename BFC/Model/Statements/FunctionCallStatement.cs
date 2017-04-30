@@ -31,7 +31,7 @@ namespace CyBF.BFC.Model.Statements
             List<FunctionDefinition> matches = compiler.MatchFunction(this.FunctionName, this.Arguments.Select(v => v.Value.DataType));
 
             if (matches.Count == 0)
-                compiler.RaiseSemanticError("No matching function definitions found.");
+                compiler.RaiseSemanticError("No matching function definitions found:\n" + this.BuildSignature());
 
             if (matches.Count > 1)
             {

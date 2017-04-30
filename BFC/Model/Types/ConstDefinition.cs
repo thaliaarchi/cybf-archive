@@ -10,8 +10,8 @@ namespace CyBF.BFC.Model.Types
 
         public ConstDefinition()
             : base(
-                new TypeConstraint(StaticName, new TypeParameter[] { }),
-                new Variable[] { new Variable("value") })
+                new TypeConstraint(StaticName),
+                new Variable("value"))
         {
         }
 
