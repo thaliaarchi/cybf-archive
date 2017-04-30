@@ -54,14 +54,10 @@ namespace CyBF.BFIL
                 Variable variable = referenceOrder[i];
 
                 if (variable.Address < 0)
-                {
                     variable.Address = allocator.Allocate(variable.Size);
-                }
-                else
-                {
-                    if (i == lastReferenceIndex[variable])
-                        allocator.Free(variable.Address);
-                }
+
+                if (i == lastReferenceIndex[variable])
+                    allocator.Free(variable.Address);
             }
 
             unallocatedMarker.Address = allocator.AllocationMaximum;

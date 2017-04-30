@@ -14,9 +14,6 @@ namespace CyBF.BFIL
             : base(reference)
         {
             this.Data = data.ToList().AsReadOnly();
-
-            if (this.Data.Count == 0)
-                throw new BFILProgramError(reference, "Empty write statement.");
         }
 
         public override void Compile(BFStringBuilder bfoutput, ReferenceTable variables, ref int currentAddress)

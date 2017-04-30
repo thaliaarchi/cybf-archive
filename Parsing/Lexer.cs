@@ -15,6 +15,7 @@ namespace CyBF.Parsing
         private const string _commandCharacters = @"+-[]<>,.@:#()*{}";
 
         private Regex _identifierRegex = new Regex(@"\G[a-zA-Z_][a-zA-Z0-9_]*");
+        private Regex _typevarRegex = new Regex(@"\G~[a-zA-Z_][a-zA-Z0-9_]*");
         private Regex _decimalRegex = new Regex(@"\G[0-9]+");
         private Regex _charRegex = new Regex(@"\G'" + _charSubPattern + @"'");
         private Regex _stringRegex = new Regex(@"\G""" + _stringSubPattern + @"*""");
@@ -121,6 +122,8 @@ namespace CyBF.Parsing
                 _nextTokenizer[c] = IdentifierOrKeyword;
                 _nextCommandTokenizer[c] = IdentifierOrKeyword;
             }
+
+            _nextTokenizer['~'] = TypeVariable;
 
             for (char c = 'A'; c <= 'Z'; c++)
             {
@@ -232,6 +235,16 @@ namespace CyBF.Parsing
                 _identifierRegex,
                 value => value,
                 value => _keywords.ContainsKey(value) ? _keywords[value] : TokenType.Identifier,
+                value => 0);
+        }
+
+        public Token TypeVariable()
+        {
+            return ParsePattern(
+                "type variable",
+                _typevarRegex,
+                value => value,
+                value => TokenType.TypeVariable,
                 value => 0);
         }
 

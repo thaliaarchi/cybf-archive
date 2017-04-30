@@ -29,7 +29,7 @@ namespace CyBF.BFC.Compilation
 
         public void Define(Variable variable)
         {
-            _symbolTable[variable.Name] = variable;
+            _symbolTable.Add(variable.Name, variable);
         }
 
         public bool Defines(string variableName)

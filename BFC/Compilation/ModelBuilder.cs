@@ -23,6 +23,10 @@ namespace CyBF.BFC.Compilation
             _environment = new Environment();
 
             _library.DefineFunction(new ConstAddOperatorDefinition());
+
+            _library.DefineType(new ByteDefinition());
+            _library.DefineType(new ConstDefinition());
+            _library.DefineType(new ArrayDefinition());
         }
 
         public string Compile()
@@ -57,7 +61,10 @@ namespace CyBF.BFC.Compilation
         public void ParseStatement()
         {
             if (_parser.Matches(TokenType.Keyword_Let))
-                ParseLetForm();
+                ParseVariableAssignmentStatement();
+
+            else if (_parser.Matches(TokenType.Keyword_Var))
+                ParseVariableDeclarationStatement();
 
             else if (_parser.Matches(TokenType.OpenBrace))
                 ParseCommandBlockStatement();
@@ -66,7 +73,81 @@ namespace CyBF.BFC.Compilation
                 throw new NotImplementedException();    
         }
 
-        public void ParseLetForm()
+        public void ParseVariableDeclarationStatement()
+        {
+            Token reference = _parser.Match(TokenType.Keyword_Var);
+            string varName = _parser.Match(TokenType.Identifier).ProcessedValue;
+            _parser.Match(TokenType.Colon);
+            TypeVariable dataType = ParseTypeExpression();
+
+            Variable variable = new Variable(varName);
+            _environment.Define(variable);
+
+            _environment.Append(new VariableDeclarationStatement(reference, variable, dataType));
+        }
+
+        public TypeVariable ParseTypeExpression()
+        {
+            // Unlike type constructors, type expressions
+            // include the possibility of just looking up
+            // an existing type variable.
+
+            return ParseTypeConstructor();
+        }
+
+        public TypeVariable ParseTypeConstructor()
+        {
+            Token reference;
+            string typeName;
+            List<TypeVariable> typeArguments = new List<TypeVariable>();
+            List<Variable> valueArguments = new List<Variable>();
+            TypeVariable returnValue = new TypeVariable();
+
+            if (_parser.Matches(TokenType.Identifier))
+            {
+                reference = _parser.Next();
+                typeName = reference.ProcessedValue;
+            }
+            else
+            {
+                reference = _parser.Match(TokenType.OpenBracket);
+                typeName = _parser.Match(TokenType.Identifier).ProcessedValue;
+
+                while (!_parser.Matches(TokenType.CloseBracket))
+                    typeArguments.Add(ParseTypeExpression());
+
+                _parser.Match(TokenType.CloseBracket);
+            }
+
+            if (_parser.Matches(TokenType.OpenParen))
+            {
+                _parser.Next();
+
+                if (!_parser.Matches(TokenType.CloseParen))
+                {
+                    valueArguments.Add(ParseExpression());
+
+                    while (_parser.Matches(TokenType.Comma))
+                    {
+                        _parser.Next();
+                        valueArguments.Add(ParseExpression());
+                    }
+                }
+
+                _parser.Match(TokenType.CloseParen);
+            }
+
+            _environment.Append(new TypeConstructionStatement(
+                reference,
+                typeName,
+                typeArguments,
+                valueArguments,
+                returnValue));
+
+            return returnValue;
+        }
+
+        public void ParseVariableAssignmentStatement()
         {
             Token reference = _parser.Match(TokenType.Keyword_Let);
 

@@ -4,6 +4,7 @@ namespace CyBF.Parsing
     public enum TokenType
     {
         Identifier,
+        TypeVariable,
         Keyword,
 
         Numeric,
