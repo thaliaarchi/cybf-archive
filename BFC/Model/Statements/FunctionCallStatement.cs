@@ -47,7 +47,7 @@ namespace CyBF.BFC.Model.Statements
                     references.Add(proc.Reference);
 
                 string signature = this.BuildSignature();
-                throw new SemanticError("Ambiguous function call: " + signature, references);
+                throw new SemanticError("Ambiguous function call:\n" + signature, references);
             }
 
             FunctionDefinition definition = matches.Single();

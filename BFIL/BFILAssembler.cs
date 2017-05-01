@@ -5,11 +5,11 @@ namespace CyBF.BFIL
 {
     public class BFILAssembler
     {
-        public string AssembleProgram(BFILProgram program, out string debuggingSource)
+        public string AssembleProgram(BFILProgram program, out string debuggingSource, out int allocationMaximum)
         {
             BFStringBuilder bfoutput = new BFStringBuilder();
             StringBuilder debugOutput = new StringBuilder();
-            ReferenceTable variables = ProcessProgramVariables(program);
+            ReferenceTable variables = ProcessProgramVariables(program, out allocationMaximum);
 
             int currentAddress = 0;
 
@@ -26,10 +26,11 @@ namespace CyBF.BFIL
         public string AssembleProgram(BFILProgram program)
         {
             string debuggingSource;
-            return AssembleProgram(program, out debuggingSource);
+            int allocationMaximum;
+            return AssembleProgram(program, out debuggingSource, out allocationMaximum);
         }
 
-        public ReferenceTable ProcessProgramVariables(BFILProgram program)
+        public ReferenceTable ProcessProgramVariables(BFILProgram program, out int allocationMaximum)
         {
             ReferenceTable orderedReferences = new ReferenceTable();
             MemoryAllocator allocator = new MemoryAllocator();
@@ -62,6 +63,7 @@ namespace CyBF.BFIL
 
             unallocatedMarker.Address = allocator.AllocationMaximum;
 
+            allocationMaximum = allocator.AllocationMaximum;
             return orderedReferences;
         }
         

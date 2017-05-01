@@ -1,4 +1,6 @@
-﻿namespace CyBF.BFI
+﻿using System;
+
+namespace CyBF.BFI
 {
     public struct Instruction
     {
@@ -8,7 +10,25 @@
 
         public override string ToString()
         {
-            return string.Join(" ", this.Operation, this.Operand, this.Factor);
+            switch (this.Operation)
+            {
+                case Operation.Zero:
+                case Operation.Print:
+                case Operation.Read:
+                    return this.Operation.ToString();
+
+                case Operation.Add:
+                case Operation.Shift:
+                case Operation.JumpIfZero:
+                case Operation.JumpIf:
+                    return string.Join(" ", this.Operation, this.Operand);
+
+                case Operation.AddScale:
+                    return string.Join(" ", this.Operation, this.Operand, this.Factor);
+
+                default:
+                    throw new InvalidOperationException("Unrecognized BFI Operation Type.");
+            }
         }
 
         public static Instruction Zero()

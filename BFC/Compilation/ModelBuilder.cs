@@ -50,27 +50,175 @@ namespace CyBF.BFC.Compilation
             return variable;
         }
 
+        public TypeVariable LookupTypeVariable(Token typeVariableNameToken)
+        {
+            string typeVariableName = typeVariableNameToken.ProcessedValue;
+            TypeVariable typeVariable;
+
+            if (!_environment.TryLookup(typeVariableName, out typeVariable))
+                throw new SemanticError("Type variable not defined.", typeVariableNameToken);
+
+            return typeVariable;
+        }
+
         public void ParseProgram()
         {
             while (!_parser.Matches(TokenType.EndOfSource))
             {
+                if (_parser.Matches(TokenType.Keyword_Def))
+                    ParseProcedureDefinition();
+                else
+                    ParseStatement();
+            }
+        }
+
+        public void ParseProcedureDefinition()
+        {
+            _environment.Push();
+
+            Token reference = _parser.Match(TokenType.Keyword_Def);
+            string functionName = _parser.Match(TokenType.Identifier, TokenType.Operator).ProcessedValue;
+
+            _parser.Match(TokenType.OpenParen);
+
+            List<FunctionParameter> parameters = new List<FunctionParameter>();
+
+            if (!_parser.Matches(TokenType.CloseParen))
+            {
+                parameters.Add(ParseFunctionParameter());
+
+                while (_parser.Matches(TokenType.Comma))
+                {
+                    _parser.Next();
+                    parameters.Add(ParseFunctionParameter());
+                }
+            }
+
+            _parser.Match(TokenType.CloseParen);
+
+            while (!_parser.Matches(TokenType.Keyword_Return, TokenType.Keyword_End))
                 ParseStatement();
+
+            Variable returnValue;
+
+            if (_parser.Matches(TokenType.Keyword_Return))
+            {
+                _parser.Next();
+                returnValue = ParseExpression();
+                _parser.Match(TokenType.Semicolon);
+            }
+            else
+            {
+                returnValue = new Variable();
+                _environment.Append(new ConstStatement(reference, 0, returnValue));
+            }
+
+            _parser.Match(TokenType.Keyword_End);
+
+            IEnumerable<Statement> body = _environment.CurrentStatements;
+
+            ProcedureDefinition definition = new ProcedureDefinition(
+                reference, functionName, returnValue, parameters, body);
+
+            _library.DefineFunction(definition);
+
+            _environment.Pop();
+        }
+
+        public FunctionParameter ParseFunctionParameter()
+        {
+            string variableName = _parser.Match(TokenType.Identifier).ProcessedValue;
+            Variable variable = new Variable(variableName);
+            _environment.Define(variable);
+
+            _parser.Match(TokenType.Colon);
+
+            TypeParameter typeParameter = ParseTypeParameter();
+
+            return new FunctionParameter(variable, typeParameter);
+        }
+
+        public TypeParameter ParseTypeParameter()
+        {
+            if (_parser.MatchesLookahead(TokenType.TypeVariable, TokenType.Colon))
+            {
+                TypeVariable typeVariable = ParseTypeParameterVariable();
+                _parser.Match(TokenType.Colon);
+                TypeConstraint constraint = ParseTypeConstraint();
+
+                return new ConstrainedTypeParameter(typeVariable, constraint);
+            }
+            else if (_parser.Matches(TokenType.TypeVariable))
+            {
+                TypeVariable typeVariable = ParseTypeParameterVariable();
+                return new TypeParameter(typeVariable);
+            }
+            else
+            {
+                TypeConstraint constraint = ParseTypeConstraint();
+                return new ConstrainedTypeParameter(constraint);
+            }
+        }
+        
+        public TypeVariable ParseTypeParameterVariable()
+        {
+            string typeVariableName = _parser.Match(TokenType.TypeVariable).ProcessedValue;
+            TypeVariable typeVariable;
+
+            if (!_environment.TryLookup(typeVariableName, out typeVariable))
+            {
+                typeVariable = new TypeVariable(typeVariableName);
+                _environment.Define(typeVariable);
+            }
+
+            return typeVariable;
+        }
+
+        public TypeConstraint ParseTypeConstraint()
+        {
+            if (_parser.Matches(TokenType.Identifier))
+            {
+                string typeName = _parser.Next().ProcessedValue;
+                return new TypeConstraint(typeName);
+            }
+            else
+            {
+                _parser.Match(TokenType.OpenBracket);
+
+                string typeName = _parser.Next().ProcessedValue;
+
+                List<TypeParameter> parameters = new List<TypeParameter>();
+
+                while (!_parser.Matches(TokenType.CloseBracket))
+                    parameters.Add(ParseTypeParameter());
+
+                _parser.Match(TokenType.CloseBracket);
+
+                return new TypeConstraint(typeName, parameters);
             }
         }
 
         public void ParseStatement()
         {
-            if (_parser.Matches(TokenType.Keyword_Let))
-                ParseVariableAssignmentStatement();
+            switch (_parser.Current.TokenType)
+            {
+                case TokenType.Keyword_Let:
+                    ParseVariableAssignmentStatement();
+                    break;
 
-            else if (_parser.Matches(TokenType.Keyword_Var))
-                ParseVariableDeclarationStatement();
+                case TokenType.Keyword_Var:
+                    ParseVariableDeclarationStatement();
+                    break;
 
-            else if (_parser.Matches(TokenType.OpenBrace))
-                ParseCommandBlockStatement();
+                case TokenType.OpenBrace:
+                    ParseCommandBlockStatement();
+                    break;
 
-            else
-                throw new NotImplementedException();    
+                default:
+                    ParseExpression();
+                    _parser.Match(TokenType.Semicolon);
+                    break;
+            }
         }
 
         public void ParseVariableDeclarationStatement()
@@ -88,10 +236,9 @@ namespace CyBF.BFC.Compilation
 
         public TypeVariable ParseTypeExpression()
         {
-            // Unlike type constructors, type expressions
-            // include the possibility of just looking up
-            // an existing type variable.
-
+            if (_parser.Matches(TokenType.TypeVariable))
+                return LookupTypeVariable(_parser.Next());
+            
             return ParseTypeConstructor();
         }
 

@@ -38,7 +38,8 @@ namespace CyBF
                 BFILProgram bfilProgram = bfilParser.ParseProgram();
 
                 BFILAssembler bfilAssembler = new BFILAssembler();
-                bfCode = bfilAssembler.AssembleProgram(bfilProgram, out bfilDebug);
+                int allocationMaximum;
+                bfCode = bfilAssembler.AssembleProgram(bfilProgram, out bfilDebug, out allocationMaximum);
 
                 using (var writer = new StreamWriter("bfil_code.txt"))
                     writer.Write(bfilCode);
@@ -51,8 +52,17 @@ namespace CyBF
 
                 BFAssembler bfAssembler = new BFAssembler(bfCode);
                 Instruction[] instructions = bfAssembler.Compile();
+
+                using (var writer = new StreamWriter("bfasm_code.txt"))
+                {
+                    foreach (Instruction instruction in instructions)
+                        writer.WriteLine(instruction.ToString());
+                }
+                
                 Interpreter interpreter = new Interpreter();
                 AsciiConsoleStream iostream = new AsciiConsoleStream();
+
+                Console.WriteLine("Running Program. Allocates " + allocationMaximum.ToString() + " bytes.");
                 interpreter.Run(instructions, iostream, iostream);
             }
             catch(CyBFException ex)
