@@ -65,7 +65,7 @@ namespace CyBF.BFC.Compilation
         {
             while (!_parser.Matches(TokenType.EndOfSource))
             {
-                if (_parser.Matches(TokenType.Keyword_Def))
+                if (_parser.Matches(TokenType.Keyword_Function))
                     ParseProcedureDefinition();
                 else
                     ParseStatement();
@@ -76,7 +76,7 @@ namespace CyBF.BFC.Compilation
         {
             _environment.Push();
 
-            Token reference = _parser.Match(TokenType.Keyword_Def);
+            Token reference = _parser.Match(TokenType.Keyword_Function);
             string functionName = _parser.Match(TokenType.Identifier, TokenType.Operator).ProcessedValue;
 
             _parser.Match(TokenType.OpenParen);

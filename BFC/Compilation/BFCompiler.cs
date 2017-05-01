@@ -19,6 +19,8 @@ namespace CyBF.BFC.Compilation
         private StringBuilder _compiledCode = new StringBuilder();
         private Stack<Token> _trace = new Stack<Token>();
 
+        // TODO: Just make a public property of IReadOnlyList. Or, maybe even just List.
+        // String "id"s could simply be indexes into this list. 
         private int _cachedStringAutonum = 0;
         private Dictionary<int, CyBFString> _cachedStringLiterals = new Dictionary<int, CyBFString>();
 

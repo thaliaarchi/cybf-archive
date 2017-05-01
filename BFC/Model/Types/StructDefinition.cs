@@ -46,7 +46,7 @@ namespace CyBF.BFC.Model.Types
 
             compiler.TracePop();
 
-            return new StructInstance(this.TypeName, typeArguments, instanceFields);
+            return new StructInstance(this.Reference, this.TypeName, typeArguments, instanceFields);
         }
     }
 }

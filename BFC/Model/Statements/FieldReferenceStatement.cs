@@ -23,35 +23,39 @@ namespace CyBF.BFC.Model.Statements
 
         public override void Compile(BFCompiler compiler)
         {
+            FieldInstance field = ResolveField();
+            NumericAddressOffset fieldOffset = new NumericAddressOffset(field.Offset);
+            this.ReturnValue.Value = this.Source.Value.Derive(field.DataType, fieldOffset);
+        }
+
+        private FieldInstance ResolveField()
+        {
             TypeInstance sourceDataType = this.Source.Value.DataType;
+            List<Token> referenceTokens = new List<Token>();
+
+            referenceTokens.Add(this.Reference);
+
+            if (sourceDataType is StructInstance)
+                referenceTokens.Add(((StructInstance)sourceDataType).Reference);
 
             List<FieldInstance> fields = sourceDataType.Fields
                 .Where(f => f.Name == this.FieldName).ToList();
 
             if (fields.Count == 0)
             {
-                string errorMessage = string.Format(
-                    "Field '{0}' not defined on type '{1}'.",
-                    this.FieldName,
-                    sourceDataType.ToString());
-
-                throw new SemanticError(errorMessage, this.Reference);
+                throw new SemanticError(
+                    string.Format("Field '{0}' not defined on type '{1}'.", this.FieldName, sourceDataType),
+                    referenceTokens);
             }
 
             if (fields.Count > 1)
             {
-                string errorMessage = string.Format(
-                    "Data type '{1}' contains multiple fields named '{0}'.",
-                    this.FieldName,
-                    sourceDataType.ToString());
-
-                throw new SemanticError(errorMessage, this.Reference);
+                throw new SemanticError(
+                    string.Format("Data type '{1}' contains multiple fields named '{0}'.", this.FieldName, sourceDataType),
+                    referenceTokens);
             }
 
-            FieldInstance field = fields.Single();
-            NumericAddressOffset fieldOffset = new NumericAddressOffset(field.Offset);
-
-            this.ReturnValue.Value = this.Source.Value.Derive(field.DataType, fieldOffset);
+            return fields.Single();
         }
     }
 }

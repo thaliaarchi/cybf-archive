@@ -29,7 +29,7 @@ namespace CyBF.BFC.Model.Statements.Commands
                         offset.Dereference(compiler);
                 }
 
-                compiler.Write(this.Variable.Value.AllocationId);
+                compiler.Write(this.Variable.Value.AllocationId + " ");
 
                 foreach (AddressOffset offset in this.Variable.Value.Offsets)
                     offset.Reference(compiler);
