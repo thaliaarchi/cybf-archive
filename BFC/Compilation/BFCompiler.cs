@@ -22,6 +22,19 @@ namespace CyBF.BFC.Compilation
         private int _cachedStringAutonum = 0;
         private Dictionary<int, CyBFString> _cachedStringLiterals = new Dictionary<int, CyBFString>();
 
+        private BFObject _lastReferencedAllocatedObject = null;
+        public BFObject LastReferencedAllocatedObject
+        {
+            get { return _lastReferencedAllocatedObject; }
+            set
+            {
+                if (value.DataType.Size() == 0)
+                    throw new ArgumentException("Zero sized data type cannot be allocated.");
+
+                _lastReferencedAllocatedObject = value;
+            }
+        }
+
         public BFCompiler(DefinitionLibrary library)
         {
             _definitions = library;

@@ -13,6 +13,8 @@ namespace CyBF.BFC.Model
         public string AllocationId { get; private set; }
         public IReadOnlyList<AddressOffset> Offsets { get; private set; }
 
+        private BFObject() { }
+
         public BFObject(TypeInstance dataType)
         {
             this.DataType = dataType;
@@ -25,6 +27,20 @@ namespace CyBF.BFC.Model
             this.DataType = dataType;
             this.AllocationId = allocationIdPrefix + "_obj" + (_allocationAutonum++).ToString();
             this.Offsets = new List<AddressOffset>().AsReadOnly();
+        }
+
+        public BFObject Derive(TypeInstance dataType, IEnumerable<AddressOffset> additionalOffsets)
+        {
+            BFObject derivedObject = new BFObject();
+            derivedObject.DataType = dataType;
+            derivedObject.AllocationId = this.AllocationId;
+            derivedObject.Offsets = this.Offsets.Concat(additionalOffsets).ToList().AsReadOnly();
+            return derivedObject;
+        }
+
+        public BFObject Derive(TypeInstance dataType, params AddressOffset[] additionalOffsets)
+        {
+            return Derive(dataType, (IEnumerable<AddressOffset>)additionalOffsets);
         }
     }
 }

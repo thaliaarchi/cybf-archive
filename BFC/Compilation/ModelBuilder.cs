@@ -483,16 +483,33 @@ namespace CyBF.BFC.Compilation
 
         public Variable ParseAtomicExpression()
         {
+            Variable returnValue;
+
             if (_parser.Matches(TokenType.Numeric, TokenType.String))
-                return ParseLiteralExpression();
+                returnValue = ParseLiteralExpression();
 
-            if (_parser.Matches(TokenType.OpenParen))
-                return ParseParenthesizedExpression();
+            else if (_parser.Matches(TokenType.OpenParen))
+                returnValue = ParseParenthesizedExpression();
 
-            if (_parser.MatchesLookahead(TokenType.Identifier, TokenType.OpenParen))
-                return ParseFunctionCallExpression();
+            else if (_parser.MatchesLookahead(TokenType.Identifier, TokenType.OpenParen))
+                returnValue = ParseFunctionCallExpression();
+            
+            else
+                returnValue = ParseVariableExpression();
+            
+            while (_parser.Matches(TokenType.Period))
+            {
+                _parser.Next();
+                Token fieldNameToken = _parser.Match(TokenType.Identifier);
+                string fieldName = fieldNameToken.ProcessedValue;
 
-            return ParseVariableExpression();
+                Variable source = returnValue;
+                returnValue = new Variable();
+
+                _environment.Append(new FieldReferenceStatement(fieldNameToken, source, fieldName, returnValue));
+            }
+
+            return returnValue;
         }
 
         public Variable ParseFunctionCallExpression()

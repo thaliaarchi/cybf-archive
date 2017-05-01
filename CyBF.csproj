@@ -67,6 +67,7 @@
     <Compile Include="BFC\Model\Statements\Commands\VariableReferenceCommand.cs" />
     <Compile Include="BFC\Model\Statements\Commands\WriteCommand.cs" />
     <Compile Include="BFC\Model\Statements\ConstStatement.cs" />
+    <Compile Include="BFC\Model\Statements\FieldReferenceStatement.cs" />
     <Compile Include="BFC\Model\Statements\FunctionCallStatement.cs" />
     <Compile Include="BFC\Model\Statements\Statement.cs" />
     <Compile Include="BFC\Model\Statements\StringStatement.cs" />

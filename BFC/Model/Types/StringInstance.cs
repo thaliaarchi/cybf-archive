@@ -5,7 +5,12 @@
         public CyBFString String { get; private set; }
 
         public StringInstance(CyBFString value) 
-            : base(StringDefinition.StaticName)
+            : base(
+                  StringDefinition.StaticName,
+                  new TypeInstance[] { },
+                  new FieldInstance[] {
+                      new FieldInstance("length", new ConstInstance(value.ProcessedValue.Length), 0),
+                      new FieldInstance("size", new ConstInstance(value.ProcessedValue.Length + 2), 0)})
         {
             this.String = value;
         }

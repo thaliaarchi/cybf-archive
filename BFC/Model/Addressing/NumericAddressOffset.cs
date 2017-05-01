@@ -1,4 +1,7 @@
-﻿namespace CyBF.BFC.Model.Addressing
+﻿using System;
+using CyBF.BFC.Compilation;
+
+namespace CyBF.BFC.Model.Addressing
 {
     public class NumericAddressOffset : AddressOffset
     {
@@ -7,6 +10,26 @@
         public NumericAddressOffset(int amount)
         {
             this.Amount = amount;
+        }
+
+        public override void Reference(BFCompiler compiler)
+        {
+            char shiftchar = '>';
+
+            if (this.Amount < 0)
+                shiftchar = '<';
+
+            compiler.Write(new string(shiftchar, Math.Abs(this.Amount)));
+        }
+
+        public override void Dereference(BFCompiler compiler)
+        {
+            char shiftchar = '<';
+
+            if (this.Amount < 0)
+                shiftchar = '>';
+
+            compiler.Write(new string(shiftchar, Math.Abs(this.Amount)));
         }
     }
 }
