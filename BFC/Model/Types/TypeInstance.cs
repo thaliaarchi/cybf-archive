@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CyBF.Utility;
 
 namespace CyBF.BFC.Model.Types
 {
@@ -21,6 +22,12 @@ namespace CyBF.BFC.Model.Types
             this.TypeName = typeName;
             this.TypeArguments = typeArguments.ToList().AsReadOnly();
             this.Fields = fields.ToList().AsReadOnly();
+        }
+
+        public bool Matches(TypeInstance target)
+        {
+            return this.TypeName == target.TypeName &&
+                   this.TypeArguments.MatchSequence(target.TypeArguments, (x, y) => x.Matches(y));
         }
 
         public override string ToString()

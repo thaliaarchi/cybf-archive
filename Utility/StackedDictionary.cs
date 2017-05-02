@@ -9,6 +9,8 @@ namespace CyBF.Utility
     {
         private Frame _current;
 
+        public Dictionary<TKey, TValue> CurrentFrame { get { return _current.Table; } }
+
         public TValue this[TKey key]
         {
             get
@@ -130,12 +132,13 @@ namespace CyBF.Utility
             return _current.GetEnumerator();
         }
 
-        public class Frame : IDictionary<TKey, TValue>
+        private class Frame : IDictionary<TKey, TValue>
         {
             private Frame _parent;
             private Dictionary<TKey, TValue> _table;
 
             public Frame Parent { get { return _parent; } }
+            public Dictionary<TKey, TValue> Table { get { return _table; } }
 
             public TValue this[TKey key]
             {

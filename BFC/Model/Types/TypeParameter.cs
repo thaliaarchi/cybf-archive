@@ -23,7 +23,7 @@
             }
             else
             {
-                return false;
+                return this.TypeVariable.Value.Matches(instance);
             }
         }
 

@@ -61,6 +61,19 @@ namespace CyBF.BFC.Compilation
             return typeVariable;
         }
 
+        public Variable CreateEnvironmentVariable(Token variableNameToken)
+        {
+            string variableName = variableNameToken.ProcessedValue;
+            
+            if (_environment.DefinesVariableInFrame(variableName))
+                throw new SemanticError("Duplicate variable definition.", variableNameToken);
+
+            Variable variable = new Variable(variableName);
+            _environment.Define(variable);
+
+            return variable;
+        }
+
         public void ParseProgram()
         {
             while (!_parser.Matches(TokenType.EndOfSource))
@@ -86,15 +99,13 @@ namespace CyBF.BFC.Compilation
 
             if (_parser.Matches(TokenType.OpenParen))
             {
-                List<string> parameterNames = _parser.ParseDelimitedList(
+                List<Token> parameterNameTokens = _parser.ParseDelimitedList(
                     TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen,
-                    () => _parser.Match(TokenType.Identifier).ProcessedValue);
+                    () => _parser.Match(TokenType.Identifier));
 
-                foreach (string parameterName in parameterNames)
+                foreach (Token parameterNameToken in parameterNameTokens)
                 {
-                    Variable valueParameter = new Variable(parameterName);
-                    _environment.Define(valueParameter);
-
+                    Variable valueParameter = CreateEnvironmentVariable(parameterNameToken);
                     valueParameters.Add(valueParameter);
                 }
             }
@@ -219,9 +230,8 @@ namespace CyBF.BFC.Compilation
 
         public FunctionParameter ParseFunctionParameter()
         {
-            string variableName = _parser.Match(TokenType.Identifier).ProcessedValue;
-            Variable variable = new Variable(variableName);
-            _environment.Define(variable);
+            Token variableNameToken = _parser.Match(TokenType.Identifier);
+            Variable variable = CreateEnvironmentVariable(variableNameToken);
 
             _parser.Match(TokenType.Colon);
 
@@ -316,12 +326,11 @@ namespace CyBF.BFC.Compilation
         public void ParseVariableDeclarationStatement()
         {
             Token reference = _parser.Match(TokenType.Keyword_Var);
-            string varName = _parser.Match(TokenType.Identifier).ProcessedValue;
+            Token variableNameToken = _parser.Match(TokenType.Identifier);
             _parser.Match(TokenType.Colon);
             TypeVariable dataType = ParseTypeExpression();
 
-            Variable variable = new Variable(varName);
-            _environment.Define(variable);
+            Variable variable = CreateEnvironmentVariable(variableNameToken);
 
             _environment.Append(new VariableDeclarationStatement(reference, variable, dataType));
         }
@@ -380,12 +389,12 @@ namespace CyBF.BFC.Compilation
         {
             Token reference = _parser.Match(TokenType.Keyword_Let);
 
-            Token identifier = _parser.Match(TokenType.Identifier);
-            Variable declaredVariable = new Variable(identifier.ProcessedValue);
-            _environment.Define(declaredVariable);
+            Token variableNameToken = _parser.Match(TokenType.Identifier);
+            Variable declaredVariable = CreateEnvironmentVariable(variableNameToken);
 
             _parser.Match(TokenType.Colon);
             Variable expressionResult = ParseExpression();
+
             _parser.Match(TokenType.Semicolon);
 
             Statement statement = new VariableAssignmentStatement(reference, declaredVariable, expressionResult);

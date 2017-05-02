@@ -23,18 +23,18 @@ namespace CyBF
                 string bfilDebug;
                 string bfCode;
 
-                using (var reader = new StreamReader("code.txt"))
+                using (var reader = new StreamReader("code.cbf"))
                     cybfCode = reader.ReadToEnd();
 
                 Lexer lexer = new Lexer();
-                lexer.SetInput(cybfCode, "code.txt");
+                lexer.SetInput(cybfCode, "code.cbf");
 
                 List<Token> cybfTokens = lexer.GetAllTokens();
                 ModelBuilder cybfModel = new ModelBuilder(cybfTokens);
                 cybfModel.ParseProgram();
                 bfilCode = cybfModel.Compile();
 
-                BFILParser bfilParser = new BFILParser(bfilCode, "code.txt");
+                BFILParser bfilParser = new BFILParser(bfilCode, "code.cbf");
                 BFILProgram bfilProgram = bfilParser.ParseProgram();
 
                 BFILAssembler bfilAssembler = new BFILAssembler();

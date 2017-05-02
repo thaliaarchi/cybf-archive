@@ -45,9 +45,19 @@ namespace CyBF.BFC.Compilation
             return _variableTable.ContainsKey(variableName);
         }
 
+        public bool DefinesVariableInFrame(string variableName)
+        {
+            return _variableTable.CurrentFrame.ContainsKey(variableName);
+        }
+
         public bool DefinesTypeVariable(string typeVariableName)
         {
             return _typeVariableTable.ContainsKey(typeVariableName);
+        }
+
+        public bool DefinesTypeVariableInFrame(string typeVariableName)
+        {
+            return _typeVariableTable.CurrentFrame.ContainsKey(typeVariableName);
         }
 
         public Variable LookupVariable(string variableName)
