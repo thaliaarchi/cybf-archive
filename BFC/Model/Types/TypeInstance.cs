@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CyBF.Utility;
+using System;
 
 namespace CyBF.BFC.Model.Types
 {
@@ -21,13 +22,38 @@ namespace CyBF.BFC.Model.Types
         {
             this.TypeName = typeName;
             this.TypeArguments = typeArguments.ToList().AsReadOnly();
-            this.Fields = fields.ToList().AsReadOnly();
+
+            List<FieldInstance> fieldList = new List<FieldInstance>();
+
+            foreach (FieldInstance field in fields)
+            {
+                if (fieldList.Any(f => f.Name == field.Name))
+                    throw new ArgumentException("Multiple fields with the same name specified.");
+
+                fieldList.Add(field);
+            }
+
+            this.Fields = fieldList.AsReadOnly();
         }
 
         public bool Matches(TypeInstance target)
         {
             return this.TypeName == target.TypeName &&
                    this.TypeArguments.MatchSequence(target.TypeArguments, (x, y) => x.Matches(y));
+        }
+
+        public bool ContainsField(string fieldName)
+        {
+            return this.Fields.Any(f => f.Name == fieldName);
+        }
+
+        public FieldInstance GetField(string fieldName)
+        {
+            foreach (FieldInstance field in this.Fields)
+                if (field.Name == fieldName)
+                    return field;
+
+            throw new KeyNotFoundException();
         }
 
         public override string ToString()

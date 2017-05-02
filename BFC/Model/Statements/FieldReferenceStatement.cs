@@ -38,24 +38,14 @@ namespace CyBF.BFC.Model.Statements
             if (sourceDataType is StructInstance)
                 referenceTokens.Add(((StructInstance)sourceDataType).Reference);
 
-            List<FieldInstance> fields = sourceDataType.Fields
-                .Where(f => f.Name == this.FieldName).ToList();
-
-            if (fields.Count == 0)
+            if (!sourceDataType.ContainsField(this.FieldName))
             {
                 throw new SemanticError(
                     string.Format("Field '{0}' not defined on type '{1}'.", this.FieldName, sourceDataType),
                     referenceTokens);
             }
 
-            if (fields.Count > 1)
-            {
-                throw new SemanticError(
-                    string.Format("Data type '{1}' contains multiple fields named '{0}'.", this.FieldName, sourceDataType),
-                    referenceTokens);
-            }
-
-            return fields.Single();
+            return sourceDataType.GetField(this.FieldName);
         }
     }
 }

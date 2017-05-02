@@ -6,6 +6,7 @@ using CyBF.BFC.Model.Types;
 using CyBF.Parsing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CyBF.BFC.Compilation
@@ -114,11 +115,13 @@ namespace CyBF.BFC.Compilation
 
             while (!_parser.Matches(TokenType.Keyword_End))
             {
-                string fieldName = _parser.Match(TokenType.Identifier).ProcessedValue;
+                Token fieldNameToken = _parser.Match(TokenType.Identifier);
+                string fieldName = fieldNameToken.ProcessedValue;
+
                 _parser.Match(TokenType.Colon);
                 TypeVariable fieldType = ParseTypeExpression();
 
-                fields.Add(new FieldDefinition(fieldName, fieldType));
+                fields.Add(new FieldDefinition(fieldNameToken, fieldName, fieldType));
             }
             
             _parser.Match(TokenType.Keyword_End);

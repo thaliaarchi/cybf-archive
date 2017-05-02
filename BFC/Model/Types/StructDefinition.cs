@@ -22,7 +22,18 @@ namespace CyBF.BFC.Model.Types
         {
             this.Reference = reference;
             this.SetupStatements = setupStatements.ToList().AsReadOnly();
-            this.Fields = fields.ToList().AsReadOnly();
+
+            List<FieldDefinition> fieldsList = new List<FieldDefinition>();
+
+            foreach (FieldDefinition field in fields)
+            {
+                if (fieldsList.Any(f => f.Name == field.Name))
+                    throw new SemanticError("Duplicate field definition.", field.Reference, this.Reference);
+
+                fieldsList.Add(field);
+            }
+
+            this.Fields = fieldsList.AsReadOnly();
         }
 
         public override TypeInstance Compile(BFCompiler compiler, IEnumerable<TypeInstance> typeArguments, IEnumerable<BFObject> valueArguments)
