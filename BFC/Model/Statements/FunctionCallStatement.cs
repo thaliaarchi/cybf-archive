@@ -40,14 +40,10 @@ namespace CyBF.BFC.Model.Statements
                     .Select(m => m as ProcedureDefinition);
 
                 List<Token> references = new List<Token>();
-
                 references.Add(this.Reference);
-
-                foreach (ProcedureDefinition proc in procedures)
-                    references.Add(proc.Reference);
-
-                string signature = this.BuildSignature();
-                throw new SemanticError("Ambiguous function call:\n" + signature, references);
+                references.AddRange(procedures.Select(p => p.Reference));
+                
+                throw new SemanticError("Ambiguous function call:\n" + this.BuildSignature(), references);
             }
 
             FunctionDefinition definition = matches.Single();
@@ -60,8 +56,8 @@ namespace CyBF.BFC.Model.Statements
 
         private string BuildSignature()
         {
-            string argstring = string.Join(", ", this.Arguments.Select(a => a.Value.DataType.ToString()));
-            return this.FunctionName + "(" + argstring + ")";
+            string argumentString = string.Join(", ", this.Arguments.Select(a => a.Value.DataType.ToString()));
+            return this.FunctionName + "(" + argumentString + ")";
         }
     }
 }

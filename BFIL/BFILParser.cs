@@ -132,24 +132,17 @@ namespace CyBF.BFIL
 
         public List<Token> ParseDataTokens()
         {
-            List<Token> dataTokens = new List<Token>();
+            List<Token> dataTokens;
 
             if (_parser.Matches(TokenType.Numeric, TokenType.String))
             {
-                dataTokens.Add(_parser.Next());
+                dataTokens = new List<Token>() { _parser.Next() };
             }
             else
             {
-                _parser.Match(TokenType.OpenParen);
-                dataTokens.Add(_parser.Match(TokenType.Numeric, TokenType.String));
-
-                while (_parser.Matches(TokenType.Comma))
-                {
-                    _parser.Next();
-                    dataTokens.Add(_parser.Match(TokenType.Numeric, TokenType.String));
-                }
-
-                _parser.Match(TokenType.CloseParen);
+                dataTokens = _parser.ParseDelimitedList(
+                    TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen,
+                    () => _parser.Match(TokenType.Numeric, TokenType.String));
             }
 
             return dataTokens;

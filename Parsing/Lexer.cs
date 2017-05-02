@@ -30,6 +30,7 @@ namespace CyBF.Parsing
             {"module", TokenType.Keyword_Module },
             {"struct", TokenType.Keyword_Struct },
             {"function", TokenType.Keyword_Function },
+            {"selector", TokenType.Keyword_Selector },
             {"reference", TokenType.Keyword_Reference },
             {"dereference", TokenType.Keyword_Dereference },
             {"var", TokenType.Keyword_Var },

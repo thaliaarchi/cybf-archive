@@ -34,6 +34,7 @@ namespace CyBF.Parsing
         Keyword_Module,
         Keyword_Struct,
         Keyword_Function,
+        Keyword_Selector,
         Keyword_Reference,
         Keyword_Dereference,
         Keyword_Var,

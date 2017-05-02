@@ -8,25 +8,23 @@ namespace CyBF.BFC.Model.Addressing
 {
     public class FunctionalAddressOffset : AddressOffset
     {
-        public FunctionDefinition ReferenceFunction { get; private set; }
-        public FunctionDefinition DereferenceFunction { get; private set; }
-        public IReadOnlyList<BFObject> IndexObjects { get; private set; }
+        public SelectorDefinition Selector { get; private set; }
+        public IReadOnlyList<BFObject> IndexArguments { get; private set; }
 
-        public FunctionalAddressOffset(FunctionDefinition referenceFunction, FunctionDefinition dereferenceFunction, IEnumerable<BFObject> indexObjects)
+        public FunctionalAddressOffset(SelectorDefinition selector, IEnumerable<BFObject> indexArguments)
         {
-            this.ReferenceFunction = referenceFunction;
-            this.DereferenceFunction = dereferenceFunction;
-            this.IndexObjects = indexObjects.ToList().AsReadOnly();
+            this.Selector = selector;
+            this.IndexArguments = indexArguments.ToList().AsReadOnly();
         }
 
         public override void Reference(BFCompiler compiler)
         {
-            this.ReferenceFunction.Compile(compiler, this.IndexObjects);
+            this.Selector.CompileReference(compiler, this.IndexArguments);
         }
 
         public override void Dereference(BFCompiler compiler)
         {
-            this.DereferenceFunction.Compile(compiler, this.IndexObjects);
+            this.Selector.CompileDereference(compiler, this.IndexArguments);
         }
     }
 }

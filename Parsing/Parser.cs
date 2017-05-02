@@ -62,5 +62,27 @@ namespace CyBF.Parsing
 
             return true;
         }
+
+        public List<T> ParseDelimitedList<T>(TokenType startToken, TokenType delimiter, TokenType endToken, Func<T> parsefn)
+        {
+            List<T> result = new List<T>();
+
+            this.Match(startToken);
+
+            if (!this.Matches(endToken))
+            {
+                result.Add(parsefn());
+
+                while (this.Matches(delimiter))
+                {
+                    this.Next();
+                    result.Add(parsefn());
+                }
+            }
+
+            this.Match(endToken);
+
+            return result;
+        }
     }
 }
