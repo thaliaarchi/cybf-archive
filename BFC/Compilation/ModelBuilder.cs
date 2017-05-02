@@ -69,9 +69,57 @@ namespace CyBF.BFC.Compilation
                     ParseProcedureDefinition();
                 else if (_parser.Matches(TokenType.Keyword_Selector))
                     ParseSelectorDefinition();
+                else if (_parser.Matches(TokenType.Keyword_Struct))
+                    ParseStructDefinition();
                 else
                     ParseStatement();
             }
+        }
+
+        public void ParseStructDefinition()
+        {
+            _environment.Push();
+
+            Token reference = _parser.Match(TokenType.Keyword_Struct);
+            TypeConstraint constraint = ParseTypeConstraint();
+            List<Variable> valueParameters = new List<Variable>(0);
+
+            if (_parser.Matches(TokenType.OpenParen))
+            {
+                List<string> parameterNames = _parser.ParseDelimitedList(
+                    TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen,
+                    () => _parser.Match(TokenType.Identifier).ProcessedValue);
+
+                foreach (string parameterName in parameterNames)
+                {
+                    Variable valueParameter = new Variable(parameterName);
+                    _environment.Define(valueParameter);
+
+                    valueParameters.Add(valueParameter);
+                }
+            }
+
+            List<FieldDefinition> fields = new List<FieldDefinition>();
+
+            while (!_parser.Matches(TokenType.Keyword_End))
+            {
+                string fieldName = _parser.Match(TokenType.Identifier).ProcessedValue;
+                _parser.Match(TokenType.Colon);
+                TypeVariable fieldType = ParseTypeExpression();
+
+                fields.Add(new FieldDefinition(fieldName, fieldType));
+            }
+            
+            _parser.Match(TokenType.Keyword_End);
+
+            IEnumerable<Statement> setupStatements = _environment.CurrentStatements;
+
+            StructDefinition definition = new StructDefinition(
+                reference, constraint, valueParameters, setupStatements, fields);
+
+            _library.DefineType(definition);
+
+            _environment.Pop();
         }
 
         public void ParseSelectorDefinition()
