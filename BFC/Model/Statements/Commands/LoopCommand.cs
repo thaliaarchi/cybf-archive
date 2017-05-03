@@ -17,13 +17,13 @@ namespace CyBF.BFC.Model.Statements.Commands
 
         public override void Compile(BFCompiler compiler)
         {
-            if (compiler.LastReferencedAllocatedObject == null)
+            if (compiler.CurrentAllocatedObject == null)
             {
                 compiler.TracePush(this.Reference);
                 compiler.RaiseSemanticError("Loop does not have a defined control variable.");
             }
 
-            BFObject beginningObject = compiler.LastReferencedAllocatedObject;
+            BFObject beginningObject = compiler.CurrentAllocatedObject;
 
             compiler.Write("[");
 
@@ -32,7 +32,7 @@ namespace CyBF.BFC.Model.Statements.Commands
 
             compiler.Write("]");
 
-            BFObject endingObject = compiler.LastReferencedAllocatedObject;
+            BFObject endingObject = compiler.CurrentAllocatedObject;
 
             if (beginningObject != endingObject)
             {

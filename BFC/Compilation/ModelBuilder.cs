@@ -428,6 +428,11 @@ namespace CyBF.BFC.Compilation
             _environment.Append(new WhileStatement(reference, condition, body));
         }
 
+        public void ParseIfStatement()
+        {
+            throw new NotImplementedException();
+        }
+
         public void ParseCommandBlockStatement()
         {
             List<Command> commands = new List<Command>();

@@ -14,8 +14,6 @@ namespace CyBF.BFC.Compilation
 {
     public class BFCompiler
     {
-        private DefinitionLibrary _definitions = new DefinitionLibrary();
-
         private StringBuilder _compiledCode = new StringBuilder();
         private Stack<Token> _trace = new Stack<Token>();
 
@@ -24,22 +22,12 @@ namespace CyBF.BFC.Compilation
         private int _cachedStringAutonum = 0;
         private Dictionary<int, CyBFString> _cachedStringLiterals = new Dictionary<int, CyBFString>();
 
-        private BFObject _lastReferencedAllocatedObject = null;
-        public BFObject LastReferencedAllocatedObject
-        {
-            get { return _lastReferencedAllocatedObject; }
-            set
-            {
-                if (value.DataType.Size() == 0)
-                    throw new ArgumentException("Zero sized data type cannot be allocated.");
-
-                _lastReferencedAllocatedObject = value;
-            }
-        }
+        public DefinitionLibrary Library { get; private set; }
+        public BFObject CurrentAllocatedObject { get; private set; }
 
         public BFCompiler(DefinitionLibrary library)
         {
-            _definitions = library;
+            this.Library = library;
         }
 
         public void Write(string code)
@@ -64,14 +52,49 @@ namespace CyBF.BFC.Compilation
 
         public List<FunctionDefinition> MatchFunction(string name, IEnumerable<TypeInstance> arguments)
         {
-            return _definitions.MatchFunction(name, arguments);
+            return this.Library.MatchFunction(name, arguments);
         }
 
         public List<TypeDefinition> MatchType(string name, IEnumerable<TypeInstance> arguments)
         {
-            return _definitions.MatchType(name, arguments);
+            return this.Library.MatchType(name, arguments);
         }
         
+        public void MoveToObject(BFObject bfobject)
+        {
+            if (bfobject.DataType.Size() > 0)
+            {
+                if (this.CurrentAllocatedObject != null)
+                    this.CurrentAllocatedObject.UndoOffsets(this);
+
+                this.Write(bfobject.AllocationId + " ");
+
+                bfobject.ApplyOffsets(this);
+
+                this.CurrentAllocatedObject = bfobject;
+            }
+        }
+
+        public BFObject MakeAndMoveToObject(TypeInstance dataType, string allocationIdPrefix = null)
+        {
+            BFObject bfobject = allocationIdPrefix != null ?
+                new BFObject(dataType, allocationIdPrefix) : new BFObject(dataType);
+
+            int size = dataType.Size();
+
+            if (size > 0)
+            {
+                if (this.CurrentAllocatedObject != null)
+                    this.CurrentAllocatedObject.UndoOffsets(this);
+
+                this.Write("@" + bfobject.AllocationId + ":" + size.ToString());
+
+                this.CurrentAllocatedObject = bfobject;
+            }
+
+            return bfobject;
+        }
+
         public bool ContainsCachedString(int id)
         {
             return _cachedStringLiterals.ContainsKey(id);

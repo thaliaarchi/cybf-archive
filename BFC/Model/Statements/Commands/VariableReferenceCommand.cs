@@ -19,23 +19,7 @@ namespace CyBF.BFC.Model.Statements.Commands
 
         public override void Compile(BFCompiler compiler)
         {
-            if (this.Variable.Value.DataType.Size() > 0)
-            {
-                if (compiler.LastReferencedAllocatedObject != null)
-                {
-                    IReadOnlyList<AddressOffset> undoOffsets = compiler.LastReferencedAllocatedObject.Offsets;
-
-                    foreach (AddressOffset offset in undoOffsets.Reverse())
-                        offset.Dereference(compiler);
-                }
-
-                compiler.Write(this.Variable.Value.AllocationId + " ");
-
-                foreach (AddressOffset offset in this.Variable.Value.Offsets)
-                    offset.Reference(compiler);
-
-                compiler.LastReferencedAllocatedObject = this.Variable.Value;
-            }
+            compiler.MoveToObject(this.Variable.Value);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using CyBF.BFC.Model.Addressing;
+﻿using CyBF.BFC.Compilation;
+using CyBF.BFC.Model.Addressing;
 using CyBF.BFC.Model.Types;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,18 @@ namespace CyBF.BFC.Model
         public BFObject Derive(TypeInstance dataType, params AddressOffset[] additionalOffsets)
         {
             return Derive(dataType, (IEnumerable<AddressOffset>)additionalOffsets);
+        }
+
+        public void ApplyOffsets(BFCompiler compiler)
+        {
+            foreach (AddressOffset offset in this.Offsets)
+                offset.Reference(compiler);
+        }
+
+        public void UndoOffsets(BFCompiler compiler)
+        {
+            foreach (AddressOffset offset in this.Offsets.Reverse())
+                offset.Dereference(compiler);
         }
     }
 }
