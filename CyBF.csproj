@@ -76,6 +76,7 @@
     <Compile Include="BFC\Model\Statements\TypeConstructionStatement.cs" />
     <Compile Include="BFC\Model\Statements\VariableAssignmentStatement.cs" />
     <Compile Include="BFC\Model\Statements\VariableDeclarationStatement.cs" />
+    <Compile Include="BFC\Model\Statements\WhileStatement.cs" />
     <Compile Include="BFC\Model\Types\ArrayDefinition.cs" />
     <Compile Include="BFC\Model\Types\ArrayInstance.cs" />
     <Compile Include="BFC\Model\Types\ByteDefinition.cs" />

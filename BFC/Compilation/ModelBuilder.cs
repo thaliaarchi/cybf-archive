@@ -315,6 +315,10 @@ namespace CyBF.BFC.Compilation
                     ParseVariableDeclarationStatement();
                     break;
 
+                case TokenType.Keyword_While:
+                    ParseWhileStatement();
+                    break;
+
                 case TokenType.OpenBrace:
                     ParseCommandBlockStatement();
                     break;
@@ -402,6 +406,26 @@ namespace CyBF.BFC.Compilation
 
             Statement statement = new VariableAssignmentStatement(reference, declaredVariable, expressionResult);
             _environment.Append(statement);
+        }
+
+        public void ParseWhileStatement()
+        {
+            Token reference = _parser.Match(TokenType.Keyword_While);
+            Variable condition = ParseExpression();
+            _parser.Match(TokenType.Colon);
+
+            _environment.Push();
+
+            while (!_parser.Matches(TokenType.Keyword_End))
+                ParseStatement();
+
+            IEnumerable<Statement> body = _environment.CurrentStatements;
+
+            _environment.Pop();
+
+            _parser.Match(TokenType.Keyword_End);
+
+            _environment.Append(new WhileStatement(reference, condition, body));
         }
 
         public void ParseCommandBlockStatement()
