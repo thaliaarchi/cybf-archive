@@ -319,6 +319,10 @@ namespace CyBF.BFC.Compilation
                     ParseWhileStatement();
                     break;
 
+                case TokenType.Keyword_If:
+                    ParseIfStatement();
+                    break;
+
                 case TokenType.OpenBrace:
                     ParseCommandBlockStatement();
                     break;

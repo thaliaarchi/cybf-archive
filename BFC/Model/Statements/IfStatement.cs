@@ -25,7 +25,9 @@ namespace CyBF.BFC.Model.Statements
             if (!(this.Condition.Value.DataType is ByteInstance))
             {
                 compiler.TracePush(this.Reference);
-                compiler.RaiseSemanticError("Condition variable is not a byte.");
+                compiler.RaiseSemanticError(string.Format(
+                    "Condition expression evaluates to '{0}'. Must evaluate to Byte.",
+                    this.Condition.Value.DataType.ToString()));
             }
 
             // We want t0 = conditional, t1 = copy of conditional, t2 = 1.
