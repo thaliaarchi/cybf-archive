@@ -62,7 +62,8 @@ namespace CyBF.BFC.Compilation
         
         public void MoveToObject(BFObject bfobject)
         {
-            if (bfobject.DataType.Size() > 0)
+            if (bfobject.DataType.Size() > 0 &&
+                bfobject != this.CurrentAllocatedObject)
             {
                 if (this.CurrentAllocatedObject != null)
                     this.CurrentAllocatedObject.UndoOffsets(this);

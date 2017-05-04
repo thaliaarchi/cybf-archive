@@ -62,17 +62,17 @@ namespace CyBF.BFC.Model.Statements
             compiler.MoveToObject(t2);
             compiler.Write("+");
 
-            // while t1 ( conditional body, zero both t1 and t2 )
+            // while t1 ( conditional body, zero both t2 and t1 )
             compiler.MoveToObject(t1);
             compiler.Write("[");
 
             foreach (Statement statement in this.ConditionalBody)
                 statement.Compile(compiler);
 
-            compiler.MoveToObject(t1);
-            compiler.Write("[-]");
             compiler.MoveToObject(t2);
             compiler.Write("-");
+            compiler.MoveToObject(t1);
+            compiler.Write("[-]");
             compiler.Write("]");
 
             // while t2 ( else body, zero t2 )
