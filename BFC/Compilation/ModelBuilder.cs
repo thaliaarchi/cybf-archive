@@ -422,7 +422,45 @@ namespace CyBF.BFC.Compilation
 
         public Statement ParseIfStatement()
         {
-            throw new NotImplementedException();
+            Statement statement = ParseIfStatementConditional(TokenType.Keyword_If);
+            _parser.Match(TokenType.Keyword_End);
+            return statement;
+        }
+
+        public Statement ParseIfStatementConditional(TokenType leadingToken)
+        {
+            Token reference = _parser.Match(leadingToken);
+            ExpressionStatement condition = ParseExpression();
+            _parser.Match(TokenType.Colon);
+
+            _symbolTable.Push();
+
+            List<Statement> conditionalBody = new List<Statement>();
+
+            while (!_parser.Matches(TokenType.Keyword_Elif, TokenType.Keyword_Else, TokenType.Keyword_End))
+                conditionalBody.Add(ParseStatement());
+
+            _symbolTable.Pop();
+
+            List<Statement> elseBody = new List<Statement>();
+
+            if (_parser.Matches(TokenType.Keyword_Elif))
+            {
+                elseBody.Add(ParseIfStatementConditional(TokenType.Keyword_Elif));
+            }
+            else if (_parser.Matches(TokenType.Keyword_Else))
+            {
+                _parser.Next();
+
+                _symbolTable.Push();
+
+                while (!_parser.Matches(TokenType.Keyword_End))
+                    elseBody.Add(ParseStatement());
+
+                _symbolTable.Pop();
+            }
+
+            return new IfStatement(reference, condition, conditionalBody, elseBody);
         }
 
         public Statement ParseCommandBlockStatement()
@@ -505,9 +543,9 @@ namespace CyBF.BFC.Compilation
             _parser.Match(TokenType.CloseParen);
             _parser.Match(TokenType.Asterisk);
 
-            Variable counterVariable = ParseCommandDataItem();
+            ExpressionStatement counter = ParseCommandDataItem();
             
-            return new RepeatCommand(reference, commands, counterVariable);
+            return new RepeatCommand(reference, commands, counter);
         }
 
         public VariableReferenceCommand ParseVariableReferenceCommand()
@@ -521,33 +559,33 @@ namespace CyBF.BFC.Compilation
         public WriteCommand ParseWriteCommand()
         {
             Token reference = _parser.Match(TokenType.Hash);
-            List<Variable> variables;
+            List<ExpressionStatement> dataItems;
 
             if (_parser.Matches(TokenType.OpenParen))
             {
-                variables = _parser.ParseDelimitedList(
+                dataItems = _parser.ParseDelimitedList(
                     TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen,
                     ParseCommandDataItem);
             }
             else
             {
-                variables = new List<Variable>() { ParseCommandDataItem() };
+                dataItems = new List<ExpressionStatement>() { ParseCommandDataItem() };
             }
 
-            return new WriteCommand(reference, variables);
+            return new WriteCommand(reference, dataItems);
         }
         
-        public Variable ParseCommandDataItem()
+        public ExpressionStatement ParseCommandDataItem()
         {
             if (_parser.Matches(TokenType.Identifier))
             {
                 Token variableNameToken = _parser.Next();
-                return LookupUserVariable(variableNameToken);
+                Variable variable = LookupUserVariable(variableNameToken);
+                return new VariableExpressionStatement(variableNameToken, variable);
             }
             else
             {
-                ExpressionStatement literal = ParseLiteralExpression();
-                return literal.ReturnVariable;
+                return ParseLiteralExpression();
             }
         }
 

@@ -9,37 +9,40 @@ namespace CyBF.BFC.Model.Statements.Commands
 {
     public class WriteCommand : Command
     {
-        public IReadOnlyList<Variable> Variables { get; private set; }
+        public IReadOnlyList<ExpressionStatement> DataItems { get; private set; }
 
-        public WriteCommand(Token reference, IEnumerable<Variable> variables)
+        public WriteCommand(Token reference, IEnumerable<ExpressionStatement> dataItems)
             : base(reference)
         {
-            this.Variables = variables.ToList().AsReadOnly();
+            this.DataItems = dataItems.ToList().AsReadOnly();
         }
 
         public override void Compile(BFCompiler compiler)
         {
             List<string> writeArguments = new List<string>();
 
-            foreach (Variable variable in this.Variables)
+            foreach (ExpressionStatement dataItem in this.DataItems)
             {
-                if (variable.Value.DataType is ConstInstance)
+                dataItem.Compile(compiler);
+                TypeInstance dataType = dataItem.ReturnVariable.Value.DataType;
+
+                if (dataType is ConstInstance)
                 {
-                    int numericValue = ((ConstInstance)variable.Value.DataType).Value;
+                    int numericValue = ((ConstInstance)dataType).Value;
 
                     if (numericValue < 0 || 255 < numericValue)
                         throw new SemanticError("Invalid variable range for write operation.", this.Reference);
 
                     writeArguments.Add(numericValue.ToString());
                 }
-                else if (variable.Value.DataType is StringInstance)
+                else if (dataType is StringInstance)
                 {
-                    string rawString = ((StringInstance)variable.Value.DataType).RawString;
+                    string rawString = ((StringInstance)dataType).RawString;
                     writeArguments.Add(rawString);
                 }
                 else
                 {
-                    throw new SemanticError("Invalid variable type for write operation.", this.Reference);
+                    throw new SemanticError("Invalid data item type for write operation.", this.Reference);
                 }
             }
 
