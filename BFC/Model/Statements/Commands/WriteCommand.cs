@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CyBF.BFC.Compilation;
 using CyBF.Parsing;
 using CyBF.BFC.Model.Types;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Statements.Commands
 {
@@ -27,17 +25,17 @@ namespace CyBF.BFC.Model.Statements.Commands
             {
                 if (variable.Value.DataType is ConstInstance)
                 {
-                    int value = ((ConstInstance)variable.Value.DataType).Value;
+                    int numericValue = ((ConstInstance)variable.Value.DataType).Value;
 
-                    if (value < 0 || 255 < value)
+                    if (numericValue < 0 || 255 < numericValue)
                         throw new SemanticError("Invalid variable range for write operation.", this.Reference);
 
-                    writeArguments.Add(value.ToString());
+                    writeArguments.Add(numericValue.ToString());
                 }
                 else if (variable.Value.DataType is StringInstance)
                 {
-                    string value = ((StringInstance)variable.Value.DataType).String.RawValue;
-                    writeArguments.Add(value);
+                    string rawString = ((StringInstance)variable.Value.DataType).RawString;
+                    writeArguments.Add(rawString);
                 }
                 else
                 {

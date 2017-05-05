@@ -1,36 +1,37 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using CyBF.BFC.Compilation;
 using CyBF.Parsing;
 using CyBF.BFC.Model.Types;
 using CyBF.BFC.Model.Addressing;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Statements
 {
-    public class FieldReferenceStatement : Statement
+    public class FieldExpressionStatement : ExpressionStatement
     {
-        public Variable Source { get; private set; }
+        public ExpressionStatement Source { get; private set; }
         public string FieldName { get; private set; }
-        public Variable ReturnValue { get; private set; }
 
-        public FieldReferenceStatement(Token reference, Variable source, string fieldName, Variable returnValue) 
+        public FieldExpressionStatement(Token reference, ExpressionStatement source, string fieldName) 
             : base(reference)
         {
             this.Source = source;
             this.FieldName = fieldName;
-            this.ReturnValue = returnValue;
         }
 
         public override void Compile(BFCompiler compiler)
         {
-            FieldInstance field = ResolveField();
+            this.Source.Compile(compiler);
+            BFObject sourceObject = this.Source.ReturnVariable.Value;
+
+            FieldInstance field = ResolveField(sourceObject);
             NumericAddressOffset fieldOffset = new NumericAddressOffset(field.Offset);
-            this.ReturnValue.Value = this.Source.Value.Derive(field.DataType, fieldOffset);
+            this.ReturnVariable.Value = sourceObject.Derive(field.DataType, fieldOffset);
         }
 
-        private FieldInstance ResolveField()
+        private FieldInstance ResolveField(BFObject sourceObject)
         {
-            TypeInstance sourceDataType = this.Source.Value.DataType;
+            TypeInstance sourceDataType = sourceObject.DataType;
             List<Token> referenceTokens = new List<Token>();
 
             referenceTokens.Add(this.Reference);

@@ -4,11 +4,11 @@ using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Types
 {
-    public class StringDefinition : TypeDefinition
+    public class VoidDefinition : TypeDefinition
     {
-        public const string StaticName = "String";
+        public const string StaticName = "Void";
 
-        public StringDefinition()
+        public VoidDefinition()
             : base(new TypeConstraint(StaticName))
         {
         }
@@ -16,7 +16,7 @@ namespace CyBF.BFC.Model.Types
         public override TypeInstance Compile(BFCompiler compiler, IEnumerable<TypeInstance> typeArguments, IEnumerable<BFObject> valueArguments)
         {
             this.ApplyArguments(compiler, typeArguments, valueArguments);
-            return new StringInstance("", "");
+            return new VoidInstance();
         }
     }
 }

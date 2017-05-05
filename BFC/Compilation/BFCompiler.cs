@@ -1,4 +1,5 @@
 ﻿using CyBF.BFC.Model;
+using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Functions;
 using CyBF.BFC.Model.Statements;
 using CyBF.BFC.Model.Types;
@@ -16,18 +17,19 @@ namespace CyBF.BFC.Compilation
     {
         private StringBuilder _compiledCode = new StringBuilder();
         private Stack<Token> _trace = new Stack<Token>();
-
-        // TODO: Just make a public property of IReadOnlyList. Or, maybe even just List.
-        // String "id"s could simply be indexes into this list. 
-        private int _cachedStringAutonum = 0;
-        private Dictionary<int, CyBFString> _cachedStringLiterals = new Dictionary<int, CyBFString>();
-
+        
         public DefinitionLibrary Library { get; private set; }
         public BFObject CurrentAllocatedObject { get; private set; }
 
-        public BFCompiler(DefinitionLibrary library)
+        public BFCompiler(IEnumerable<TypeDefinition> dataTypes, IEnumerable<FunctionDefinition> functions)
         {
-            this.Library = library;
+            this.Library = new DefinitionLibrary();
+
+            foreach (TypeDefinition dataType in dataTypes)
+                this.Library.DefineType(dataType);
+
+            foreach (FunctionDefinition function in functions)
+                this.Library.DefineFunction(function);
         }
 
         public void Write(string code)
@@ -94,23 +96,6 @@ namespace CyBF.BFC.Compilation
             }
 
             return bfobject;
-        }
-
-        public bool ContainsCachedString(int id)
-        {
-            return _cachedStringLiterals.ContainsKey(id);
-        }
-
-        public CyBFString GetCachedString(int id)
-        {
-            return _cachedStringLiterals[id];
-        }
-
-        public int CacheString(CyBFString value)
-        {
-            int id = _cachedStringAutonum++;
-            _cachedStringLiterals[id] = value;
-            return id;
         }
 
         public void RaiseSemanticError(string message)

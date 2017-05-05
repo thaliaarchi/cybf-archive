@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CyBF.BFC.Compilation;
 using System.Linq;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Types
 {
@@ -11,7 +12,7 @@ namespace CyBF.BFC.Model.Types
         public ConstDefinition()
             : base(
                 new TypeConstraint(StaticName),
-                new Variable("value"))
+                new SystemVariable())
         {
         }
 

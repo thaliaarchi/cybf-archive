@@ -3,16 +3,17 @@ using System.Linq;
 using CyBF.BFC.Compilation;
 using CyBF.Parsing;
 using CyBF.BFC.Model.Types;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Statements
 {
     public class IfStatement : Statement
     {
-        public Variable Condition { get; private set; }
+        public ExpressionStatement Condition { get; private set; }
         public IReadOnlyList<Statement> ConditionalBody { get; private set; }
         public IReadOnlyList<Statement> ElseBody { get; private set; }
 
-        public IfStatement(Token reference, Variable condition, IEnumerable<Statement> conditionalBody, IEnumerable<Statement> elseBody) 
+        public IfStatement(Token reference, ExpressionStatement condition, IEnumerable<Statement> conditionalBody, IEnumerable<Statement> elseBody) 
             : base(reference)
         {
             this.Condition = condition;
@@ -22,69 +23,92 @@ namespace CyBF.BFC.Model.Statements
 
         public override void Compile(BFCompiler compiler)
         {
-            if (!(this.Condition.Value.DataType is ByteInstance))
+            this.Condition.Compile(compiler);
+            BFObject conditionObject = this.Condition.ReturnVariable.Value;
+
+            if (!(conditionObject.DataType is ByteInstance))
             {
                 compiler.TracePush(this.Reference);
                 compiler.RaiseSemanticError(string.Format(
                     "Condition expression evaluates to '{0}'. Must evaluate to Byte.",
-                    this.Condition.Value.DataType.ToString()));
+                    conditionObject.DataType.ToString()));
             }
 
-            // We want t0 = conditional, t1 = copy of conditional, t2 = 1.
+            /*
+            // We want:
+            //  c = copy of conditionObject (to be zeroed out), 
+            //  e = flag controlling whether to run elseBody code
+            //      (only if condition is already zero).
+            */
 
-            BFObject t0 = this.Condition.Value;
-
-            BFObject t1 = compiler.MakeAndMoveToObject(new ByteInstance());
+            BFObject c = compiler.MakeAndMoveToObject(new ByteInstance());
             compiler.Write("[-]");
 
-            BFObject t2 = compiler.MakeAndMoveToObject(new ByteInstance());
+            BFObject e = compiler.MakeAndMoveToObject(new ByteInstance());
             compiler.Write("[-]");
+
+            // First, copy from conditionObject to c, 
+            // using e as the temporary variable since it's not needed yet.
             
-            // Move the data from t0 to t1 and t2. This clears t0.
-            compiler.MoveToObject(t0);
+            // Move data from conditionObject to both c and e.
+            compiler.MoveToObject(conditionObject);
             compiler.Write("[");
-            compiler.MoveToObject(t1);
+            compiler.MoveToObject(c);
             compiler.Write("+");
-            compiler.MoveToObject(t2);
+            compiler.MoveToObject(e);
             compiler.Write("+");
-            compiler.MoveToObject(t0);
+            compiler.MoveToObject(conditionObject);
             compiler.Write("-");
             compiler.Write("]");
 
-            // Move the data from t2 back to t0. This clears t2.
-            compiler.MoveToObject(t2);
+            // Move the data from e back to conditionObject.
+            compiler.MoveToObject(e);
             compiler.Write("[");
-            compiler.MoveToObject(t0);
+            compiler.MoveToObject(conditionObject);
             compiler.Write("+");
-            compiler.MoveToObject(t2);
+            compiler.MoveToObject(e);
             compiler.Write("-");
             compiler.Write("]");
 
-            // Finally, increment t2. Now we have the temp object set how we want.
-            compiler.MoveToObject(t2);
+            // Finally, set e = 1. 
+            // If it doesn't change, we will run the elseBody.
+            compiler.MoveToObject(e);
             compiler.Write("+");
 
-            // while t1 ( conditional body, zero both t2 and t1 )
-            compiler.MoveToObject(t1);
+            /*
+            while(c)
+            {
+                Run conditionalBody code.
+                Zero out e, so we don't run the elseBody code.
+                Zero out c, since we only want to iterate once.
+            }
+            */
+            compiler.MoveToObject(c);
             compiler.Write("[");
 
             foreach (Statement statement in this.ConditionalBody)
                 statement.Compile(compiler);
 
-            compiler.MoveToObject(t2);
+            compiler.MoveToObject(e);
             compiler.Write("-");
-            compiler.MoveToObject(t1);
+            compiler.MoveToObject(c);
             compiler.Write("[-]");
             compiler.Write("]");
 
-            // while t2 ( else body, zero t2 )
-            compiler.MoveToObject(t2);
+            /*
+            while(e)
+            {
+                Run elseBody code.
+                Zero out e, since we only want to iterate once.
+            }
+            */
+            compiler.MoveToObject(e);
             compiler.Write("[");
 
             foreach (Statement statement in this.ElseBody)
                 statement.Compile(compiler);
 
-            compiler.MoveToObject(t2);
+            compiler.MoveToObject(e);
             compiler.Write("-");
             compiler.Write("]");
         }

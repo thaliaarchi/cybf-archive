@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CyBF.Parsing;
 using CyBF.BFC.Compilation;
+using CyBF.BFC.Model;
 
 namespace CyBF
 {
@@ -31,8 +32,8 @@ namespace CyBF
 
                 List<Token> cybfTokens = lexer.GetAllTokens();
                 ModelBuilder cybfModel = new ModelBuilder(cybfTokens);
-                cybfModel.ParseProgram();
-                bfilCode = cybfModel.Compile();
+                CyBFProgram cybfProgram = cybfModel.BuildProgram();
+                bfilCode = cybfProgram.Compile();
 
                 BFILParser bfilParser = new BFILParser(bfilCode, "code.cbf");
                 BFILProgram bfilProgram = bfilParser.ParseProgram();

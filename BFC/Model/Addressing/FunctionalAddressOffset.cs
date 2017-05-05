@@ -3,6 +3,7 @@ using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Functions;
 using System.Collections.Generic;
 using System.Linq;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Addressing
 {

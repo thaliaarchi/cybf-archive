@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CyBF.BFC.Compilation;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Types
 {
@@ -11,7 +12,7 @@ namespace CyBF.BFC.Model.Types
         public ArrayDefinition()
             : base(
                 new TypeConstraint(StaticName, new TypeParameter()),
-                new Variable("capacity"))
+                new SystemVariable())
         {
         }
 

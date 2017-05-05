@@ -1,4 +1,5 @@
-﻿using CyBF.BFC.Model.Types;
+﻿using CyBF.BFC.Model.Data;
+using CyBF.BFC.Model.Types;
 
 namespace CyBF.BFC.Model.Functions
 {
@@ -15,7 +16,7 @@ namespace CyBF.BFC.Model.Functions
 
         public FunctionParameter(TypeConstraint constraint)
         {
-            this.Variable = new Variable();
+            this.Variable = new SystemVariable();
             this.TypeParameter = new ConstrainedTypeParameter(constraint);
         }
     }

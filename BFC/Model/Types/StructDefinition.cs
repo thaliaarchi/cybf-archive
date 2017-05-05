@@ -3,26 +3,24 @@ using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Statements;
 using CyBF.Parsing;
 using System.Linq;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Types
 {
     public class StructDefinition : TypeDefinition
     {
         public Token Reference { get; private set; }
-        public IReadOnlyList<Statement> SetupStatements { get; private set; }
         public IReadOnlyList<FieldDefinition> Fields { get; private set; }
 
         public StructDefinition(
             Token reference, 
             TypeConstraint constraint, 
             IEnumerable<Variable> parameters,
-            IEnumerable<Statement> setupStatements,
             IEnumerable<FieldDefinition> fields)
             : base(constraint, parameters)
         {
             this.Reference = reference;
-            this.SetupStatements = setupStatements.ToList().AsReadOnly();
-
+            
             List<FieldDefinition> fieldsList = new List<FieldDefinition>();
 
             foreach (FieldDefinition field in fields)
@@ -39,25 +37,24 @@ namespace CyBF.BFC.Model.Types
         public override TypeInstance Compile(BFCompiler compiler, IEnumerable<TypeInstance> typeArguments, IEnumerable<BFObject> valueArguments)
         {
             compiler.TracePush(this.Reference);
-
+            
             this.ApplyArguments(compiler, typeArguments, valueArguments);
 
-            foreach (Statement statement in this.SetupStatements)
-                statement.Compile(compiler);
-
+            List<FieldInstance> fieldInstances = new List<FieldInstance>();
             int offset = 0;
-            List<FieldInstance> instanceFields = new List<FieldInstance>();
-
-            foreach (FieldDefinition defField in this.Fields)
+            
+            foreach (FieldDefinition fieldDefinition in this.Fields)
             {
-                FieldInstance instField = defField.MakeInstance(offset);
-                offset += instField.DataType.Size();
-                instanceFields.Add(instField);
+                FieldInstance fieldInstance = fieldDefinition.Compile(compiler, offset);
+                offset += fieldInstance.DataType.Size();
+                fieldInstances.Add(fieldInstance);
             }
+
+            StructInstance structInstance = new StructInstance(this.Reference, this.TypeName, typeArguments, fieldInstances);
 
             compiler.TracePop();
 
-            return new StructInstance(this.Reference, this.TypeName, typeArguments, instanceFields);
+            return structInstance;
         }
     }
 }

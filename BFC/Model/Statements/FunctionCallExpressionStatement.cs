@@ -3,35 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Functions;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Statements
 {
-    public class FunctionCallStatement : Statement
+    public class FunctionCallExpressionStatement : ExpressionStatement
     {
         public string FunctionName { get; private set; }
-        public IReadOnlyList<Variable> Arguments { get; private set; }
-        public Variable ReturnValue { get; private set; }
+        public IReadOnlyList<ExpressionStatement> Arguments { get; private set; }
 
-        public FunctionCallStatement(
+        public FunctionCallExpressionStatement(
             Token reference, 
             string functionName, 
-            IEnumerable<Variable> arguments,
-            Variable returnValue)
+            IEnumerable<ExpressionStatement> arguments)
             : base(reference)
         {
             this.FunctionName = functionName;
             this.Arguments = arguments.ToList().AsReadOnly();
-            this.ReturnValue = returnValue;
         }
 
         public override void Compile(BFCompiler compiler)
         {
+            foreach (ExpressionStatement argument in this.Arguments)
+                argument.Compile(compiler);
+
+            IEnumerable<BFObject> argumentObjects = this.Arguments.Select(arg => arg.ReturnVariable.Value);
+
             compiler.TracePush(this.Reference);
 
-            List<FunctionDefinition> matches = compiler.MatchFunction(this.FunctionName, this.Arguments.Select(v => v.Value.DataType));
+            List<FunctionDefinition> matches = compiler.MatchFunction(this.FunctionName, argumentObjects.Select(arg => arg.DataType));
 
             if (matches.Count == 0)
-                compiler.RaiseSemanticError("No matching function definitions found:\n" + this.BuildSignature());
+                compiler.RaiseSemanticError("No matching function definitions found:\n" + this.BuildSignature(argumentObjects));
 
             if (matches.Count > 1)
             {
@@ -43,20 +46,18 @@ namespace CyBF.BFC.Model.Statements
                 references.Add(this.Reference);
                 references.AddRange(procedures.Select(p => p.Reference));
                 
-                throw new SemanticError("Ambiguous function call:\n" + this.BuildSignature(), references);
+                throw new SemanticError("Ambiguous function call:\n" + this.BuildSignature(argumentObjects), references);
             }
 
             FunctionDefinition definition = matches.Single();
-            definition.Compile(compiler, this.Arguments.Select(v => v.Value));
-
-            this.ReturnValue.Value = definition.ReturnValue.Value;
+            this.ReturnVariable.Value = definition.Compile(compiler, argumentObjects); ;
 
             compiler.TracePop();
         }
 
-        private string BuildSignature()
+        private string BuildSignature(IEnumerable<BFObject> argumentObjects)
         {
-            string argumentString = string.Join(", ", this.Arguments.Select(a => a.Value.DataType.ToString()));
+            string argumentString = string.Join(", ", argumentObjects.Select(arg => arg.DataType.ToString()));
             return this.FunctionName + "(" + argumentString + ")";
         }
     }

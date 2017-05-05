@@ -1,23 +1,25 @@
 ﻿using CyBF.BFC.Compilation;
+using CyBF.BFC.Model.Data;
 using CyBF.Parsing;
 
 namespace CyBF.BFC.Model.Statements
 {
     public class VariableAssignmentStatement : Statement
     {
-        public Variable Destination { get; private set; }
-        public Variable Source { get; private set; }
+        public Variable Variable { get; private set; }
+        public ExpressionStatement Expression { get; private set; }
 
-        public VariableAssignmentStatement(Token reference, Variable destination, Variable source) 
+        public VariableAssignmentStatement(Token reference, Variable variable, ExpressionStatement expression) 
             : base(reference)
         {
-            this.Destination = destination;
-            this.Source = source;
+            this.Variable = variable;
+            this.Expression = expression;
         }
 
         public override void Compile(BFCompiler compiler)
         {
-            Destination.Value = Source.Value;
+            this.Expression.Compile(compiler);
+            this.Variable.Value = this.Expression.ReturnVariable.Value;
         }
     }
 }

@@ -3,35 +3,42 @@ using System.Linq;
 using CyBF.BFC.Compilation;
 using CyBF.Parsing;
 using CyBF.BFC.Model.Types;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Statements
 {
-    public class TypeConstructionStatement : Statement
+    public class TypeConstructorStatement : TypeExpressionStatement
     {
         public string TypeName { get; private set; }
-        public IReadOnlyList<TypeVariable> TypeArguments { get; private set; }
-        public IReadOnlyList<Variable> ValueArguments { get; private set; }
-        public TypeVariable ReturnValue { get; private set; }
-
-        public TypeConstructionStatement(
+        public IReadOnlyList<TypeExpressionStatement> TypeArguments { get; private set; }
+        public IReadOnlyList<ExpressionStatement> ValueArguments { get; private set; }
+        
+        public TypeConstructorStatement(
             Token reference, 
             string typeName, 
-            IEnumerable<TypeVariable> typeArguments, 
-            IEnumerable<Variable> valueArguments,
-            TypeVariable returnValue) 
+            IEnumerable<TypeExpressionStatement> typeArguments, 
+            IEnumerable<ExpressionStatement> valueArguments)
             : base(reference)
         {
             this.TypeName = typeName;
             this.TypeArguments = typeArguments.ToList().AsReadOnly();
             this.ValueArguments = valueArguments.ToList().AsReadOnly();
-            this.ReturnValue = returnValue;
         }
 
         public override void Compile(BFCompiler compiler)
         {
+            foreach (TypeExpressionStatement typeArgument in this.TypeArguments)
+                typeArgument.Compile(compiler);
+
+            foreach (ExpressionStatement valueArgument in this.ValueArguments)
+                valueArgument.Compile(compiler);
+
+            IEnumerable<TypeInstance> typeArgumentInstances = this.TypeArguments.Select(arg => arg.ReturnVariable.Value);
+            IEnumerable<BFObject> valueArgumentObjects = this.ValueArguments.Select(arg => arg.ReturnVariable.Value);
+
             compiler.TracePush(this.Reference);
 
-            List<TypeDefinition> matches = compiler.MatchType(this.TypeName, this.TypeArguments.Select(a => a.Value));
+            List<TypeDefinition> matches = compiler.MatchType(this.TypeName, typeArgumentInstances);
 
             if (matches.Count == 0)
                 compiler.RaiseSemanticError("No matching type definitions found.");
@@ -53,12 +60,7 @@ namespace CyBF.BFC.Model.Statements
             }
 
             TypeDefinition definition = matches.Single();
-
-            IEnumerable<TypeInstance> typeArgInstances = this.TypeArguments.Select(v => v.Value);
-            IEnumerable<BFObject> valArgInstances = this.ValueArguments.Select(v => v.Value);
-            TypeInstance instance = definition.Compile(compiler, typeArgInstances, valArgInstances);
-
-            this.ReturnValue.Value = instance;
+            this.ReturnVariable.Value = definition.Compile(compiler, typeArgumentInstances, valueArgumentObjects);
 
             compiler.TracePop();
         }

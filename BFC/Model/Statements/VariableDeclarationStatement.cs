@@ -1,24 +1,28 @@
 ﻿using CyBF.BFC.Compilation;
 using CyBF.Parsing;
 using CyBF.BFC.Model.Types;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Statements
 {
     public class VariableDeclarationStatement : Statement
     {
         public Variable Variable { get; private set; }
-        public TypeVariable DataType { get; private set; }
+        public TypeExpressionStatement DataTypeExpression { get; private set; }
 
-        public VariableDeclarationStatement(Token reference, Variable variable, TypeVariable dataType)
+        public VariableDeclarationStatement(Token reference, Variable variable, TypeExpressionStatement dataTypeExpression)
             : base(reference)
         {
             this.Variable = variable;
-            this.DataType = dataType;
+            this.DataTypeExpression = dataTypeExpression;
         }
 
         public override void Compile(BFCompiler compiler)
         {
-            this.Variable.Value = compiler.MakeAndMoveToObject(this.DataType.Value, this.Variable.Name);
+            this.DataTypeExpression.Compile(compiler);
+            TypeInstance dataType = this.DataTypeExpression.ReturnVariable.Value;
+
+            this.Variable.Value = compiler.MakeAndMoveToObject(dataType, this.Variable.Name);
         }
     }
 }

@@ -1,24 +1,23 @@
 ﻿using CyBF.BFC.Compilation;
 using CyBF.Parsing;
 using CyBF.BFC.Model.Types;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Statements
 {
-    public class ConstStatement : Statement
+    public class ConstExpressionStatement : ExpressionStatement
     {
         public int NumericValue { get; private set; }
-        public Variable ReturnValue { get; private set; }
 
-        public ConstStatement(Token reference, int numericValue, Variable returnValue) 
+        public ConstExpressionStatement(Token reference, int numericValue) 
             : base(reference)
         {
             this.NumericValue = numericValue;
-            this.ReturnValue = returnValue;
         }
 
         public override void Compile(BFCompiler compiler)
         {
-            this.ReturnValue.Value = new BFObject(new ConstInstance(this.NumericValue), this.ReturnValue.Name);
+            this.ReturnVariable.Value = new BFObject(new ConstInstance(this.NumericValue));
         }
     }
 }

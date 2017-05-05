@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CyBF.BFC.Compilation;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Types
 {

@@ -1,9 +1,6 @@
 ﻿using CyBF.BFC.Compilation;
-using CyBF.BFC.Model.Addressing;
 using CyBF.Parsing;
-using System.Collections.Generic;
-using System;
-using System.Linq;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Statements.Commands
 {
