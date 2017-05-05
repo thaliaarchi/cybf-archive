@@ -69,8 +69,10 @@
     <Compile Include="BFC\Model\Statements\Commands\VariableReferenceCommand.cs" />
     <Compile Include="BFC\Model\Statements\Commands\WriteCommand.cs" />
     <Compile Include="BFC\Model\Statements\ConstExpressionStatement.cs" />
+    <Compile Include="BFC\Model\Statements\DoWhileLoopStatement.cs" />
     <Compile Include="BFC\Model\Statements\ExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\FieldExpressionStatement.cs" />
+    <Compile Include="BFC\Model\Statements\ForLoopStatement.cs" />
     <Compile Include="BFC\Model\Statements\FunctionCallExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\IfStatement.cs" />
     <Compile Include="BFC\Model\Statements\SelectorIndexExpressionStatement.cs" />
@@ -83,7 +85,7 @@
     <Compile Include="BFC\Model\Statements\VariableDeclarationStatement.cs" />
     <Compile Include="BFC\Model\Statements\VariableExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\VoidExpressionStatement.cs" />
-    <Compile Include="BFC\Model\Statements\WhileStatement.cs" />
+    <Compile Include="BFC\Model\Statements\WhileLoopStatement.cs" />
     <Compile Include="BFC\Model\Types\ArrayDefinition.cs" />
     <Compile Include="BFC\Model\Types\ArrayInstance.cs" />
     <Compile Include="BFC\Model\Types\ByteDefinition.cs" />

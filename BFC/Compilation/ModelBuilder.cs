@@ -211,7 +211,9 @@ namespace CyBF.BFC.Compilation
             {
                 _parser.Next();
                 returnExpression = ParseExpression();
-                _parser.Match(TokenType.Semicolon);
+
+                if (_parser.Matches(TokenType.Semicolon))
+                    _parser.Next();
             }
             else
             {
@@ -302,18 +304,36 @@ namespace CyBF.BFC.Compilation
             }
         }
 
-        public Statement ParseStatement()
+        public Statement ParseStatement(bool terminator = true)
         {
             switch (_parser.Current.TokenType)
             {
                 case TokenType.Keyword_Let:
-                    return ParseVariableAssignmentStatement();
+
+                    Statement letStatement = ParseVariableAssignmentStatement();
+
+                    if (terminator)
+                        _parser.Match(TokenType.Semicolon);
+
+                    return letStatement;
 
                 case TokenType.Keyword_Var:
-                    return ParseVariableDeclarationStatement();
+
+                    Statement varStatement = ParseVariableDeclarationStatement();
+
+                    if (terminator && _parser.Matches(TokenType.Semicolon))
+                        _parser.Next();
+
+                    return varStatement;
 
                 case TokenType.Keyword_While:
-                    return ParseWhileStatement();
+                    return ParseWhileLoopStatement();
+
+                case TokenType.Keyword_Do:
+                    return ParseDoWhileLoopStatement();
+
+                case TokenType.Keyword_For:
+                    return ParseForLoopStatement();
 
                 case TokenType.Keyword_If:
                     return ParseIfStatement();
@@ -322,8 +342,12 @@ namespace CyBF.BFC.Compilation
                     return ParseCommandBlockStatement();
 
                 default:
+
                     Statement expression = ParseExpression();
-                    _parser.Match(TokenType.Semicolon);
+
+                    if (terminator)
+                        _parser.Match(TokenType.Semicolon);
+
                     return expression;
             }
         }
@@ -395,12 +419,11 @@ namespace CyBF.BFC.Compilation
             _parser.Match(TokenType.Colon);
 
             ExpressionStatement expression = ParseExpression();
-            _parser.Match(TokenType.Semicolon);
 
             return new VariableAssignmentStatement(reference, variable, expression);
         }
 
-        public Statement ParseWhileStatement()
+        public Statement ParseWhileLoopStatement()
         {
             Token reference = _parser.Match(TokenType.Keyword_While);
             ExpressionStatement condition = ParseExpression();
@@ -416,8 +439,59 @@ namespace CyBF.BFC.Compilation
             _symbolTable.Pop();
 
             _parser.Match(TokenType.Keyword_End);
+            
+            return new WhileLoopStatement(reference, condition, body);
+        }
 
-            return new WhileStatement(reference, condition, body);
+        public Statement ParseDoWhileLoopStatement()
+        {
+            Token reference = _parser.Match(TokenType.Keyword_Do);
+
+            _symbolTable.Push();
+
+            List<Statement> body = new List<Statement>();
+
+            while (!_parser.Matches(TokenType.Keyword_While))
+                body.Add(ParseStatement());
+
+            _symbolTable.Pop();
+
+            _parser.Match(TokenType.Keyword_While);
+            ExpressionStatement condition = ParseExpression();
+
+            _parser.Match(TokenType.Semicolon);
+            
+            return new DoWhileLoopStatement(reference, condition, body);
+        }
+
+        public Statement ParseForLoopStatement()
+        {
+            _symbolTable.Push();
+
+            Token reference = _parser.Match(TokenType.Keyword_For);
+
+            _parser.Match(TokenType.OpenParen);
+
+            Statement initializer = ParseStatement(false);
+            _parser.Match(TokenType.Semicolon);
+
+            ExpressionStatement condition = ParseExpression();
+            _parser.Match(TokenType.Semicolon);
+
+            Statement step = ParseStatement(false);
+
+            _parser.Match(TokenType.CloseParen);
+
+            List<Statement> body = new List<Statement>();
+
+            while (!_parser.Matches(TokenType.Keyword_End))
+                body.Add(ParseStatement());
+
+            _parser.Match(TokenType.Keyword_End);
+
+            _symbolTable.Pop();
+
+            return new ForLoopStatement(reference, initializer, condition, step, body);
         }
 
         public Statement ParseIfStatement()
@@ -451,6 +525,9 @@ namespace CyBF.BFC.Compilation
             else if (_parser.Matches(TokenType.Keyword_Else))
             {
                 _parser.Next();
+
+                if (_parser.Matches(TokenType.Colon))
+                    _parser.Next();
 
                 _symbolTable.Push();
 

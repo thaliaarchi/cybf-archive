@@ -7,12 +7,12 @@ using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Statements
 {
-    public class WhileStatement : Statement
+    public class WhileLoopStatement : Statement
     {
         public ExpressionStatement ConditionExpression { get; private set; }
         public IReadOnlyList<Statement> Body { get; private set; }
 
-        public WhileStatement(Token reference, ExpressionStatement conditionExpression, IEnumerable<Statement> body) 
+        public WhileLoopStatement(Token reference, ExpressionStatement conditionExpression, IEnumerable<Statement> body) 
             : base(reference)
         {
             this.ConditionExpression = conditionExpression;
