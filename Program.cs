@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using CyBF.Parsing;
 using CyBF.BFC.Compilation;
 using CyBF.BFC.Model;
