@@ -33,6 +33,23 @@ namespace CyBF.BFC.Compilation
             }
         }
         
+        public List<Module> GetSortedModules()
+        {
+            List<Module> modules = this.Modules.ToList();
+            modules.Sort((m1, m2) => m2.Rank.CompareTo(m1.Rank));
+            return modules;
+        }
+
+        public List<Token> GetSortedProgramTokens()
+        {
+            List<Token> programTokens = new List<Token>();
+
+            foreach (Module module in this.GetSortedModules())
+                programTokens.AddRange(module.Code);
+
+            return programTokens;
+        }
+
         public void Add(Module module, IEnumerable<string> dependencies)
         {
             if (_modules.ContainsKey(module.Name))
@@ -57,16 +74,9 @@ namespace CyBF.BFC.Compilation
 
             if (parser.Matches(TokenType.OpenParen))
             {
-                parser.Next();
-                dependencies.Add(parser.Match(TokenType.Identifier));
-
-                while (parser.Matches(TokenType.Comma))
-                {
-                    parser.Next();
-                    dependencies.Add(parser.Match(TokenType.Identifier));
-                }
-
-                parser.Matches(TokenType.CloseParen);
+                dependencies = parser.ParseDelimitedList(
+                    TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen,
+                    () => parser.Match(TokenType.Identifier));
             }
 
             Module module = new Module(reference, name.ProcessedValue, tokens);

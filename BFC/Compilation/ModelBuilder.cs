@@ -105,6 +105,10 @@ namespace CyBF.BFC.Compilation
             {
                 switch (_parser.Current.TokenType)
                 {
+                    case TokenType.Keyword_Module:
+                        ParseModuleDeclaration();
+                        break;
+
                     case TokenType.Keyword_Struct:
                         dataTypes.Add(ParseStructDefinition());
                         break;
@@ -124,6 +128,19 @@ namespace CyBF.BFC.Compilation
             }
 
             return new CyBFProgram(dataTypes, functions, statements);
+        }
+
+        public void ParseModuleDeclaration()
+        {
+            _parser.Match(TokenType.Keyword_Module);
+            _parser.Match(TokenType.Identifier);
+
+            if (_parser.Matches(TokenType.OpenParen))
+            {
+                _parser.ParseDelimitedList(
+                    TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen,
+                    () => _parser.Match(TokenType.Identifier));
+            }
         }
 
         public StructDefinition ParseStructDefinition()
