@@ -55,7 +55,9 @@
     <Compile Include="BFC\Compilation\DefinitionLibrary.cs" />
     <Compile Include="BFC\Model\Data\SystemVariable.cs" />
     <Compile Include="BFC\Model\Data\UserVariable.cs" />
-    <Compile Include="BFC\Model\Functions\ConstAddOperatorDefinition.cs" />
+    <Compile Include="BFC\Model\Functions\Builtins\AssertFunctionDefinition.cs" />
+    <Compile Include="BFC\Model\Functions\Builtins\BinaryMathOperatorDefinition.cs" />
+    <Compile Include="BFC\Model\Functions\Builtins\SizeofFunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\FunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\FunctionParameter.cs" />
     <Compile Include="BFC\Model\Functions\ProcedureDefinition.cs" />

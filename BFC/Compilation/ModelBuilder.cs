@@ -1,6 +1,7 @@
 ﻿using CyBF.BFC.Model;
 using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Functions;
+using CyBF.BFC.Model.Functions.Builtins;
 using CyBF.BFC.Model.Statements;
 using CyBF.BFC.Model.Statements.Commands;
 using CyBF.BFC.Model.Types;
@@ -73,7 +74,32 @@ namespace CyBF.BFC.Compilation
             dataTypes.Add(new VoidDefinition());
             dataTypes.Add(new StringDefinition());
 
-            functions.Add(new ConstAddOperatorDefinition());
+            functions.Add(new BinaryMathOperatorDefinition("+", (left, right) => left + right));
+            functions.Add(new BinaryMathOperatorDefinition("-", (left, right) => left - right));
+            functions.Add(new BinaryMathOperatorDefinition("*", (left, right) => left * right));
+            functions.Add(new BinaryMathOperatorDefinition("/", (left, right) => left / right));
+            functions.Add(new BinaryMathOperatorDefinition("%", (left, right) => left % right));
+
+            functions.Add(new BinaryMathOperatorDefinition("<", 
+                (left, right) => left < right ? 1 : 0));
+
+            functions.Add(new BinaryMathOperatorDefinition("<=",
+                (left, right) => left <= right ? 1 : 0));
+
+            functions.Add(new BinaryMathOperatorDefinition("==",
+                (left, right) => left == right ? 1 : 0));
+
+            functions.Add(new BinaryMathOperatorDefinition("!=",
+                (left, right) => left != right ? 1 : 0));
+
+            functions.Add(new BinaryMathOperatorDefinition(">=",
+                (left, right) => left >= right ? 1 : 0));
+
+            functions.Add(new BinaryMathOperatorDefinition(">",
+                (left, right) => left > right ? 1 : 0));
+
+            functions.Add(new SizeofFunctionDefinition());
+            functions.Add(new AssertFunctionDefinition());
 
             while (!_parser.Matches(TokenType.EndOfSource))
             {

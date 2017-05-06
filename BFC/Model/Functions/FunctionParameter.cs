@@ -14,6 +14,12 @@ namespace CyBF.BFC.Model.Functions
             this.TypeParameter = typeParameter;
         }
 
+        public FunctionParameter(TypeParameter typeParameter)
+        {
+            this.Variable = new SystemVariable();
+            this.TypeParameter = typeParameter;
+        }
+
         public FunctionParameter(TypeConstraint constraint)
         {
             this.Variable = new SystemVariable();
