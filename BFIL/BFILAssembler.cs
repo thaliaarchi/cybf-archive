@@ -35,13 +35,17 @@ namespace CyBF.BFIL
             ReferenceTable orderedReferences = new ReferenceTable();
             MemoryAllocator allocator = new MemoryAllocator();
 
+            Variable nullMarker = new Variable("_NULL_", 1);
+            nullMarker.Address = allocator.Allocate(1);
+            orderedReferences.RegisterWithoutReference(nullMarker);
+
             Variable unallocatedMarker = new Variable("_UNALLOCATED_", 1);
             orderedReferences.RegisterWithoutReference(unallocatedMarker);
 
             IEnumerable<BFILReferenceStatement> undeclaredReferences = BuildOrderedReferences(program.Statements, orderedReferences);
 
             foreach (BFILReferenceStatement reference in undeclaredReferences)
-                if (reference.Name != unallocatedMarker.Name)
+                if (reference.Name != nullMarker.Name && reference.Name != unallocatedMarker.Name)
                     throw new BFILProgramError(reference.ReferenceToken, "Variable undefined or referenced out of scope.");
 
             Dictionary<Variable, int> lastReferenceIndex = new Dictionary<Variable, int>();

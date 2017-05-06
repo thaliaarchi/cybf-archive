@@ -39,6 +39,8 @@ namespace CyBF.Parsing
         Keyword_Dereference,
         Keyword_Var,
         Keyword_Let,
+        Keyword_Cast,
+        Keyword_Sizeof,
         Keyword_Do,
         Keyword_While,
         Keyword_For,

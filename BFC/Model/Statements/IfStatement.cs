@@ -26,11 +26,29 @@ namespace CyBF.BFC.Model.Statements
             this.Condition.Compile(compiler);
             BFObject conditionObject = this.Condition.ReturnVariable.Value;
 
+            if (conditionObject.DataType is ConstInstance)
+            {
+                int conditionalValue = ((ConstInstance)conditionObject.DataType).Value;
+
+                if (conditionalValue != 0)
+                {
+                    foreach (Statement statement in this.ConditionalBody)
+                        statement.Compile(compiler);
+                }
+                else
+                {
+                    foreach (Statement statement in this.ElseBody)
+                        statement.Compile(compiler);
+                }
+
+                return;
+            }
+
             if (!(conditionObject.DataType is ByteInstance))
             {
                 compiler.TracePush(this.Reference);
                 compiler.RaiseSemanticError(string.Format(
-                    "Condition expression evaluates to '{0}'. Must evaluate to Byte.",
+                    "Condition expression evaluates to '{0}'. Must evaluate to Const or Byte.",
                     conditionObject.DataType.ToString()));
             }
 

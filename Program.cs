@@ -33,15 +33,15 @@ namespace CyBF
 
         static void Main(string[] args)
         {
-            args = new string[]
-            {
-                ".\\Program",
-                "*.cbf",
-                //"-output",
-                //"code.txt",
-                //"-debug",
-                "-run"
-            };
+            //args = new string[]
+            //{
+            //    ".\\Program",
+            //    "*.cbf",
+            //    //"-output",
+            //    //"code.txt",
+            //    //"-debug",
+            //    "-run"
+            //};
 
             try
             {

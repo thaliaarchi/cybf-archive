@@ -19,7 +19,7 @@ namespace CyBF.Parsing
         private Regex _decimalRegex = new Regex(@"\G[0-9]+");
         private Regex _charRegex = new Regex(@"\G'" + _charSubPattern + @"'");
         private Regex _stringRegex = new Regex(@"\G""" + _stringSubPattern + @"*""");
-        private Regex _operatorRegex = new Regex(@"\G[!@#$%^&*-+=|\\<>?/]+");
+        private Regex _operatorRegex = new Regex(@"\G[!@#$%^&*\-+=|\\<>?/]+");
         private Regex _commandRegex = new Regex(@"\G[+-\[\]<>,.@:#()*{}]");
         private Regex _delimiterRegex = new Regex(@"\G[;:,.(){}\[\]]");
         
@@ -35,6 +35,8 @@ namespace CyBF.Parsing
             {"dereference", TokenType.Keyword_Dereference },
             {"var", TokenType.Keyword_Var },
             {"let", TokenType.Keyword_Let },
+            {"cast", TokenType.Keyword_Cast },
+            {"sizeof", TokenType.Keyword_Sizeof },
             {"do", TokenType.Keyword_Do },
             {"while", TokenType.Keyword_While },
             {"for", TokenType.Keyword_For },

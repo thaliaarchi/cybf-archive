@@ -47,6 +47,10 @@ namespace CyBF.BFC.Compilation
             foreach (Module module in this.GetSortedModules())
                 programTokens.AddRange(module.Code);
 
+            Token lastEndOfSource = programTokens[programTokens.Count - 1];
+            programTokens.RemoveAll(t => t.TokenType == TokenType.EndOfSource);
+            programTokens.Add(lastEndOfSource);
+
             return programTokens;
         }
 

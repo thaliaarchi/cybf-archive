@@ -10,9 +10,44 @@ namespace CyBF.BFC.Model.Data
     {
         private static int _allocationAutonum = 1;
 
+        private static BFObject _null = null;
+        private static BFObject _unallocated = null;
+
         public TypeInstance DataType { get; private set; }
         public string AllocationId { get; private set; }
         public IReadOnlyList<AddressOffset> Offsets { get; private set; }
+
+        public static BFObject Null
+        {
+            get
+            {
+                if (_null == null)
+                {
+                    _null = new BFObject();
+                    _null.DataType = new ByteInstance();
+                    _null.AllocationId = "_NULL_";
+                    _null.Offsets = new List<AddressOffset>().AsReadOnly();
+                }
+
+                return _null;
+            }
+        }
+
+        public static BFObject Unallocated
+        {
+            get
+            {
+                if (_unallocated == null)
+                {
+                    _unallocated = new BFObject();
+                    _unallocated.DataType = new ByteInstance();
+                    _unallocated.AllocationId = "_UNALLOCATED_";
+                    _unallocated.Offsets = new List<AddressOffset>().AsReadOnly();
+                }
+
+                return _unallocated;
+            }
+        }
 
         private BFObject() { }
 

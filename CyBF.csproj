@@ -58,12 +58,13 @@
     <Compile Include="BFC\Model\Data\UserVariable.cs" />
     <Compile Include="BFC\Model\Functions\Builtins\AssertFunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\Builtins\BinaryMathOperatorDefinition.cs" />
-    <Compile Include="BFC\Model\Functions\Builtins\SizeofFunctionDefinition.cs" />
+    <Compile Include="BFC\Model\Functions\Builtins\UnaryMathOperatorFunction.cs" />
     <Compile Include="BFC\Model\Functions\FunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\FunctionParameter.cs" />
     <Compile Include="BFC\Model\Functions\ProcedureDefinition.cs" />
     <Compile Include="BFC\Compilation\ModuleLibrary.cs" />
     <Compile Include="BFC\Model\Functions\SelectorDefinition.cs" />
+    <Compile Include="BFC\Model\Statements\CastExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\CommandBlockStatement.cs" />
     <Compile Include="BFC\Model\Statements\Commands\Command.cs" />
     <Compile Include="BFC\Model\Statements\Commands\LoopCommand.cs" />
@@ -78,7 +79,9 @@
     <Compile Include="BFC\Model\Statements\ForLoopStatement.cs" />
     <Compile Include="BFC\Model\Statements\FunctionCallExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\IfStatement.cs" />
+    <Compile Include="BFC\Model\Statements\IterateStatement.cs" />
     <Compile Include="BFC\Model\Statements\SelectorIndexExpressionStatement.cs" />
+    <Compile Include="BFC\Model\Statements\SizeOfExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Statement.cs" />
     <Compile Include="BFC\Model\Statements\StringExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\TypeConstructorStatement.cs" />
