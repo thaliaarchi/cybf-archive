@@ -46,12 +46,17 @@ namespace CyBF.BFC.Model.Functions
         public override BFObject Compile(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {
             compiler.TracePush(this.ReferenceToken);
-
+            
             this.ApplyArguments(compiler, arguments);
 
-            this.ReturnTypeExpression.Compile(compiler);
-            TypeInstance returnType = this.ReturnTypeExpression.ReturnVariable.Value;
+            TypeInstance returnType;
 
+            using (compiler.BeginRecursionCheck(this))
+            {
+                this.ReturnTypeExpression.Compile(compiler);
+                returnType = this.ReturnTypeExpression.ReturnVariable.Value;
+            }
+            
             BFObject result = this.SourceParameter.Variable.Value.Derive(
                 returnType, new FunctionalAddressOffset(this, arguments));
 
@@ -66,8 +71,11 @@ namespace CyBF.BFC.Model.Functions
 
             this.ApplyArguments(compiler, arguments);
 
-            foreach (Statement statement in this.ReferenceBody)
-                statement.Compile(compiler);
+            using (compiler.BeginRecursionCheck(this))
+            {
+                foreach (Statement statement in this.ReferenceBody)
+                    statement.Compile(compiler);
+            }
 
             compiler.TracePop();
         }
@@ -75,12 +83,15 @@ namespace CyBF.BFC.Model.Functions
         public void CompileDereference(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {
             compiler.TracePush(this.ReferenceToken);
-
+            
             this.ApplyArguments(compiler, arguments);
 
-            foreach (Statement statement in this.DereferenceBody)
-                statement.Compile(compiler);
-
+            using (compiler.BeginRecursionCheck(this))
+            {
+                foreach (Statement statement in this.DereferenceBody)
+                    statement.Compile(compiler);
+            }
+            
             compiler.TracePop();
         }
     }

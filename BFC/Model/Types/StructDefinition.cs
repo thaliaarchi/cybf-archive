@@ -42,12 +42,15 @@ namespace CyBF.BFC.Model.Types
 
             List<FieldInstance> fieldInstances = new List<FieldInstance>();
             int offset = 0;
-            
-            foreach (FieldDefinition fieldDefinition in this.Fields)
+
+            using (compiler.BeginRecursionCheck(this))
             {
-                FieldInstance fieldInstance = fieldDefinition.Compile(compiler, offset);
-                offset += fieldInstance.DataType.Size();
-                fieldInstances.Add(fieldInstance);
+                foreach (FieldDefinition fieldDefinition in this.Fields)
+                {
+                    FieldInstance fieldInstance = fieldDefinition.Compile(compiler, offset);
+                    offset += fieldInstance.DataType.Size();
+                    fieldInstances.Add(fieldInstance);
+                }
             }
 
             StructInstance structInstance = new StructInstance(this.Reference, this.TypeName, typeArguments, fieldInstances);

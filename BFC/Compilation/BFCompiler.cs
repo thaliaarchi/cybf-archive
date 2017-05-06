@@ -17,7 +17,8 @@ namespace CyBF.BFC.Compilation
     {
         private StringBuilder _compiledCode = new StringBuilder();
         private Stack<Token> _trace = new Stack<Token>();
-        
+        private HashSet<object> _currentlyCompilingDefinitions = new HashSet<object>();
+
         public DefinitionLibrary Library { get; private set; }
         public BFObject CurrentAllocatedObject { get; private set; }
 
@@ -96,6 +97,19 @@ namespace CyBF.BFC.Compilation
             }
 
             return bfobject;
+        }
+
+        public RecursionChecker BeginRecursionCheck(object item)
+        {
+            if (!_currentlyCompilingDefinitions.Add(item))
+                RaiseSemanticError("Recursive definitions are not supported.");
+
+            return new RecursionChecker(this, item);
+        }
+
+        public void EndRecursionCheck(object item)
+        {
+            _currentlyCompilingDefinitions.Remove(item);
         }
 
         public void RaiseSemanticError(string message)
