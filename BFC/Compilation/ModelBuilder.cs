@@ -812,6 +812,9 @@ namespace CyBF.BFC.Compilation
             else if (_parser.Matches(TokenType.Keyword_Sizeof))
                 returnValue = ParseSizeOfExpression();
 
+            else if (_parser.Matches(TokenType.Keyword_New))
+                returnValue = ParseNewObjectExpression();
+
             else if (_parser.Matches(TokenType.OpenParen))
                 returnValue = ParseParenthesizedExpression();
 
@@ -875,6 +878,14 @@ namespace CyBF.BFC.Compilation
                 TypeExpressionStatement typeExpression = ParseTypeExpression();
                 return new SizeOfExpressionStatement(reference, typeExpression);
             }
+        }
+
+        public ExpressionStatement ParseNewObjectExpression()
+        {
+            Token reference = _parser.Match(TokenType.Keyword_New);
+            TypeExpressionStatement typeExpression = ParseTypeExpression();
+
+            return new NewObjectExpressionStatement(reference, typeExpression);
         }
 
         public ExpressionStatement ParseFunctionCallExpression()

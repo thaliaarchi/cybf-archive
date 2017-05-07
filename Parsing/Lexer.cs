@@ -37,6 +37,7 @@ namespace CyBF.Parsing
             {"let", TokenType.Keyword_Let },
             {"cast", TokenType.Keyword_Cast },
             {"sizeof", TokenType.Keyword_Sizeof },
+            {"new", TokenType.Keyword_New },
             {"do", TokenType.Keyword_Do },
             {"while", TokenType.Keyword_While },
             {"for", TokenType.Keyword_For },
