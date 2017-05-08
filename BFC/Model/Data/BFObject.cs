@@ -13,6 +13,7 @@ namespace CyBF.BFC.Model.Data
         private static BFObject _null = null;
         private static BFObject _unallocated = null;
 
+        public BFObject BaseObject { get; private set; }
         public TypeInstance DataType { get; private set; }
         public string AllocationId { get; private set; }
         public IReadOnlyList<AddressOffset> Offsets { get; private set; }
@@ -24,6 +25,7 @@ namespace CyBF.BFC.Model.Data
                 if (_null == null)
                 {
                     _null = new BFObject();
+                    _null.BaseObject = _null;
                     _null.DataType = new ByteInstance();
                     _null.AllocationId = "_NULL_";
                     _null.Offsets = new List<AddressOffset>().AsReadOnly();
@@ -40,6 +42,7 @@ namespace CyBF.BFC.Model.Data
                 if (_unallocated == null)
                 {
                     _unallocated = new BFObject();
+                    _unallocated.BaseObject = _unallocated;
                     _unallocated.DataType = new ByteInstance();
                     _unallocated.AllocationId = "_UNALLOCATED_";
                     _unallocated.Offsets = new List<AddressOffset>().AsReadOnly();
@@ -53,6 +56,7 @@ namespace CyBF.BFC.Model.Data
 
         public BFObject(TypeInstance dataType)
         {
+            this.BaseObject = this;
             this.DataType = dataType;
             this.AllocationId = "obj" + (_allocationAutonum++).ToString();
             this.Offsets = new List<AddressOffset>().AsReadOnly();
@@ -60,6 +64,7 @@ namespace CyBF.BFC.Model.Data
 
         public BFObject(TypeInstance dataType, string allocationIdPrefix)
         {
+            this.BaseObject = this;
             this.DataType = dataType;
             this.AllocationId = allocationIdPrefix + "_obj" + (_allocationAutonum++).ToString();
             this.Offsets = new List<AddressOffset>().AsReadOnly();
@@ -68,6 +73,7 @@ namespace CyBF.BFC.Model.Data
         public BFObject Derive(TypeInstance dataType, IEnumerable<AddressOffset> additionalOffsets)
         {
             BFObject derivedObject = new BFObject();
+            derivedObject.BaseObject = this.BaseObject;
             derivedObject.DataType = dataType;
             derivedObject.AllocationId = this.AllocationId;
             derivedObject.Offsets = this.Offsets.Concat(additionalOffsets).ToList().AsReadOnly();

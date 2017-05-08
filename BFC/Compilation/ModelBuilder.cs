@@ -225,21 +225,23 @@ namespace CyBF.BFC.Compilation
             _typeVariables.Push();
 
             Token referenceToken = _parser.Match(TokenType.Keyword_Selector);
-            FunctionParameter sourceParameter = ParseFunctionParameter();
 
-            List<FunctionParameter> indexParameters = _parser.ParseDelimitedList(
-                TokenType.OpenBracket, TokenType.Comma, TokenType.CloseBracket, ParseFunctionParameter);
+            string selectorName = _parser.Match(TokenType.Identifier).ProcessedValue;
 
+            List<FunctionParameter> parameters = _parser.ParseDelimitedList(
+                TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen, ParseFunctionParameter);
+            
             _parser.Match(TokenType.Colon);
 
             TypeExpressionStatement returnTypeExpression = ParseTypeExpression();
+
             List<Statement> referenceBody = ParseSelectorBodySection(TokenType.Keyword_Reference);
             List<Statement> dereferenceBody = ParseSelectorBodySection(TokenType.Keyword_Dereference);
 
             _parser.Match(TokenType.Keyword_End);
 
             SelectorDefinition definition = new SelectorDefinition(
-                referenceToken, sourceParameter, indexParameters, returnTypeExpression, referenceBody, dereferenceBody);
+                referenceToken, selectorName, parameters, returnTypeExpression, referenceBody, dereferenceBody);
 
             _typeVariables.Pop();
             _userVariables.Pop();
@@ -271,8 +273,21 @@ namespace CyBF.BFC.Compilation
             _typeVariables.Push();
 
             Token reference = _parser.Match(TokenType.Keyword_Function);
-            string functionName = _parser.Match(TokenType.Identifier, TokenType.Operator).ProcessedValue;
 
+            string functionName;
+            
+            if (_parser.Matches(TokenType.OpenBracket))
+            {
+                _parser.Next();
+                _parser.Match(TokenType.CloseBracket);
+
+                functionName = "[]";
+            }
+            else
+            {
+                functionName = _parser.Match(TokenType.Identifier, TokenType.Operator).ProcessedValue;
+            }
+            
             List<FunctionParameter> parameters = _parser.ParseDelimitedList(
                 TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen, ParseFunctionParameter);
 
@@ -834,12 +849,13 @@ namespace CyBF.BFC.Compilation
         {
             if (_parser.Matches(TokenType.OpenBracket))
             {
-                Token selectorIndexToken = _parser.Current;
-
+                Token reference = _parser.Current;
+                
                 List<ExpressionStatement> indexArguments = _parser.ParseDelimitedList(
                     TokenType.OpenBracket, TokenType.Comma, TokenType.CloseBracket, ParseExpression);
 
-                return new SelectorIndexExpressionStatement(selectorIndexToken, source, indexArguments);
+                return new FunctionCallExpressionStatement(reference, "[]",
+                    new ExpressionStatement[] { source }.Concat(indexArguments));
             }
             else
             {

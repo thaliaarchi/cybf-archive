@@ -81,7 +81,6 @@
     <Compile Include="BFC\Model\Statements\IfStatement.cs" />
     <Compile Include="BFC\Model\Statements\IterateStatement.cs" />
     <Compile Include="BFC\Model\Statements\NewObjectExpressionStatement.cs" />
-    <Compile Include="BFC\Model\Statements\SelectorIndexExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\SizeOfExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Statement.cs" />
     <Compile Include="BFC\Model\Statements\StringExpressionStatement.cs" />

@@ -50,7 +50,7 @@ namespace CyBF.BFC.Model.Statements
             }
 
             FunctionDefinition definition = matches.Single();
-            this.ReturnVariable.Value = definition.Compile(compiler, argumentObjects); ;
+            this.ReturnVariable.Value = definition.Compile(compiler, argumentObjects);
 
             compiler.TracePop();
         }

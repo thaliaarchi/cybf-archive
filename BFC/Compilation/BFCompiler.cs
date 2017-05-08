@@ -72,6 +72,7 @@ namespace CyBF.BFC.Compilation
                     this.CurrentAllocatedObject.UndoOffsets(this);
 
                 this.Write(bfobject.AllocationId + " ");
+                this.CurrentAllocatedObject = bfobject.BaseObject;
 
                 bfobject.ApplyOffsets(this);
 

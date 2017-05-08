@@ -12,37 +12,25 @@ namespace CyBF.BFC.Model.Functions
     public class SelectorDefinition : FunctionDefinition
     {
         public Token ReferenceToken { get; private set; }
-        public FunctionParameter SourceParameter { get; private set; }
-        public IReadOnlyList<FunctionParameter> IndexParameters { get; private set; }
         public TypeExpressionStatement ReturnTypeExpression { get; private set; }
         public IReadOnlyList<Statement> ReferenceBody { get; private set; }
         public IReadOnlyList<Statement> DereferenceBody { get; private set; }
 
         public SelectorDefinition(
             Token referenceToken,
-            FunctionParameter sourceParameter,
-            IEnumerable<FunctionParameter> indexParameters,
+            string name,
+            IEnumerable<FunctionParameter> parameters,
             TypeExpressionStatement returnTypeExpression,
             IEnumerable<Statement> referenceBody,
             IEnumerable<Statement> dereferenceBody)
-            : base("selector", new FunctionParameter[] { sourceParameter }.Concat(indexParameters))
+            : base(name, parameters)
         {
             this.ReferenceToken = referenceToken;
-            this.SourceParameter = sourceParameter;
-            this.IndexParameters = indexParameters.ToList().AsReadOnly();
             this.ReturnTypeExpression = returnTypeExpression;
             this.ReferenceBody = referenceBody.ToList().AsReadOnly();
             this.DereferenceBody = dereferenceBody.ToList().AsReadOnly();
         }
-
-        public BFObject Compile(BFCompiler compiler, BFObject sourceArgument, IEnumerable<BFObject> indexArguments)
-        {
-            IEnumerable<BFObject> functionArguments =
-                new BFObject[] { sourceArgument }.Concat(indexArguments);
-
-            return this.Compile(compiler, functionArguments);
-        }
-
+        
         public override BFObject Compile(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {
             compiler.TracePush(this.ReferenceToken);
@@ -56,8 +44,13 @@ namespace CyBF.BFC.Model.Functions
                 this.ReturnTypeExpression.Compile(compiler);
                 returnType = this.ReturnTypeExpression.ReturnVariable.Value;
             }
-            
-            BFObject result = this.SourceParameter.Variable.Value.Derive(
+
+            if (!arguments.Any())
+                compiler.RaiseSemanticError("Empty selector argument list.");
+
+            BFObject sourceObject = arguments.First();
+
+            BFObject result = sourceObject.Derive(
                 returnType, new FunctionalAddressOffset(this, arguments));
 
             compiler.TracePop();
