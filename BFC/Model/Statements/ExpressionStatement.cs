@@ -12,5 +12,7 @@ namespace CyBF.BFC.Model.Statements
         {
             this.ReturnVariable = new SystemVariable();
         }
+
+        public abstract bool IsVolatile();
     }
 }

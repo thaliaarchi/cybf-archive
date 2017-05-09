@@ -21,6 +21,22 @@ namespace CyBF.BFC.Model.Statements
 
         public override void Compile(BFCompiler compiler)
         {
+            BFObject controlObject = GetControlObject(compiler);
+            compiler.MoveToObject(controlObject);
+
+            compiler.Write("[");
+
+            foreach (Statement statement in this.Body)
+                statement.Compile(compiler);
+
+            controlObject = GetControlObject(compiler);
+            compiler.MoveToObject(controlObject);
+
+            compiler.Write("]");
+        }
+
+        private BFObject GetControlObject(BFCompiler compiler)
+        {
             this.ConditionExpression.Compile(compiler);
             BFObject conditionObject = this.ConditionExpression.ReturnVariable.Value;
 
@@ -32,16 +48,38 @@ namespace CyBF.BFC.Model.Statements
                     conditionObject.DataType.ToString()));
             }
 
-            compiler.MoveToObject(conditionObject);
+            if (!this.ConditionExpression.IsVolatile())
+            {
+                return conditionObject;
+            }
+            else
+            {
+                BFObject controlObject = compiler.MakeAndMoveToObject(new ByteInstance());
+                compiler.Write("[-]");
 
-            compiler.Write("[");
+                BFObject tempObject = compiler.MakeAndMoveToObject(new ByteInstance());
+                compiler.Write("[-]");
 
-            foreach (Statement statement in this.Body)
-                statement.Compile(compiler);
+                compiler.MoveToObject(conditionObject);
+                compiler.Write("[");
+                compiler.MoveToObject(controlObject);
+                compiler.Write("+");
+                compiler.MoveToObject(tempObject);
+                compiler.Write("+");
+                compiler.MoveToObject(conditionObject);
+                compiler.Write("-");
+                compiler.Write("]");
 
-            compiler.MoveToObject(conditionObject);
+                compiler.MoveToObject(tempObject);
+                compiler.Write("[");
+                compiler.MoveToObject(conditionObject);
+                compiler.Write("+");
+                compiler.MoveToObject(tempObject);
+                compiler.Write("-");
+                compiler.Write("]");
 
-            compiler.Write("]");
+                return controlObject;
+            }
         }
     }
 }

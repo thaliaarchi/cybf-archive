@@ -1,6 +1,7 @@
 ﻿using CyBF.BFC.Compilation;
 using CyBF.Parsing;
 using CyBF.BFC.Model.Data;
+using System;
 
 namespace CyBF.BFC.Model.Statements
 {
@@ -17,6 +18,11 @@ namespace CyBF.BFC.Model.Statements
         public override void Compile(BFCompiler compiler)
         {
             this.ReturnVariable.Value = this.InputVariable.Value;
+        }
+
+        public override bool IsVolatile()
+        {
+            return false;
         }
     }
 }

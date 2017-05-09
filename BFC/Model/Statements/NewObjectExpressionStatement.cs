@@ -4,6 +4,7 @@ using CyBF.Parsing;
 using CyBF.BFC.Model.Types;
 using CyBF.BFC.Model.Functions;
 using CyBF.BFC.Model.Data;
+using System;
 
 namespace CyBF.BFC.Model.Statements
 {
@@ -45,6 +46,15 @@ namespace CyBF.BFC.Model.Statements
             }
 
             this.ReturnVariable.Value = bfobject;
+        }
+
+        public override bool IsVolatile()
+        {
+            // Technically, if TypeExpressionStatement evaluates to a TypeInstance of size 0,
+            // we could say this is non-volatile. Doesn't matter - kinda pointless to do 
+            // a "new" on such a type.
+
+            return true;
         }
     }
 }

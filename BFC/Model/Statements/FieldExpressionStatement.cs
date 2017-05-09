@@ -4,6 +4,7 @@ using CyBF.Parsing;
 using CyBF.BFC.Model.Types;
 using CyBF.BFC.Model.Addressing;
 using CyBF.BFC.Model.Data;
+using System;
 
 namespace CyBF.BFC.Model.Statements
 {
@@ -47,6 +48,11 @@ namespace CyBF.BFC.Model.Statements
             }
 
             return sourceDataType.GetField(this.FieldName);
+        }
+
+        public override bool IsVolatile()
+        {
+            return this.Source.IsVolatile();
         }
     }
 }

@@ -2,6 +2,7 @@
 using CyBF.Parsing;
 using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Types;
+using System;
 
 namespace CyBF.BFC.Model.Statements
 {
@@ -39,6 +40,11 @@ namespace CyBF.BFC.Model.Statements
             }
 
             this.ReturnVariable.Value = sourceObject.Derive(targetType);
+        }
+
+        public override bool IsVolatile()
+        {
+            return this.SourceExpression.IsVolatile();
         }
     }
 }

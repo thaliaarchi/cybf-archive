@@ -46,5 +46,13 @@ namespace CyBF.BFC.Model.Statements
 
             this.ReturnVariable.Value = new BFObject(new ConstInstance(datatype.Size()));
         }
+
+        public override bool IsVolatile()
+        {
+            // Sizeof is only non-volatile because we can guarantee the ExpressionStatement 
+            // will always evaluate to an object of the exact same type.
+
+            return false;
+        }
     }
 }

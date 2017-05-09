@@ -4,6 +4,7 @@ using System.Linq;
 using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Functions;
 using CyBF.BFC.Model.Data;
+using System;
 
 namespace CyBF.BFC.Model.Statements
 {
@@ -59,6 +60,11 @@ namespace CyBF.BFC.Model.Statements
         {
             string argumentString = string.Join(", ", argumentObjects.Select(arg => arg.DataType.ToString()));
             return this.FunctionName + "(" + argumentString + ")";
+        }
+
+        public override bool IsVolatile()
+        {
+            return true;
         }
     }
 }
