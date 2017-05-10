@@ -22,7 +22,10 @@ namespace CyBF.BFC.Model.Statements
             this.DataTypeExpression.Compile(compiler);
             TypeInstance dataType = this.DataTypeExpression.ReturnVariable.Value;
 
-            this.Variable.Value = compiler.MakeAndMoveToObject(dataType, this.Variable.Name);
+            if (dataType.Size() == 0)
+                this.Variable.Value = new BFObject(dataType);
+            else
+                this.Variable.Value = compiler.AllocateAndMoveToObject(dataType, this.Variable.Name);
         }
     }
 }

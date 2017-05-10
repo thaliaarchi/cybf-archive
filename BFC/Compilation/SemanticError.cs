@@ -27,8 +27,7 @@ namespace CyBF.BFC.Compilation
 
             foreach (Token token in tokens)
             {
-                builder.AppendLine(token.PositionInfo.Source);
-                builder.AppendLine("Line " + token.PositionInfo.LineNumber.ToString());
+                builder.AppendLine(token.PositionInfo.Source + ", Line " + token.PositionInfo.LineNumber.ToString());
                 builder.AppendLine(token.PositionInfo.Line.TrimEnd());
                 builder.AppendLine(new string(' ', token.PositionInfo.LinePosition) + "^");
                 builder.AppendLine();

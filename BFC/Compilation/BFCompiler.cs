@@ -123,8 +123,10 @@ namespace CyBF.BFC.Compilation
 
         public void MoveToObject(BFObject bfobject)
         {
-            if (bfobject.DataType.Size() > 0 &&
-                bfobject != this.CurrentAllocatedObject)
+            if (bfobject.DataType.Size() == 0)
+                throw new ArgumentException("Cannot move to zero-sized object.");
+
+            if (bfobject != this.CurrentAllocatedObject)
             {
                 if (this.CurrentAllocatedObject != null)
                     this.CurrentAllocatedObject.UndoOffsets(this);
@@ -138,22 +140,22 @@ namespace CyBF.BFC.Compilation
             }
         }
 
-        public BFObject MakeAndMoveToObject(TypeInstance dataType, string allocationIdPrefix = null)
+        public BFObject AllocateAndMoveToObject(TypeInstance dataType, string allocationIdPrefix = null)
         {
-            BFObject bfobject = allocationIdPrefix != null ?
-                new BFObject(dataType, allocationIdPrefix) : new BFObject(dataType);
-
             int size = dataType.Size();
 
-            if (size > 0)
-            {
-                if (this.CurrentAllocatedObject != null)
-                    this.CurrentAllocatedObject.UndoOffsets(this);
+            if (size == 0)
+                throw new ArgumentException("Cannot allocate zero-sized object.");
 
-                this.Write("@" + bfobject.AllocationId + ":" + size.ToString());
+            BFObject bfobject = allocationIdPrefix != null ?
+                new BFObject(dataType, allocationIdPrefix) : new BFObject(dataType);
+            
+            if (this.CurrentAllocatedObject != null)
+                this.CurrentAllocatedObject.UndoOffsets(this);
 
-                this.CurrentAllocatedObject = bfobject;
-            }
+            this.Write("@" + bfobject.AllocationId + ":" + size.ToString());
+
+            this.CurrentAllocatedObject = bfobject;
 
             return bfobject;
         }

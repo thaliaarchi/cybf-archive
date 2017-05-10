@@ -54,10 +54,10 @@ namespace CyBF.BFC.Model.Statements
             }
             else
             {
-                BFObject controlObject = compiler.MakeAndMoveToObject(new ByteInstance());
+                BFObject controlObject = compiler.AllocateAndMoveToObject(new ByteInstance());
                 compiler.Write("[-]");
 
-                BFObject tempObject = compiler.MakeAndMoveToObject(new ByteInstance());
+                BFObject tempObject = compiler.AllocateAndMoveToObject(new ByteInstance());
                 compiler.Write("[-]");
 
                 compiler.MoveToObject(conditionObject);

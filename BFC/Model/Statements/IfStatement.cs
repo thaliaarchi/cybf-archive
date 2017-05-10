@@ -59,10 +59,10 @@ namespace CyBF.BFC.Model.Statements
             //      (only if condition is already zero).
             */
 
-            BFObject c = compiler.MakeAndMoveToObject(new ByteInstance());
+            BFObject c = compiler.AllocateAndMoveToObject(new ByteInstance());
             compiler.Write("[-]");
 
-            BFObject e = compiler.MakeAndMoveToObject(new ByteInstance());
+            BFObject e = compiler.AllocateAndMoveToObject(new ByteInstance());
             compiler.Write("[-]");
 
             // First, copy from conditionObject to c, 

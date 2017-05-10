@@ -19,8 +19,11 @@ namespace CyBF.BFC.Model.Statements
         {
             this.TypeExpression.Compile(compiler);
             TypeInstance dataType = this.TypeExpression.ReturnVariable.Value;
-            BFObject bfobject = compiler.MakeAndMoveToObject(dataType);
-            this.ReturnVariable.Value = bfobject;
+
+            if (dataType.Size() == 0)
+                this.ReturnVariable.Value = new BFObject(dataType);
+            else
+                this.ReturnVariable.Value = compiler.AllocateAndMoveToObject(dataType);
         }
 
         public override bool IsVolatile()
