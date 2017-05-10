@@ -1,4 +1,5 @@
-﻿using CyBF.Parsing;
+﻿using CyBF.BFC.Model.Functions;
+using CyBF.Parsing;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,8 +9,13 @@ namespace CyBF.BFC.Model.Types
     {
         public Token Reference { get; private set; }
 
-        public StructInstance(Token reference, string typeName, IEnumerable<TypeInstance> typeArguments, IEnumerable<FieldInstance> fields) 
-            : base(typeName, typeArguments, fields)
+        public StructInstance(
+            Token reference, 
+            string typeName, 
+            IEnumerable<TypeInstance> typeArguments, 
+            IEnumerable<FieldInstance> fields,
+            DefinitionLibrary<FunctionDefinition> methods) 
+            : base(typeName, typeArguments, fields, methods)
         {
             this.Reference = reference;
         }

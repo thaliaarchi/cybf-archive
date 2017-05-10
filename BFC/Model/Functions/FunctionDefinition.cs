@@ -7,30 +7,29 @@ using System.Linq;
 
 namespace CyBF.BFC.Model.Functions
 {
-    public abstract class FunctionDefinition
+    public abstract class FunctionDefinition : Definition
     {
-        public string Name { get; private set; }
         public IReadOnlyList<FunctionParameter> Parameters { get; private set; }
 
         public FunctionDefinition(string name, IEnumerable<FunctionParameter> parameters)
+            : base(name)
         {
-            this.Name = name;
             this.Parameters = parameters.ToList().AsReadOnly();
         }
 
         public FunctionDefinition(string name, params TypeParameter[] typeParameters)
+            : base(name)
         {
-            this.Name = name;
             this.Parameters = typeParameters.Select(tp => new FunctionParameter(tp)).ToList().AsReadOnly();
         }
 
         public FunctionDefinition(string name, params TypeConstraint[] constraints)
+            : base(name)
         {
-            this.Name = name;
             this.Parameters = constraints.Select(c => new FunctionParameter(c)).ToList().AsReadOnly();
         }
 
-        public bool Match(string functionName, IEnumerable<TypeInstance> argumentTypes)
+        public override bool Match(string functionName, IEnumerable<TypeInstance> argumentTypes)
         {
             if (this.Name != functionName)
                 return false;

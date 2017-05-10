@@ -38,28 +38,7 @@ namespace CyBF.BFC.Model.Statements
 
             compiler.TracePush(this.Reference);
 
-            List<TypeDefinition> matches = compiler.MatchType(this.TypeName, typeArgumentInstances);
-
-            if (matches.Count == 0)
-                compiler.RaiseSemanticError("No matching type definitions found.");
-
-            if (matches.Count > 1)
-            {
-                IEnumerable<StructDefinition> structs = matches
-                    .Where(m => m is StructDefinition)
-                    .Select(m => m as StructDefinition);
-
-                List<Token> references = new List<Token>();
-
-                references.Add(this.Reference);
-
-                foreach (StructDefinition str in structs)
-                    references.Add(str.Reference);
-
-                throw new SemanticError("Ambiguous type constructor.", references);
-            }
-
-            TypeDefinition definition = matches.Single();
+            TypeDefinition definition = compiler.ResolveType(this.TypeName, typeArgumentInstances);
             this.ReturnVariable.Value = definition.Compile(compiler, typeArgumentInstances, valueArgumentObjects);
 
             compiler.TracePop();

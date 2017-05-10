@@ -19,18 +19,14 @@ namespace CyBF.BFC.Compilation
         private Stack<Token> _trace = new Stack<Token>();
         private HashSet<object> _currentlyCompilingDefinitions = new HashSet<object>();
 
-        public DefinitionLibrary Library { get; private set; }
+        public DefinitionLibrary<TypeDefinition> TypeLibrary { get; private set; }
+        public DefinitionLibrary<FunctionDefinition> FunctionLibrary { get; private set; }
         public BFObject CurrentAllocatedObject { get; private set; }
 
-        public BFCompiler(IEnumerable<TypeDefinition> dataTypes, IEnumerable<FunctionDefinition> functions)
+        public BFCompiler(DefinitionLibrary<TypeDefinition> typeLibrary, DefinitionLibrary<FunctionDefinition> functionLibrary)
         {
-            this.Library = new DefinitionLibrary();
-
-            foreach (TypeDefinition dataType in dataTypes)
-                this.Library.DefineType(dataType);
-
-            foreach (FunctionDefinition function in functions)
-                this.Library.DefineFunction(function);
+            this.TypeLibrary = typeLibrary;
+            this.FunctionLibrary = functionLibrary;
         }
 
         public void Write(string code)
@@ -53,16 +49,78 @@ namespace CyBF.BFC.Compilation
             _trace.Pop();
         }
 
-        public List<FunctionDefinition> MatchFunction(string name, IEnumerable<TypeInstance> arguments)
+        private T ResolveDefinition<T>(
+            string name,
+            IEnumerable<TypeInstance> arguments,
+            DefinitionLibrary<T> library,
+            string noMatchErrorMessage,
+            string multipleMatchErrorMessage)
+            where T : Definition
         {
-            return this.Library.MatchFunction(name, arguments);
+            List<T> matches = library.Match(name, arguments);
+
+            if (matches.Count == 0)
+            {
+                RaiseSemanticError(noMatchErrorMessage);
+            }
+            else if (matches.Count > 1)
+            {
+                IEnumerable<Token> definitionReferences = matches
+                    .Select(d =>
+                        (d as ProcedureDefinition)?.Reference ??
+                        (d as StructDefinition)?.Reference)
+                    .Where(t => t != null);
+
+                foreach (Token reference in definitionReferences)
+                    this.TracePush(reference);
+
+                RaiseSemanticError(multipleMatchErrorMessage);
+            }
+
+            return matches.Single();
         }
 
-        public List<TypeDefinition> MatchType(string name, IEnumerable<TypeInstance> arguments)
+        public TypeDefinition ResolveType(string name, IEnumerable<TypeInstance> arguments)
         {
-            return this.Library.MatchType(name, arguments);
+            string signature = "[" + name + " " + string.Join(" ", arguments) + "]";
+
+            TypeDefinition type = this.ResolveDefinition(
+                name, arguments, this.TypeLibrary,
+                "No matching type definitions found:\n" + signature,
+                "Ambiguous type constructor:\n" + signature);
+
+            return type;
         }
-        
+
+        public FunctionDefinition ResolveFunction(string name, IEnumerable<BFObject> arguments)
+        {
+            IEnumerable<TypeInstance> argumentTypes = arguments.Select(arg => arg.DataType);
+            string signature = name + "(" + string.Join(", ", argumentTypes) + ")";
+
+            FunctionDefinition function = this.ResolveDefinition(
+                name, arguments.Select(arg => arg.DataType), this.FunctionLibrary,
+                "No matching function definitions found:\n" + signature,
+                "Ambiguous function call:\n" + signature);
+
+            return function;
+        }
+
+        public FunctionDefinition ResolveMethod(string name, BFObject source, IEnumerable<BFObject> arguments)
+        {
+            IEnumerable<TypeInstance> methodArgumentTypes = arguments.Select(arg => arg.DataType);
+
+            string signature = string.Format("{0}.{1}({2})",
+                source.DataType, name, string.Join(", ", methodArgumentTypes));
+
+            IEnumerable<TypeInstance> completeArgumentTypes =
+                new TypeInstance[] { source.DataType }.Concat(methodArgumentTypes);
+
+            return this.ResolveDefinition(
+                name, completeArgumentTypes, source.DataType.MethodLibrary,
+                "No matching method definitions found:\n" + signature,
+                "Ambiguous method invocation:\n" + signature);
+        }
+
         public void MoveToObject(BFObject bfobject)
         {
             if (bfobject.DataType.Size() > 0 &&

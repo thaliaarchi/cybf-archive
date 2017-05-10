@@ -4,6 +4,7 @@ using CyBF.BFC.Model.Statements;
 using CyBF.Parsing;
 using System.Linq;
 using CyBF.BFC.Model.Data;
+using CyBF.BFC.Model.Functions;
 
 namespace CyBF.BFC.Model.Types
 {
@@ -16,8 +17,9 @@ namespace CyBF.BFC.Model.Types
             Token reference, 
             TypeConstraint constraint, 
             IEnumerable<Variable> parameters,
-            IEnumerable<FieldDefinition> fields)
-            : base(constraint, parameters)
+            IEnumerable<FieldDefinition> fields,
+            IEnumerable<FunctionDefinition> methods)
+            : base(constraint, parameters, methods)
         {
             this.Reference = reference;
             
@@ -53,7 +55,7 @@ namespace CyBF.BFC.Model.Types
                 }
             }
 
-            StructInstance structInstance = new StructInstance(this.Reference, this.TypeName, typeArguments, fieldInstances);
+            StructInstance structInstance = new StructInstance(this.Reference, this.Name, typeArguments, fieldInstances, this.Methods);
 
             compiler.TracePop();
 

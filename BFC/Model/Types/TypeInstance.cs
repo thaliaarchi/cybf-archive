@@ -2,6 +2,9 @@
 using System.Linq;
 using CyBF.Utility;
 using System;
+using CyBF.BFC.Model.Functions;
+using CyBF.BFC.Compilation;
+using CyBF.BFC.Model.Data;
 
 namespace CyBF.BFC.Model.Types
 {
@@ -10,15 +13,26 @@ namespace CyBF.BFC.Model.Types
         public string TypeName { get; private set; }
         public IReadOnlyList<TypeInstance> TypeArguments { get; private set; }
         public IReadOnlyList<FieldInstance> Fields { get; private set; }
+        public DefinitionLibrary<FunctionDefinition> MethodLibrary { get; private set; }
 
         public TypeInstance(string typeName)
         {
             this.TypeName = typeName;
             this.TypeArguments = new List<TypeInstance>(0).AsReadOnly();
             this.Fields = new List<FieldInstance>(0).AsReadOnly();
+            this.MethodLibrary = new DefinitionLibrary<FunctionDefinition>();
         }
 
         public TypeInstance(string typeName, IEnumerable<TypeInstance> typeArguments, IEnumerable<FieldInstance> fields)
+            : this(typeName, typeArguments, fields, new DefinitionLibrary<FunctionDefinition>())
+        {
+        }
+
+        public TypeInstance(
+            string typeName, 
+            IEnumerable<TypeInstance> typeArguments, 
+            IEnumerable<FieldInstance> fields, 
+            DefinitionLibrary<FunctionDefinition> methods)
         {
             this.TypeName = typeName;
             this.TypeArguments = typeArguments.ToList().AsReadOnly();
@@ -34,6 +48,8 @@ namespace CyBF.BFC.Model.Types
             }
 
             this.Fields = fieldList.AsReadOnly();
+
+            this.MethodLibrary = methods;
         }
 
         public bool Matches(TypeInstance target)

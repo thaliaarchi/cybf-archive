@@ -1,30 +1,35 @@
 ﻿using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Data;
+using CyBF.BFC.Model.Functions;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace CyBF.BFC.Model.Types
 {
-    public abstract class TypeDefinition
+    public abstract class TypeDefinition : Definition
     {
         public TypeConstraint Constraint { get; private set; }
-        public string TypeName { get { return this.Constraint.TypeName; } }
         public IReadOnlyList<Variable> Parameters { get; private set; }
-        
+        public DefinitionLibrary<FunctionDefinition> Methods { get; private set; }
+
         public TypeDefinition(TypeConstraint constraint)
+            : base(constraint.TypeName)
         {
             this.Constraint = constraint;
             this.Parameters = new List<Variable>(0).AsReadOnly();
+            this.Methods = new DefinitionLibrary<FunctionDefinition>();
         }
 
-        public TypeDefinition(TypeConstraint constraint, IEnumerable<Variable> parameters)
+        public TypeDefinition(TypeConstraint constraint, IEnumerable<Variable> parameters, IEnumerable<FunctionDefinition> methods)
+            : base(constraint.TypeName)
         {
             this.Constraint = constraint;
             this.Parameters = parameters.ToList().AsReadOnly();
+            this.Methods = new DefinitionLibrary<FunctionDefinition>(methods);
         }
 
         public TypeDefinition(TypeConstraint constraint, params Variable[] parameters)
-            : this(constraint, (IEnumerable<Variable>)parameters)
+            : this(constraint, parameters, new FunctionDefinition[] { })
         {
         }
 
@@ -34,7 +39,7 @@ namespace CyBF.BFC.Model.Types
             return this.Constraint.Match(instance);
         }
 
-        public bool Match(string typeName, IEnumerable<TypeInstance> arguments)
+        public override bool Match(string typeName, IEnumerable<TypeInstance> arguments)
         {
             this.Constraint.Reset();
             return this.Constraint.Match(typeName, arguments);

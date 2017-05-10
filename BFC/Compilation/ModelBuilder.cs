@@ -156,7 +156,10 @@ namespace CyBF.BFC.Compilation
                 }
             }
 
-            return new CyBFProgram(dataTypes, functions, statements);
+            DefinitionLibrary<TypeDefinition> typeLibrary = new DefinitionLibrary<TypeDefinition>(dataTypes);
+            DefinitionLibrary<FunctionDefinition> functionLibrary = new DefinitionLibrary<FunctionDefinition>(functions);
+
+            return new CyBFProgram(typeLibrary, functionLibrary, statements);
         }
 
         public void ParseModuleDeclaration()
@@ -196,9 +199,9 @@ namespace CyBF.BFC.Compilation
 
             List<FieldDefinition> fields = new List<FieldDefinition>();
 
-            while (!_parser.Matches(TokenType.Keyword_End))
+            while (_parser.Matches(TokenType.Identifier))
             {
-                Token fieldNameToken = _parser.Match(TokenType.Identifier);
+                Token fieldNameToken = _parser.Next();
                 string fieldName = fieldNameToken.ProcessedValue;
 
                 _parser.Match(TokenType.Colon);
@@ -207,14 +210,24 @@ namespace CyBF.BFC.Compilation
 
                 fields.Add(new FieldDefinition(fieldNameToken, fieldName, fieldType));
             }
-            
-            _parser.Match(TokenType.Keyword_End);
-
-            StructDefinition definition = new StructDefinition(
-                reference, constraint, parameters, fields);
 
             _typeVariables.Pop();
             _userVariables.Pop();
+
+            List<FunctionDefinition> methods = new List<FunctionDefinition>();
+
+            while (_parser.Matches(TokenType.Keyword_Selector, TokenType.Keyword_Function))
+            {
+                if (_parser.Matches(TokenType.Keyword_Selector))
+                    methods.Add(ParseSelectorDefinition());
+                else
+                    methods.Add(ParseProcedureDefinition());
+            }
+
+            _parser.Match(TokenType.Keyword_End);
+
+            StructDefinition definition = new StructDefinition(
+                reference, constraint, parameters, fields, methods);
 
             return definition;
         }
@@ -226,7 +239,7 @@ namespace CyBF.BFC.Compilation
 
             Token referenceToken = _parser.Match(TokenType.Keyword_Selector);
 
-            string selectorName = _parser.Match(TokenType.Identifier).ProcessedValue;
+            string selectorName = ParseFunctionName();
 
             List<FunctionParameter> parameters = _parser.ParseDelimitedList(
                 TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen, ParseFunctionParameter);
@@ -274,19 +287,7 @@ namespace CyBF.BFC.Compilation
 
             Token reference = _parser.Match(TokenType.Keyword_Function);
 
-            string functionName;
-            
-            if (_parser.Matches(TokenType.OpenBracket))
-            {
-                _parser.Next();
-                _parser.Match(TokenType.CloseBracket);
-
-                functionName = "[]";
-            }
-            else
-            {
-                functionName = _parser.Match(TokenType.Identifier, TokenType.Operator).ProcessedValue;
-            }
+            string functionName = ParseFunctionName();
             
             List<FunctionParameter> parameters = _parser.ParseDelimitedList(
                 TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen, ParseFunctionParameter);
@@ -321,16 +322,43 @@ namespace CyBF.BFC.Compilation
 
             return definition;
         }
+        
+        public string ParseFunctionName()
+        {
+            string functionName;
+
+            if (_parser.Matches(TokenType.OpenBracket))
+            {
+                _parser.Next();
+                _parser.Match(TokenType.CloseBracket);
+
+                functionName = "[]";
+            }
+            else
+            {
+                functionName = _parser.Match(TokenType.Identifier, TokenType.Operator).ProcessedValue;
+            }
+
+            return functionName;
+        }
 
         public FunctionParameter ParseFunctionParameter()
         {
             Token variableNameToken = _parser.Match(TokenType.Identifier);
             Variable variable = CreateEnvironmentVariable(variableNameToken);
 
-            _parser.Match(TokenType.Colon);
+            TypeParameter typeParameter;
 
-            TypeParameter typeParameter = ParseTypeParameter();
-
+            if (_parser.Matches(TokenType.Colon))
+            {
+                _parser.Next();
+                typeParameter = ParseTypeParameter();
+            }
+            else
+            {
+                typeParameter = new TypeParameter();
+            }
+            
             return new FunctionParameter(variable, typeParameter);
         }
 
@@ -860,10 +888,24 @@ namespace CyBF.BFC.Compilation
             else
             {
                 _parser.Match(TokenType.Period);
-                Token fieldNameToken = _parser.Match(TokenType.Identifier);
-                string fieldName = fieldNameToken.ProcessedValue;
+                
+                if (_parser.MatchesLookahead(TokenType.Identifier, TokenType.OpenParen))
+                {
+                    Token methodNameToken = _parser.Match(TokenType.Identifier);
 
-                return new FieldExpressionStatement(fieldNameToken, source, fieldName);
+                    List<ExpressionStatement> arguments = _parser.ParseDelimitedList(
+                        TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen, ParseExpression);
+
+                    return new MethodCallExpressionStatement(
+                        methodNameToken, methodNameToken.ProcessedValue, source, arguments);
+                }
+                else
+                {
+                    Token fieldNameToken = _parser.Match(TokenType.Identifier);
+                    string fieldName = fieldNameToken.ProcessedValue;
+
+                    return new FieldExpressionStatement(fieldNameToken, source, fieldName);
+                }
             }
         }
 
