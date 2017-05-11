@@ -5,6 +5,7 @@ using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Types;
 using System.Linq;
 using CyBF.BFC.Model.Types.Instances;
+using CyBF.BFC.Model.Types.Definitions;
 
 namespace CyBF.BFC.Model.Functions.Builtins
 {
@@ -14,7 +15,7 @@ namespace CyBF.BFC.Model.Functions.Builtins
 
         public UnaryMathOperatorDefinition(string name, Func<int, int> operation)
             : base(name,
-                new TypeConstraint("Const"))
+                new TypeConstraint(ConstDefinition.StaticName))
         {
             this.Operation = operation;
         }
@@ -24,7 +25,16 @@ namespace CyBF.BFC.Model.Functions.Builtins
             this.ApplyArguments(compiler, arguments);
 
             int operand = ((ConstInstance)arguments.Single().DataType).Value;
-            int result = this.Operation(operand);
+            int result = 0;
+            
+            try
+            {
+                result = this.Operation(operand);
+            }
+            catch(ArithmeticException ex)
+            {
+                compiler.RaiseSemanticError(ex.Message);
+            }
 
             return new BFObject(new ConstInstance(result));
         }

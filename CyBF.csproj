@@ -59,6 +59,7 @@
     <Compile Include="BFC\Model\Definition.cs" />
     <Compile Include="BFC\Model\Functions\Builtins\AssertFunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\Builtins\BinaryMathOperatorDefinition.cs" />
+    <Compile Include="BFC\Model\Functions\Builtins\TupleIndexOperatorDefinition.cs" />
     <Compile Include="BFC\Model\Functions\Builtins\UnaryMathOperatorFunction.cs" />
     <Compile Include="BFC\Model\Functions\FunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\FunctionParameter.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="BFC\Model\Statements\DoWhileLoopStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\ExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\FieldExpressionStatement.cs" />
+    <Compile Include="BFC\Model\Statements\Expressions\TupleExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\ForLoopStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\FunctionCallExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\IfStatement.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="BFC\Model\Statements\Expressions\VoidExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\WhileLoopStatement.cs" />
     <Compile Include="BFC\Model\Types\Definitions\ArrayDefinition.cs" />
+    <Compile Include="BFC\Model\Types\Definitions\TupleDefinition.cs" />
     <Compile Include="BFC\Model\Types\Instances\ArrayInstance.cs" />
     <Compile Include="BFC\Model\Types\Definitions\ByteDefinition.cs" />
     <Compile Include="BFC\Model\Types\Instances\ByteInstance.cs" />
@@ -107,6 +110,7 @@
     <Compile Include="BFC\Model\Types\Instances\StringInstance.cs" />
     <Compile Include="BFC\Model\Types\Definitions\StructDefinition.cs" />
     <Compile Include="BFC\Model\Types\Instances\StructInstance.cs" />
+    <Compile Include="BFC\Model\Types\Instances\TupleInstance.cs" />
     <Compile Include="BFC\Model\Types\TypeConstraint.cs" />
     <Compile Include="BFC\Model\Types\Definitions\TypeDefinition.cs" />
     <Compile Include="BFC\Model\Types\Instances\TypeInstance.cs" />

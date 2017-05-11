@@ -123,6 +123,8 @@ namespace CyBF.BFC.Compilation
 
             functions.Add(new AssertFunctionDefinition());
 
+            functions.Add(new TupleIndexOperatorDefinition());
+
             SystemVariable nullVariable = new SystemVariable();
             nullVariable.Value = BFObject.Null;
 
@@ -860,6 +862,9 @@ namespace CyBF.BFC.Compilation
             else if (_parser.Matches(TokenType.Keyword_New))
                 returnValue = ParseNewObjectExpression();
 
+            else if (_parser.MatchesLookahead(TokenType.OpenParen, TokenType.Comma))
+                returnValue = ParseTupleExpression();
+
             else if (_parser.Matches(TokenType.OpenParen))
                 returnValue = ParseParenthesizedExpression();
 
@@ -963,6 +968,16 @@ namespace CyBF.BFC.Compilation
             Token nameToken = _parser.Match(TokenType.Identifier);
             Variable variable = LookupVariable(nameToken);
             return new VariableExpressionStatement(nameToken, variable);
+        }
+
+        public ExpressionStatement ParseTupleExpression()
+        {
+            Token reference = _parser.Match(TokenType.OpenParen);
+
+            List<ExpressionStatement> elements = _parser.ParseDelimitedList(
+                TokenType.Comma, TokenType.Comma, TokenType.CloseParen, ParseExpression);
+
+            return new TupleExpressionStatement(reference, elements);
         }
 
         public ExpressionStatement ParseParenthesizedExpression()

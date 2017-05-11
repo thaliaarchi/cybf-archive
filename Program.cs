@@ -37,9 +37,9 @@ namespace CyBF
             //{
             //    ".\\Program",
             //    "*.cbf",
-            //    "-output",
-            //    "code.txt",
-            //    "-debug",
+            //    //"-output",
+            //    //"code.txt",
+            //    //"-debug",
             //    "-run"
             //};
 

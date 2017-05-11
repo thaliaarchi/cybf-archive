@@ -3,6 +3,7 @@ using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Types;
 using CyBF.BFC.Model.Types.Instances;
+using CyBF.BFC.Model.Types.Definitions;
 
 namespace CyBF.BFC.Model.Functions.Builtins
 {
@@ -10,8 +11,8 @@ namespace CyBF.BFC.Model.Functions.Builtins
     {
         public AssertFunctionDefinition() 
             : base("assert", 
-                new TypeConstraint("Const"),
-                new TypeConstraint("String"))
+                new TypeConstraint(ConstDefinition.StaticName),
+                new TypeConstraint(StringDefinition.StaticName))
         {
         }
 

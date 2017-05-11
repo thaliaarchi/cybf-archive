@@ -18,12 +18,6 @@ namespace CyBF.BFC.Model.Functions
             this.Parameters = parameters.ToList().AsReadOnly();
         }
 
-        public FunctionDefinition(string name, params TypeParameter[] typeParameters)
-            : base(name)
-        {
-            this.Parameters = typeParameters.Select(tp => new FunctionParameter(tp)).ToList().AsReadOnly();
-        }
-
         public FunctionDefinition(string name, params TypeConstraint[] constraints)
             : base(name)
         {

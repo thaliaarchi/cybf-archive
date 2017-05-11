@@ -4,6 +4,7 @@ using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Types;
 using CyBF.BFC.Model.Types.Instances;
+using CyBF.BFC.Model.Types.Definitions;
 
 namespace CyBF.BFC.Model.Functions.Builtins
 {
@@ -13,8 +14,8 @@ namespace CyBF.BFC.Model.Functions.Builtins
 
         public BinaryMathOperatorDefinition(string name, Func<int, int, int> operation)
             : base(name,
-                new TypeConstraint("Const"),
-                new TypeConstraint("Const"))
+                new TypeConstraint(ConstDefinition.StaticName),
+                new TypeConstraint(ConstDefinition.StaticName))
         {
             this.Operation = operation;
         }
@@ -26,7 +27,17 @@ namespace CyBF.BFC.Model.Functions.Builtins
             List<BFObject> arglist = new List<BFObject>(arguments);
             int left = ((ConstInstance)arglist[0].DataType).Value;
             int right = ((ConstInstance)arglist[1].DataType).Value;
-            int result = this.Operation(left, right);
+
+            int result = 0;
+
+            try
+            {
+                result = this.Operation(left, right);
+            }
+            catch(ArithmeticException ex)
+            {
+                compiler.RaiseSemanticError(ex.Message);
+            }
 
             return new BFObject(new ConstInstance(result));
         }
