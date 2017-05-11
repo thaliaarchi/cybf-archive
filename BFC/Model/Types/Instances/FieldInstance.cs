@@ -1,4 +1,4 @@
-﻿namespace CyBF.BFC.Model.Types
+﻿namespace CyBF.BFC.Model.Types.Instances
 {
     public class FieldInstance
     {

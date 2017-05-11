@@ -1,6 +1,7 @@
 ﻿using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Addressing;
 using CyBF.BFC.Model.Types;
+using CyBF.BFC.Model.Types.Instances;
 using System.Collections.Generic;
 using System.Linq;
 

@@ -5,8 +5,9 @@ using CyBF.BFC.Model.Types;
 using CyBF.BFC.Model.Addressing;
 using CyBF.BFC.Model.Data;
 using System;
+using CyBF.BFC.Model.Types.Instances;
 
-namespace CyBF.BFC.Model.Statements
+namespace CyBF.BFC.Model.Statements.Expressions
 {
     public class FieldExpressionStatement : ExpressionStatement
     {

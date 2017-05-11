@@ -3,7 +3,7 @@ using CyBF.Parsing;
 using CyBF.BFC.Model.Data;
 using System;
 
-namespace CyBF.BFC.Model.Statements
+namespace CyBF.BFC.Model.Statements.Expressions
 {
     public class VariableExpressionStatement : ExpressionStatement
     {

@@ -2,8 +2,9 @@
 using CyBF.BFC.Compilation;
 using System.Linq;
 using CyBF.BFC.Model.Data;
+using CyBF.BFC.Model.Types.Instances;
 
-namespace CyBF.BFC.Model.Types
+namespace CyBF.BFC.Model.Types.Definitions
 {
     public class ConstDefinition : TypeDefinition
     {

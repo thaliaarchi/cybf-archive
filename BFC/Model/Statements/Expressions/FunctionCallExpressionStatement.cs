@@ -7,7 +7,7 @@ using CyBF.BFC.Model.Data;
 using System;
 using CyBF.BFC.Model.Types;
 
-namespace CyBF.BFC.Model.Statements
+namespace CyBF.BFC.Model.Statements.Expressions
 {
     public class FunctionCallExpressionStatement : ExpressionStatement
     {

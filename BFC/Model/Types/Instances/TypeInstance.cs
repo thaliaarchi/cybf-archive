@@ -6,7 +6,7 @@ using CyBF.BFC.Model.Functions;
 using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Data;
 
-namespace CyBF.BFC.Model.Types
+namespace CyBF.BFC.Model.Types.Instances
 {
     public abstract class TypeInstance
     {

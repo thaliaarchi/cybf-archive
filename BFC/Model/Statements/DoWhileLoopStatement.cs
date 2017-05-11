@@ -2,6 +2,7 @@
 using System.Linq;
 using CyBF.BFC.Compilation;
 using CyBF.Parsing;
+using CyBF.BFC.Model.Statements.Expressions;
 
 namespace CyBF.BFC.Model.Statements
 {

@@ -1,4 +1,5 @@
-﻿using CyBF.Utility;
+﻿using CyBF.BFC.Model.Types.Instances;
+using CyBF.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;

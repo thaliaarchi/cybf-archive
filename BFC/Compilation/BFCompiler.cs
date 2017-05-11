@@ -3,6 +3,8 @@ using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Functions;
 using CyBF.BFC.Model.Statements;
 using CyBF.BFC.Model.Types;
+using CyBF.BFC.Model.Types.Definitions;
+using CyBF.BFC.Model.Types.Instances;
 using CyBF.Parsing;
 using System;
 using System.Collections.Generic;

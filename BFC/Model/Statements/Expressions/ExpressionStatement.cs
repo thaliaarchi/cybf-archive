@@ -1,7 +1,7 @@
 ﻿using CyBF.Parsing;
 using CyBF.BFC.Model.Data;
 
-namespace CyBF.BFC.Model.Statements
+namespace CyBF.BFC.Model.Statements.Expressions
 {
     public abstract class ExpressionStatement : Statement
     {

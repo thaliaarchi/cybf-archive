@@ -3,7 +3,7 @@ using CyBF.Parsing;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CyBF.BFC.Model.Types
+namespace CyBF.BFC.Model.Types.Instances
 {
     public class StructInstance : TypeInstance
     {

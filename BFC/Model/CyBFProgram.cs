@@ -2,6 +2,7 @@
 using CyBF.BFC.Model.Functions;
 using CyBF.BFC.Model.Statements;
 using CyBF.BFC.Model.Types;
+using CyBF.BFC.Model.Types.Definitions;
 using System.Collections.Generic;
 using System.Linq;
 

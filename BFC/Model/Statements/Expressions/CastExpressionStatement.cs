@@ -3,8 +3,9 @@ using CyBF.Parsing;
 using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Types;
 using System;
+using CyBF.BFC.Model.Types.Instances;
 
-namespace CyBF.BFC.Model.Statements
+namespace CyBF.BFC.Model.Statements.Expressions
 {
     public class CastExpressionStatement : ExpressionStatement
     {

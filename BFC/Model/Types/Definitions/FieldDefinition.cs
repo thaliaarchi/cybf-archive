@@ -1,8 +1,10 @@
 ﻿using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Statements;
+using CyBF.BFC.Model.Statements.Expressions;
+using CyBF.BFC.Model.Types.Instances;
 using CyBF.Parsing;
 
-namespace CyBF.BFC.Model.Types
+namespace CyBF.BFC.Model.Types.Definitions
 {
     public class FieldDefinition
     {

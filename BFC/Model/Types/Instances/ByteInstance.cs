@@ -1,4 +1,6 @@
-﻿namespace CyBF.BFC.Model.Types
+﻿using CyBF.BFC.Model.Types.Definitions;
+
+namespace CyBF.BFC.Model.Types.Instances
 {
     public class ByteInstance : TypeInstance
     {

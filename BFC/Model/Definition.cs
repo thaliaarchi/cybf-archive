@@ -1,4 +1,5 @@
 ﻿using CyBF.BFC.Model.Types;
+using CyBF.BFC.Model.Types.Instances;
 using System.Collections.Generic;
 
 namespace CyBF.BFC.Model

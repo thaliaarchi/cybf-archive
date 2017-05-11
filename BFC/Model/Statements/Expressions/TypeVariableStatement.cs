@@ -2,7 +2,7 @@
 using CyBF.Parsing;
 using CyBF.BFC.Model.Types;
 
-namespace CyBF.BFC.Model.Statements
+namespace CyBF.BFC.Model.Statements.Expressions
 {
     public class TypeVariableStatement : TypeExpressionStatement
     {
