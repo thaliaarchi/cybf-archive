@@ -88,7 +88,7 @@
     <Compile Include="BFC\Model\Statements\Expressions\StringExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\TypeConstructorStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\TypeExpressionStatement.cs" />
-    <Compile Include="BFC\Model\Statements\Expressions\TypeVariableStatement.cs" />
+    <Compile Include="BFC\Model\Statements\Expressions\TypeVariableExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\VariableAssignmentStatement.cs" />
     <Compile Include="BFC\Model\Statements\VariableDeclarationStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\VariableExpressionStatement.cs" />

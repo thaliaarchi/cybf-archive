@@ -494,7 +494,7 @@ namespace CyBF.BFC.Compilation
             {
                 Token typeVariableNameToken = _parser.Next();
                 TypeVariable variable = LookupTypeVariable(typeVariableNameToken);
-                return new TypeVariableStatement(typeVariableNameToken, variable);                
+                return new TypeVariableExpressionStatement(typeVariableNameToken, variable);                
             }
             
             return ParseTypeConstructor();

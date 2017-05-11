@@ -4,11 +4,11 @@ using CyBF.BFC.Model.Types;
 
 namespace CyBF.BFC.Model.Statements.Expressions
 {
-    public class TypeVariableStatement : TypeExpressionStatement
+    public class TypeVariableExpressionStatement : TypeExpressionStatement
     {
         public TypeVariable InputVariable { get; private set; }
 
-        public TypeVariableStatement(Token reference, TypeVariable variable) 
+        public TypeVariableExpressionStatement(Token reference, TypeVariable variable) 
             : base(reference)
         {
             this.InputVariable = variable;
