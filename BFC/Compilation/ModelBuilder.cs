@@ -177,6 +177,8 @@ namespace CyBF.BFC.Compilation
                     TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen,
                     () => _parser.Match(TokenType.Identifier));
             }
+
+            _parser.Match(TokenType.Semicolon);
         }
 
         public StructDefinition ParseStructDefinition()

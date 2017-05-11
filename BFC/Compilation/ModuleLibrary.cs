@@ -83,6 +83,8 @@ namespace CyBF.BFC.Compilation
                     () => parser.Match(TokenType.Identifier));
             }
 
+            parser.Match(TokenType.Semicolon);
+
             Module module = new Module(reference, name.ProcessedValue, tokens);
 
             this.Add(module, dependencies.Select(t => t.ProcessedValue));
