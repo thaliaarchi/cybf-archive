@@ -44,6 +44,17 @@ namespace CyBF
             //    "-run"
             //};
 
+            //args = new string[]
+            //{
+            //    @"..\..\..\Sudoku Solver",
+            //    "*.cbf",
+            //    @"stdlib\*.cbf",
+            //    //"-output",
+            //    //"code.txt",
+            //    //"-debug",
+            //    "-run"
+            //};
+
             try
             {
                 if (args.Length == 0 || args[0] == "-help")

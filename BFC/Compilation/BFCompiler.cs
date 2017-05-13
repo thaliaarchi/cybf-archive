@@ -128,16 +128,27 @@ namespace CyBF.BFC.Compilation
             if (bfobject.DataType.Size() == 0)
                 throw new ArgumentException("Cannot move to zero-sized object.");
 
-            if (bfobject != this.CurrentAllocatedObject)
+            while (this.CurrentAllocatedObject != null && this.CurrentAllocatedObject != bfobject)
             {
-                if (this.CurrentAllocatedObject != null)
-                    this.CurrentAllocatedObject.UndoOffsets(this);
+                this.CurrentAllocatedObject.Offset.Dereference(this);
+                this.CurrentAllocatedObject = this.CurrentAllocatedObject.Parent;
+            }
 
+            if (this.CurrentAllocatedObject == null)
+                TraverseBFObjectDerivations(bfobject);
+        }
+
+        private void TraverseBFObjectDerivations(BFObject bfobject)
+        {
+            if (bfobject.Parent == null)
+            {
                 this.Write(bfobject.AllocationId + " ");
-                this.CurrentAllocatedObject = bfobject.BaseObject;
-
-                bfobject.ApplyOffsets(this);
-
+                this.CurrentAllocatedObject = bfobject;
+            }
+            else
+            {
+                TraverseBFObjectDerivations(bfobject.Parent);
+                bfobject.Offset.Reference(this);
                 this.CurrentAllocatedObject = bfobject;
             }
         }
@@ -152,9 +163,12 @@ namespace CyBF.BFC.Compilation
             BFObject bfobject = allocationIdPrefix != null ?
                 new BFObject(dataType, allocationIdPrefix) : new BFObject(dataType);
             
-            if (this.CurrentAllocatedObject != null)
-                this.CurrentAllocatedObject.UndoOffsets(this);
-
+            while (this.CurrentAllocatedObject != null)
+            {
+                this.CurrentAllocatedObject.Offset.Dereference(this);
+                this.CurrentAllocatedObject = this.CurrentAllocatedObject.Parent;
+            }
+            
             this.Write("@" + bfobject.AllocationId + ":" + size.ToString());
 
             this.CurrentAllocatedObject = bfobject;
