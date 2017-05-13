@@ -24,10 +24,14 @@ namespace CyBF.BFC.Model.Statements.Commands
             this.Counter.Compile(compiler);
             TypeInstance counterDataType = this.Counter.ReturnVariable.Value.DataType;
 
-            if (!(counterDataType is ConstInstance))
-                throw new SemanticError("Command repeater counter is not a constant.", this.Reference);
+            int value;
 
-            int value = ((ConstInstance)counterDataType).Value;
+            if (counterDataType is ConstInstance)
+                value = ((ConstInstance)counterDataType).Value;
+            else if (counterDataType is CharacterInstance)
+                value = ((CharacterInstance)counterDataType).Ordinal;
+            else
+                throw new SemanticError("Command repeater counter is not a compile-time numeric.", this.Reference);
 
             if (value < 0)
                 throw new SemanticError("Command repeater counter is negative.", this.Reference);
