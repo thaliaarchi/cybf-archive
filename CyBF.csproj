@@ -59,6 +59,7 @@
     <Compile Include="BFC\Model\Definition.cs" />
     <Compile Include="BFC\Model\Functions\Builtins\AssertFunctionDefinition.cs" />
     <Compile Include="BFC\Model\Functions\Builtins\BinaryMathOperatorDefinition.cs" />
+    <Compile Include="BFC\Model\Functions\Builtins\StringIndexOperatorDefinition.cs" />
     <Compile Include="BFC\Model\Functions\Builtins\TupleIndexOperatorDefinition.cs" />
     <Compile Include="BFC\Model\Functions\Builtins\UnaryMathOperatorFunction.cs" />
     <Compile Include="BFC\Model\Functions\FunctionDefinition.cs" />
@@ -74,10 +75,12 @@
     <Compile Include="BFC\Model\Statements\Commands\RepeatCommand.cs" />
     <Compile Include="BFC\Model\Statements\Commands\VariableReferenceCommand.cs" />
     <Compile Include="BFC\Model\Statements\Commands\WriteCommand.cs" />
+    <Compile Include="BFC\Model\Statements\Expressions\CharacterExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\ConstExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\DoWhileLoopStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\ExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\FieldExpressionStatement.cs" />
+    <Compile Include="BFC\Model\Statements\Expressions\ToStringExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\TupleExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\ForLoopStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\FunctionCallExpressionStatement.cs" />
@@ -97,11 +100,13 @@
     <Compile Include="BFC\Model\Statements\Expressions\VoidExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\WhileLoopStatement.cs" />
     <Compile Include="BFC\Model\Types\Definitions\ArrayDefinition.cs" />
+    <Compile Include="BFC\Model\Types\Definitions\CharacterDefinition.cs" />
     <Compile Include="BFC\Model\Types\Definitions\TupleDefinition.cs" />
     <Compile Include="BFC\Model\Types\Instances\ArrayInstance.cs" />
     <Compile Include="BFC\Model\Types\Definitions\ByteDefinition.cs" />
     <Compile Include="BFC\Model\Types\Instances\ByteInstance.cs" />
     <Compile Include="BFC\Model\Types\Definitions\ConstDefinition.cs" />
+    <Compile Include="BFC\Model\Types\Instances\CharacterInstance.cs" />
     <Compile Include="BFC\Model\Types\Instances\ConstInstance.cs" />
     <Compile Include="BFC\Model\Types\ConstrainedTypeParameter.cs" />
     <Compile Include="BFC\Model\Types\Definitions\FieldDefinition.cs" />

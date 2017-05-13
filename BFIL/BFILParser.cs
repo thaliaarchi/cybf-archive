@@ -134,7 +134,7 @@ namespace CyBF.BFIL
         {
             List<Token> dataTokens;
 
-            if (_parser.Matches(TokenType.Numeric, TokenType.String))
+            if (_parser.Matches(TokenType.Character, TokenType.String, TokenType.Numeric))
             {
                 dataTokens = new List<Token>() { _parser.Next() };
             }
@@ -142,7 +142,7 @@ namespace CyBF.BFIL
             {
                 dataTokens = _parser.ParseDelimitedList(
                     TokenType.OpenParen, TokenType.Comma, TokenType.CloseParen,
-                    () => _parser.Match(TokenType.Numeric, TokenType.String));
+                    () => _parser.Match(TokenType.Character, TokenType.String, TokenType.Numeric));
             }
 
             return dataTokens;
@@ -154,27 +154,29 @@ namespace CyBF.BFIL
 
             foreach (Token token in dataTokens)
             {
-                if (token.TokenType == TokenType.Numeric)
+                if (token.TokenType == TokenType.Character || token.TokenType == TokenType.String)
+                {
+                    if (token.TokenType == TokenType.String)
+                        data.Add(0);
+
+                    try
+                    {
+                        data.AddRange(Encoding.ASCII.GetBytes(token.ProcessedValue));
+                    }
+                    catch (EncoderFallbackException)
+                    {
+                        throw new SyntaxError(token, "ascii encoding");
+                    }
+
+                    if (token.TokenType == TokenType.String)
+                        data.Add(0);
+                }
+                else if (token.TokenType == TokenType.Numeric)
                 {
                     if (token.NumericValue < 0 || 255 < token.NumericValue)
                         throw new SyntaxError(token, "value within byte range [0-255]");
 
                     data.Add((byte)token.NumericValue);
-                }
-                else if (token.TokenType == TokenType.String)
-                {
-                    data.Add(0);
-
-                    try
-                    {
-                        data.AddRange(Encoding.UTF8.GetBytes(token.ProcessedValue));
-                    }
-                    catch (EncoderFallbackException)
-                    {
-                        throw new SyntaxError(token, "utf-8 encoding");
-                    }
-
-                    data.Add(0);
                 }
                 else
                 {

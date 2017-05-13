@@ -35,6 +35,11 @@ namespace CyBF.BFC.Model.Statements.Commands
 
                     writeArguments.Add(numericValue.ToString());
                 }
+                else if (dataType is CharacterInstance)
+                {
+                    string rawString = ((CharacterInstance)dataType).RawString;
+                    writeArguments.Add(rawString);
+                }
                 else if (dataType is StringInstance)
                 {
                     string rawString = ((StringInstance)dataType).RawString;

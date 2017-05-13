@@ -125,6 +125,8 @@ namespace CyBF.BFC.Compilation
 
             functions.Add(new TupleIndexOperatorDefinition());
 
+            functions.Add(new StringIndexOperatorDefinition());
+
             SystemVariable nullVariable = new SystemVariable();
             nullVariable.Value = BFObject.Null;
 
@@ -852,7 +854,7 @@ namespace CyBF.BFC.Compilation
         {
             ExpressionStatement returnValue;
 
-            if (_parser.Matches(TokenType.Numeric, TokenType.String))
+            if (_parser.Matches(TokenType.Character, TokenType.String, TokenType.Numeric))
                 returnValue = ParseLiteralExpression();
 
             else if (_parser.Matches(TokenType.Keyword_Cast))
@@ -860,6 +862,9 @@ namespace CyBF.BFC.Compilation
 
             else if (_parser.Matches(TokenType.Keyword_Sizeof))
                 returnValue = ParseSizeOfExpression();
+
+            else if (_parser.Matches(TokenType.Keyword_String))
+                returnValue = ParseToStringExpression();
 
             else if (_parser.Matches(TokenType.Keyword_New))
                 returnValue = ParseNewObjectExpression();
@@ -947,6 +952,25 @@ namespace CyBF.BFC.Compilation
             }
         }
 
+        public ExpressionStatement ParseToStringExpression()
+        {
+            Token reference = _parser.Match(TokenType.Keyword_String);
+
+            if (_parser.Matches(TokenType.OpenParen))
+            {
+                _parser.Next();
+                ExpressionStatement expression = ParseExpression();
+                _parser.Match(TokenType.CloseParen);
+
+                return new ToStringExpressionStatement(reference, expression);
+            }
+            else
+            {
+                TypeExpressionStatement typeExpression = ParseTypeExpression();
+                return new ToStringExpressionStatement(reference, typeExpression);
+            }
+        }
+
         public ExpressionStatement ParseNewObjectExpression()
         {
             Token reference = _parser.Match(TokenType.Keyword_New);
@@ -993,10 +1017,14 @@ namespace CyBF.BFC.Compilation
 
         public ExpressionStatement ParseLiteralExpression()
         {
-            Token token = _parser.Match(TokenType.String, TokenType.Numeric);
+            Token token = _parser.Match(TokenType.Character, TokenType.String, TokenType.Numeric);
 
-            if (token.TokenType == TokenType.String)
+            if (token.TokenType == TokenType.Character)
+                return new CharacterExpressionStatement(token, token.RawValue, token.ProcessedValue, token.NumericValue);
+
+            else if (token.TokenType == TokenType.String)
                 return new StringExpressionStatement(token, token.RawValue, token.ProcessedValue);
+
             else
                 return new ConstExpressionStatement(token, token.NumericValue);
         }

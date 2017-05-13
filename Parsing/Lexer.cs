@@ -37,6 +37,7 @@ namespace CyBF.Parsing
             {"let", TokenType.Keyword_Let },
             {"cast", TokenType.Keyword_Cast },
             {"sizeof", TokenType.Keyword_Sizeof },
+            {"string", TokenType.Keyword_String },
             {"new", TokenType.Keyword_New },
             {"do", TokenType.Keyword_Do },
             {"while", TokenType.Keyword_While },
@@ -272,7 +273,7 @@ namespace CyBF.Parsing
                 "character literal",
                 _charRegex,
                 ProcessString,
-                value => TokenType.Numeric,
+                value => TokenType.Character,
                 value => Encoding.ASCII.GetBytes(value)[0]);
         }
 

@@ -9,6 +9,7 @@ using System.Text;
 using CyBF.Parsing;
 using CyBF.BFC.Compilation;
 using CyBF.BFC.Model;
+using CyBF.BFC.Model.Types.Instances;
 
 namespace CyBF
 {
@@ -37,9 +38,9 @@ namespace CyBF
             //{
             //    ".\\Program",
             //    "*.cbf",
-            //    //"-output",
-            //    //"code.txt",
-            //    //"-debug",
+            //    "-output",
+            //    "code.txt",
+            //    "-debug",
             //    "-run"
             //};
 
