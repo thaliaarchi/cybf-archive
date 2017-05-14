@@ -98,5 +98,21 @@ namespace CyBF.BFC.Model.Data
         {
             return Derive(dataType, new NumericAddressOffset(0));
         }
+
+        public List<BFObject> GetDerivationList()
+        {
+            List<BFObject> derivationList = new List<BFObject>();
+            BFObject current = this;
+            
+            while (current != null)
+            {
+                derivationList.Add(current);
+                current = current.Parent;
+            }
+
+            derivationList.Reverse();
+
+            return derivationList;
+        }
     }
 }

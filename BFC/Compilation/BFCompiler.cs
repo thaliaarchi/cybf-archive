@@ -128,28 +128,32 @@ namespace CyBF.BFC.Compilation
             if (bfobject.DataType.Size() == 0)
                 throw new ArgumentException("Cannot move to zero-sized object.");
 
-            while (this.CurrentAllocatedObject != null && this.CurrentAllocatedObject != bfobject)
+            List<BFObject> derivationList = bfobject.GetDerivationList();
+
+            while (this.CurrentAllocatedObject != null 
+                && !derivationList.Contains(this.CurrentAllocatedObject))
             {
                 this.CurrentAllocatedObject.Offset.Dereference(this);
                 this.CurrentAllocatedObject = this.CurrentAllocatedObject.Parent;
             }
 
-            if (this.CurrentAllocatedObject == null)
-                TraverseBFObjectDerivations(bfobject);
-        }
+            int commonRootIndex;
 
-        private void TraverseBFObjectDerivations(BFObject bfobject)
-        {
-            if (bfobject.Parent == null)
+            if (this.CurrentAllocatedObject == null)
             {
-                this.Write(bfobject.AllocationId + " ");
-                this.CurrentAllocatedObject = bfobject;
+                this.Write(derivationList[0].AllocationId + " ");
+                this.CurrentAllocatedObject = derivationList[0];
+                commonRootIndex = 0;
             }
             else
             {
-                TraverseBFObjectDerivations(bfobject.Parent);
-                bfobject.Offset.Reference(this);
-                this.CurrentAllocatedObject = bfobject;
+                commonRootIndex = derivationList.IndexOf(this.CurrentAllocatedObject);
+            }
+
+            for (int i = commonRootIndex + 1; i < derivationList.Count; i++)
+            {
+                derivationList[i].Offset.Reference(this);
+                this.CurrentAllocatedObject = derivationList[i];
             }
         }
 
