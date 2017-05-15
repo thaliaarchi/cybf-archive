@@ -1,0 +1,346 @@
+module String(Math);
+
+` ================================================================
+` Struct Definitions
+` ================================================================
+
+struct BChar
+    ordinal : Byte
+end
+
+struct BString(maxLength)
+
+    _header : BChar
+    characters : [Array BChar](maxLength)
+    _footer : BChar
+    
+    max_length : Const(maxLength)
+    
+    function length(this)
+    
+        let count : byte(0);
+        let stillCounting : byte(1);
+    
+        iterate i this.characters.capacity:
+
+            if this.characters[i].ordinal:
+            
+                if stillCounting:
+                
+                    ++count;
+                
+                end
+            
+            else:
+                
+                stillCounting = 0;
+            
+            end
+        
+        end
+        
+        return count;
+    
+    end
+    
+end
+
+
+` ================================================================
+` Struct Constructors
+` ================================================================
+
+function bchar(chr:Character)
+    
+    return cast byte(chr.ordinal) : BChar
+    
+end
+
+function bstring(str:String)
+
+    var bytes : [Array Byte](str.size);
+    { bytes # str }
+        
+    return cast bytes : BString(str.length)
+
+end
+
+function bstring(maxLength:Const)
+    
+    var bstring : BString(maxLength);
+    
+    bstring._header = 0;
+    bstring._footer = 0;
+    
+    return bstring;
+    
+end
+
+
+
+` ================================================================
+` Basic print functions.
+` ================================================================
+
+function print(value:Const)
+    print(string(value));
+end
+
+function print(bchr:BChar)
+    { bchr. }
+end
+
+function print(bstr:BString)
+    { bstr >[.>]<[<] }
+end
+
+function print(chr:Character)
+    let bchr : bchar(chr);
+    print(bchr);
+end
+
+function print(str:String)
+    let bstr : bstring(str);
+    print(bstr);
+end
+
+function println()
+    print(bchar('\n'));
+end
+
+function println(bchr:BChar)
+    print(bchr);
+    println();
+end
+
+function println(bstr:BString)
+    print(bstr);
+    println();
+end
+
+function println(chr:Character)
+    print(chr);
+    println();
+end
+
+function println(str:String)
+    print(str);
+    println();
+end
+
+
+
+` ================================================================
+` Converting bytes into decimal digit strings.
+` ================================================================
+
+function bstring(value:Const)
+    return bstring(string(value));
+end
+
+function bstring(value:Byte)
+
+    var result : BString(3);
+    
+    let b0 : result.characters[0].ordinal;
+    let b1 : result.characters[1].ordinal;
+    let b2 : result.characters[2].ordinal;
+
+    b0 = 0;
+    b1 = 0;
+    b2 = value;
+    
+    ` 200 = 100 + 100
+    
+    if b2 >= 100:
+        b0 += 1;
+        b2 -= 100;
+    end
+        
+    if b2 >= 100:
+        b0 += 1;
+        b2 -= 100;
+    end
+
+    ` 90 = 40 + 30 + 10 + 10
+    
+    if b2 >= 40:
+        b1 += 4;
+        b2 -= 40;
+    end
+    
+    if b2 >= 30:
+        b1 += 3;
+        b2 -= 30;
+    end
+    
+    if b2 >= 10:
+        b1 += 1;
+        b2 -= 10;
+    end    
+    
+    if b2 >= 10:
+        b1 += 1;
+        b2 -= 10;
+    end        
+    
+    b0 += '0'.ordinal;
+    b1 += '0'.ordinal;
+    b2 += '0'.ordinal;
+    
+    return result;
+    
+end
+
+function print(b:Byte)
+    
+    let bstr : bstring(b);
+    
+    if bstr[0] != '0':
+        print(bstr[0]);
+        print(bstr[1]);
+        print(bstr[2]);
+        
+    elif bstr[1] != '0':
+        print(bstr[1]);
+        print(bstr[2]);
+
+    else:
+        print(bstr[2]);
+        
+    end
+    
+end
+
+function println(b:Byte)
+    print(b);
+    println();
+end
+
+
+
+` ================================================================
+` Operators
+` ================================================================
+
+function [] (bstr:BString, index:Const)
+    return bstr.characters[index];
+end
+
+
+
+function = (left:BChar, right:Character)
+    left.ordinal = right.ordinal;
+end
+
+function = (left:BChar, right:BChar)
+    left.ordinal = right.ordinal;
+end
+
+
+
+function < (left:Character, right:Character)
+    return left.ordinal < right.ordinal;
+end
+
+function < (left:Character, right:BChar)
+    return left.ordinal < right.ordinal;
+end
+
+function < (left:BChar, right:Character)
+    return left.ordinal < right.ordinal;
+end
+
+function < (left:BChar, right:BChar)
+    return left.ordinal < right.ordinal;
+end
+
+
+
+function <= (left:Character, right:Character)
+    return left.ordinal <= right.ordinal;
+end
+
+function <= (left:Character, right:BChar)
+    return left.ordinal <= right.ordinal;
+end
+
+function <= (left:BChar, right:Character)
+    return left.ordinal <= right.ordinal;
+end
+
+function <= (left:BChar, right:BChar)
+    return left.ordinal <= right.ordinal;
+end
+
+
+
+function == (left:Character, right:Character)
+    return left.ordinal == right.ordinal;
+end
+
+function == (left:Character, right:BChar)
+    return left.ordinal == right.ordinal;
+end
+
+function == (left:BChar, right:Character)
+    return left.ordinal == right.ordinal;
+end
+
+function == (left:BChar, right:BChar)
+    return left.ordinal == right.ordinal;
+end
+
+
+
+function != (left:Character, right:Character)
+    return left.ordinal != right.ordinal;
+end
+
+function != (left:Character, right:BChar)
+    return left.ordinal != right.ordinal;
+end
+
+function != (left:BChar, right:Character)
+    return left.ordinal != right.ordinal;
+end
+
+function != (left:BChar, right:BChar)
+    return left.ordinal != right.ordinal;
+end
+
+
+
+function >= (left:Character, right:Character)
+    return left.ordinal >= right.ordinal;
+end
+
+function >= (left:Character, right:BChar)
+    return left.ordinal >= right.ordinal;
+end
+
+function >= (left:BChar, right:Character)
+    return left.ordinal >= right.ordinal;
+end
+
+function >= (left:BChar, right:BChar)
+    return left.ordinal >= right.ordinal;
+end
+
+
+
+function > (left:Character, right:Character)
+    return left.ordinal > right.ordinal;
+end
+
+function > (left:Character, right:BChar)
+    return left.ordinal > right.ordinal;
+end
+
+function > (left:BChar, right:Character)
+    return left.ordinal > right.ordinal;
+end
+
+function > (left:BChar, right:BChar)
+    return left.ordinal > right.ordinal;
+end

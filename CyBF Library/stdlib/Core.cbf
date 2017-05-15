@@ -1,0 +1,97 @@
+module Core;
+
+selector [] (array:[Array ~T], index:Const) : ~T
+    
+    reference
+    
+        if sizeof(array) > 0:
+    
+            let elementSize : sizeof ~T;
+            
+            assert((0 <= index) & (index < array.capacity), 
+                "Array index out of range.");
+            
+            { array ((>)*index)*elementSize }
+
+        end
+            
+    end
+    
+    dereference
+    
+        if sizeof(array) > 0:
+    
+            let elementSize : sizeof ~T;
+            
+            { ((<)*index)*elementSize }
+        
+        end
+        
+    end
+    
+end
+
+function memory_copy(source:~T, destination:~T)
+
+    let sourceBytes : 
+        cast source : [Array Byte](sizeof(source));
+        
+    let destBytes : 
+        cast destination : [Array Byte](sizeof(destination));
+        
+    assert(sourceBytes.capacity == destBytes.capacity,
+        "Cannot perform a memory copy on objects of different sizes.");
+
+    iterate i sourceBytes.capacity:
+        
+        let src : sourceBytes[i];
+        let dst : destBytes[i];
+        var tmp : Byte
+        
+        {
+            dst[-] tmp[-]
+            src [ dst+ tmp+ src- ]
+            tmp [ src+ tmp-    ]
+        }
+        
+    end
+
+end
+
+function memory_copy(object:~T)
+
+    var copy : [Array Byte](sizeof(object))
+    memory_copy(object, copy);
+    
+    return copy    
+
+end
+
+function memory_reset(object:~T, value:Const)
+
+    let size : sizeof(object);
+
+    let bytes :
+        cast object : [Array Byte](size);
+        
+    {
+        bytes 
+        ( # value > )*size 
+        ( < )*size
+    }
+    
+end
+
+function memory_reset(object:~T)
+
+    memory_reset(object);
+
+end
+
+function assert(condition:Const)
+
+    assert(condition, "");
+    
+end
+
+

@@ -1,0 +1,494 @@
+module Math;
+
+` ================================================================
+` Byte Constructor Functions
+` ================================================================
+
+function byte(value:Const)
+
+    var byte : Byte
+    { byte # value }
+    
+    return byte
+
+end
+
+function byte(value:Byte)
+
+    var copy : Byte
+    var temp : Byte
+    
+    {
+        copy # 0 
+        temp # 0
+        
+        value [ copy+  temp+ value- ]
+        temp  [ value+ temp-        ]
+    }
+
+    return copy
+    
+end
+
+
+
+` ================================================================
+` Copy Operators
+` ================================================================
+
+function = (left:Byte, right:Const)
+
+    { left # right }
+    
+    return left
+    
+end
+
+function = (left:Byte, right:Byte)
+
+    var temp : Byte
+    
+    {
+        left # 0
+        temp # 0
+    
+        right [ left+  temp+ right- ]
+        temp  [ right+ temp-        ]
+    }
+
+    return left
+    
+end
+
+
+
+` ================================================================
+` Summation Operators + - += -= ++ --
+` ================================================================
+
+function + (left:Byte, right:Const)
+
+    var result : Byte
+    var temp : Byte
+    
+    {
+        result # 0
+        temp   # 0
+        
+        left [ result+ temp+ left- ]
+        temp [ left+   temp-       ]
+        
+        result (+)*right
+    }
+    
+    return result
+
+end
+
+function + (left:Const, right:Byte)
+
+    var result : Byte
+    var temp : Byte
+    
+    {
+        result # left
+        temp   # 0
+        
+        right [ result+ temp+ right- ]
+        temp  [ right+  temp-        ]
+    }
+
+    return result
+    
+end
+
+function + (left:Byte, right:Byte)
+
+    var result : Byte
+    var temp : Byte
+    
+    {
+        result # 0
+        temp   # 0
+        
+        left [ result+ temp+ left- ]
+        temp [ left+   temp-       ]
+        
+        right [ result+ temp+ right- ]
+        temp  [ right+  temp-        ]
+    }
+    
+    return result
+
+end
+
+function - (left:Byte, right:Const)
+
+    var result : Byte
+    var temp : Byte
+    
+    {
+        result # 0
+        temp # 0
+        
+        left [ result+ temp+ left- ]
+        temp [ left+   temp-       ]
+        
+        result (-)*right
+    }
+    
+    return result
+
+end
+
+function - (left:Const, right:Byte)
+    
+    var result : Byte
+    var temp : Byte
+    
+    {
+        result # left
+        temp # 0
+        
+        right [ result- temp+ right- ]
+        temp  [ right+  temp-        ]
+    }
+    
+    return result
+
+end
+
+function - (left:Byte, right:Byte)
+
+    var result : Byte
+    var temp : Byte
+    
+    {
+        result # 0
+        temp # 0 
+        
+        left [ result+ temp+ left- ]
+        temp [ left+   temp-       ]
+        
+        right [ result- temp+ right- ]
+        temp  [ right+  temp-        ]
+    }
+    
+    return result
+
+end
+
+
+function += (left:Byte, right:Const)
+
+    { left (+)*right }
+    
+    return left
+
+end
+
+function += (left:Byte, right:Byte)
+
+    var temp : Byte
+    
+    {
+        temp # 0
+        
+        right [ left+  temp+ right- ]
+        temp  [ right+ temp-        ]
+    }
+    
+    return left
+
+end
+
+function -= (left:Byte, right:Const)
+
+    { left (-)*right }
+    
+    return left
+
+end
+
+function -= (left:Byte, right:Byte)
+
+    var temp : Byte
+    
+    {
+        temp # 0
+        
+        right [ left-  temp+ right- ]
+        temp  [ right+ temp-        ]
+    }
+    
+    return left
+
+end
+
+function ++ (value:Byte)
+
+    { value+ }
+
+end
+
+function -- (value:Byte)
+
+    { value- }
+
+end
+
+
+
+` ================================================================
+` Equality Operators == !=
+` ================================================================
+
+function == (left:Byte, right:Const)
+
+    let result : byte(1);
+    let temp : byte(left);
+    
+    temp -= right;
+    
+    if temp:
+        --result;
+    end
+    
+    return result
+    
+end
+
+function == (left:Const, right:Byte)
+    return right == left
+end
+
+function == (left:Byte, right:Byte)
+
+    let result : byte(1);
+    let temp : byte(left);
+    
+    temp -= right;
+    
+    if temp:
+        --result;
+    end
+    
+    return result
+    
+end
+
+function != (left:Byte, right:Const)
+
+    let result : byte(0);
+    let temp : byte(left);
+    
+    temp -= right;
+    
+    if temp:
+        ++result;
+    end
+    
+    return result
+    
+end
+
+function != (left:Const, right:Byte)
+    return right == left
+end
+
+function != (left:Byte, right:Byte)
+
+    let result : byte(0);
+    let temp : byte(left);
+    
+    temp -= right;
+    
+    if temp:
+        ++result;
+    end
+    
+    return result
+    
+end
+
+
+
+` ================================================================
+` Logical Operators & | !
+` ================================================================
+
+function & (left:Const, right:Byte)
+    
+    let result : byte(0);
+    
+    if left:
+        if right:
+            ++result;
+        end
+    end
+
+    return result    
+    
+end
+
+function & (left:Byte, right:Const)
+
+    return right & left
+
+end
+
+function & (left:Byte, right:Byte)
+
+    let result : byte(0);
+    
+    if left:
+        if right:
+            ++result;
+        end
+    end
+
+    return result
+    
+end
+
+function | (left:Const, right:Byte)
+
+    let result : byte(0);
+    
+    if left:
+        ++result;
+    elif right:
+        ++result;
+    end
+
+    return result
+
+end
+
+function | (left:Byte, right:Const)
+
+    return right | left
+
+end
+
+function | (left:Byte, right:Byte)
+
+    let result : byte(0);
+    
+    if left:
+        ++result;
+    elif right:
+        ++result;
+    end
+
+    return result
+    
+end
+
+function ! (value:Byte)
+
+    let result : byte(1);
+
+    if value:
+        --result;
+    end
+
+    return result;
+    
+end
+
+
+
+` ================================================================
+` Comparison Operators < <= >= >
+` ================================================================
+
+function < (left:Byte, right:Byte)
+
+    let result : byte(0);
+    let tempLeft : byte(left);
+    let tempRight : byte(right);
+    
+    while tempLeft & tempRight:
+        --tempLeft;
+        --tempRight;
+    end
+
+    if tempRight:
+        ++result;
+    end
+    
+    return result
+    
+end
+
+function > (left:Byte, right:Byte)
+    return right < left
+end
+
+function >= (left:Byte, right:Byte)
+
+    let result : byte(1);
+    let tempLeft : byte(left);
+    let tempRight : byte(right);
+    
+    while tempLeft & tempRight:
+        --tempLeft;
+        --tempRight;
+    end
+
+    if tempRight:
+        --result;
+    end
+    
+    return result
+    
+end
+
+function <= (left:Byte, right:Byte)
+    return right >= left
+end
+
+
+
+function < (left:Byte, right:Const)
+    return left < byte(right)
+end
+
+function <= (left:Byte, right:Const)
+    return left <= byte(right)
+end
+
+function >= (left:Byte, right:Const)
+    return left >= byte(right)
+end
+
+function > (left:Byte, right:Const)
+    return left > byte(right)
+end
+
+
+
+function < (left:Const, right:Byte)
+    return byte(left) < right
+end
+
+function <= (left:Const, right:Byte)
+    return byte(left) <= right
+end
+
+function >= (left:Const, right:Byte)
+    return byte(left) >= right
+end
+
+function > (left:Const, right:Byte)
+    return byte(left) > right
+end
+
+
+
+` ================================================================
+` Multiplication
+` ================================================================
+
+
