@@ -1,1 +1,40 @@
 module Main;
+
+let xs : (new [List Byte](10, 1)).init();
+
+while ++xs:
+    let buffer : *xs;
+    { buffer,. }
+end
+
+let counter : byte(0);
+
+while ++(xs#0):
+end
+
+function print_bytes(object:~T)
+    
+    let bytes : 
+        cast object : [Array Byte](sizeof(object));
+        
+    iterate i bytes.capacity:
+        println(bytes[i]);
+    end
+        
+end
+
+println();
+print("List Size: ");
+println(sizeof(xs));
+print_bytes(xs);
+println();
+
+--(xs#0);
+
+print("List Size: ");
+println(sizeof(xs));
+print_bytes(xs);
+println();
+
+` var tmp : Byte
+` { tmp # "Hello, world!" >[.>]<[<] }

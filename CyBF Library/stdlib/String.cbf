@@ -108,6 +108,11 @@ function println()
     print(bchar('\n'));
 end
 
+function println(value:Const)
+    print(value);
+    println();
+end
+
 function println(bchr:BChar)
     print(bchr);
     println();
