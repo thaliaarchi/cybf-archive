@@ -26,7 +26,7 @@ namespace CyBF.BFC.Model.Statements
             BFObject controlObject = GetControlObject(compiler);
             compiler.MoveToObject(controlObject);
 
-            compiler.Write("[");
+            compiler.BeginCheckedLoop();
 
             foreach (Statement statement in this.Body)
                 statement.Compile(compiler);
@@ -34,7 +34,7 @@ namespace CyBF.BFC.Model.Statements
             controlObject = GetControlObject(compiler);
             compiler.MoveToObject(controlObject);
 
-            compiler.Write("]");
+            compiler.EndCheckedLoop();
         }
 
         private BFObject GetControlObject(BFCompiler compiler)
@@ -57,28 +57,28 @@ namespace CyBF.BFC.Model.Statements
             else
             {
                 BFObject controlObject = compiler.AllocateAndMoveToObject(new ByteInstance());
-                compiler.Write("[-]");
+                compiler.AppendBF("[-]");
 
                 BFObject tempObject = compiler.AllocateAndMoveToObject(new ByteInstance());
-                compiler.Write("[-]");
+                compiler.AppendBF("[-]");
 
                 compiler.MoveToObject(conditionObject);
-                compiler.Write("[");
+                compiler.BeginCheckedLoop();
                 compiler.MoveToObject(controlObject);
-                compiler.Write("+");
+                compiler.AppendBF("+");
                 compiler.MoveToObject(tempObject);
-                compiler.Write("+");
+                compiler.AppendBF("+");
                 compiler.MoveToObject(conditionObject);
-                compiler.Write("-");
-                compiler.Write("]");
+                compiler.AppendBF("-");
+                compiler.EndCheckedLoop(); ;
 
                 compiler.MoveToObject(tempObject);
-                compiler.Write("[");
+                compiler.BeginCheckedLoop();
                 compiler.MoveToObject(conditionObject);
-                compiler.Write("+");
+                compiler.AppendBF("+");
                 compiler.MoveToObject(tempObject);
-                compiler.Write("-");
-                compiler.Write("]");
+                compiler.AppendBF("-");
+                compiler.EndCheckedLoop();
 
                 return controlObject;
             }

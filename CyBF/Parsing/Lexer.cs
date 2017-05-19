@@ -207,7 +207,7 @@ namespace CyBF.Parsing
                 t = this.Next();
             }
 
-            tokens.Add(new Token(_scanner.GetPositionInfo(), TokenType.EndOfSource, string.Empty, string.Empty, 0));
+            tokens.Add(new Token(_scanner.GetPositionInfo(), TokenType.EndOfSource, string.Empty));
 
             return tokens;
         }
@@ -242,9 +242,7 @@ namespace CyBF.Parsing
             return ParsePattern(
                 "identifier/keyword",
                 _identifierRegex,
-                value => value,
-                value => _keywords.ContainsKey(value) ? _keywords[value] : TokenType.Identifier,
-                value => 0);
+                value => _keywords.ContainsKey(value) ? _keywords[value] : TokenType.Identifier);
         }
 
         public Token TypeVariable()
@@ -252,39 +250,71 @@ namespace CyBF.Parsing
             return ParsePattern(
                 "type variable",
                 _typevarRegex,
-                value => value,
-                value => TokenType.TypeVariable,
-                value => 0);
+                value => TokenType.TypeVariable);
         }
 
         public Token DecimalNumeric()
         {
-            return ParsePattern(
+            Token token = ParsePattern(
                 "decimal numeric", 
                 _decimalRegex, 
-                value => value,
-                value => TokenType.Numeric, 
-                value => int.Parse(value));
+                value => TokenType.Numeric);
+
+            token.NumericValue = int.Parse(token.TokenString);
+
+            return token;
         }
         
         public Token CharacterLiteral()
         {
-            return ParsePattern(
+            Token token = ParsePattern(
                 "character literal",
                 _charRegex,
-                ProcessString,
-                value => TokenType.Character,
-                value => Encoding.ASCII.GetBytes(value)[0]);
+                value => TokenType.Character);
+
+            string processedString = ProcessEscapedStringLiteral(token.TokenString);
+            byte[] asciiBytes = null;
+
+            try
+            {
+                asciiBytes = Encoding.ASCII.GetBytes(processedString);
+            }
+            catch(EncoderFallbackException)
+            {
+                RaiseLexicalError("Character literal not ASCII compatible.", token);
+            }
+
+            if (asciiBytes.Length != 1)
+                RaiseLexicalError("Unexpected byte count of ASCII decoded character literal.", token);
+
+            token.NumericValue = asciiBytes[0];
+            token.AsciiBytes = asciiBytes;
+
+            return token;
         }
 
         public Token StringLiteral()
         {
-            return ParsePattern(
+            Token token = ParsePattern(
                 "string literal",
                 _stringRegex,
-                ProcessString,
-                value => TokenType.String,
-                value => 0);
+                value => TokenType.String);
+
+            string processedString = ProcessEscapedStringLiteral(token.TokenString);
+            byte[] asciiBytes = null;
+
+            try
+            {
+                asciiBytes = Encoding.ASCII.GetBytes(processedString);
+            }
+            catch (EncoderFallbackException)
+            {
+                RaiseLexicalError("Character literal not ASCII compatible.", token);
+            }
+
+            token.AsciiBytes = asciiBytes;
+
+            return token;
         }
 
         public Token Operator()
@@ -292,9 +322,7 @@ namespace CyBF.Parsing
             return ParsePattern(
                 "operator",
                 _operatorRegex,
-                value => value,
-                value => TokenType.Operator,
-                value => 0);
+                value => TokenType.Operator);
         }
 
         public Token Delimiter()
@@ -302,9 +330,7 @@ namespace CyBF.Parsing
             return ParsePattern(
                 "delimiter",
                 _delimiterRegex,
-                value => value,
-                value => _delimiters[value[0]],
-                value => 0);
+                value => _delimiters[value[0]]);
         }
 
         public Token Command()
@@ -312,9 +338,7 @@ namespace CyBF.Parsing
             return ParsePattern(
                 "command",
                 _commandRegex,
-                value => value,
-                value => _commands[value[0]],
-                value => 0);
+                value => _commands[value[0]]);
         }
 
         public Token Whitespace()
@@ -322,25 +346,10 @@ namespace CyBF.Parsing
             return ParsePattern(
                 "whitespace",
                 _whitespaceRegex,
-                value => value,
-                value => TokenType.Whitespace,
-                value => 0);
+                value => TokenType.Whitespace);
         }
-
-        private string RemoveWhitespace(string value)
-        {
-            StringBuilder builder = new StringBuilder(value.Length);
-
-            foreach (char c in value)
-            {
-                if (!Char.IsWhiteSpace(c))
-                    builder.Append(c);
-            }
-
-            return builder.ToString();
-        }
-
-        private string ProcessString(string value)
+        
+        public string ProcessEscapedStringLiteral(string value)
         {
             StringBuilder builder = new StringBuilder(value.Length * 2);
 
@@ -375,16 +384,15 @@ namespace CyBF.Parsing
             return builder.ToString();
         }
 
-        private Token ParsePattern(string expected, Regex pattern, Func<string, string> processValue, Func<string, TokenType> getTokenType, Func<string, int> getNumericValue)
+        private Token ParsePattern(string expected, Regex pattern, Func<string, TokenType> getTokenType)
         {
             PositionInfo currentPosition = _scanner.GetPositionInfo();
 
-            string rawValue;
+            string tokenString;
 
-            if (_scanner.ReadPattern(pattern, out rawValue))
+            if (_scanner.ReadPattern(pattern, out tokenString))
             {
-                string processedValue = processValue(rawValue);
-                return new Token(currentPosition, getTokenType(processedValue), rawValue, processedValue, getNumericValue(processedValue));
+                return new Token(currentPosition, getTokenType(tokenString), tokenString);
             }
             else
             {
@@ -406,13 +414,25 @@ namespace CyBF.Parsing
             }
             else
             {
-                message =
-                    _scanner.Source + "\n" +
-                    "Line " + _scanner.LineNumber.ToString() + "\n" +
-                    _scanner.Line + "\n" +
-                    new string(' ', _scanner.LinePosition) + "^\n" +
-                    "Expected " + expected;
+                message = _scanner.Source + "\n" 
+                    + "Line " + _scanner.LineNumber.ToString() + "\n" 
+                    + _scanner.Line + "\n" 
+                    + new string(' ', _scanner.LinePosition) + "^\n" 
+                    + "Expected " + expected;
             }
+
+            throw new LexicalError(message);
+        }
+
+        private void RaiseLexicalError(string message, Token token)
+        {
+            PositionInfo pos = token.PositionInfo;
+
+            message = pos.Source + "\n"
+                + "Line " + pos.LineNumber.ToString() + "\n"
+                + pos.Line + "\n"
+                + new string(' ', pos.LinePosition) + "^\n"
+                + message;
 
             throw new LexicalError(message);
         }

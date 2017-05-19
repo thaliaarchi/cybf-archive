@@ -1,8 +1,6 @@
 ﻿using CyBF.BFC.Compilation;
 using CyBF.Parsing;
-using CyBF.BFC.Model.Types;
 using CyBF.BFC.Model.Data;
-using System;
 using CyBF.BFC.Model.Types.Instances;
 
 namespace CyBF.BFC.Model.Statements.Expressions
@@ -11,10 +9,10 @@ namespace CyBF.BFC.Model.Statements.Expressions
     {
         public int NumericValue { get; private set; }
 
-        public ConstExpressionStatement(Token reference, int numericValue) 
+        public ConstExpressionStatement(Token reference) 
             : base(reference)
         {
-            this.NumericValue = numericValue;
+            this.NumericValue = reference.NumericValue;
         }
 
         public override void Compile(BFCompiler compiler)

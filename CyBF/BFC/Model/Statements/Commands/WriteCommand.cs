@@ -19,7 +19,7 @@ namespace CyBF.BFC.Model.Statements.Commands
 
         public override void Compile(BFCompiler compiler)
         {
-            List<string> writeArguments = new List<string>();
+            List<byte> data = new List<byte>();
 
             foreach (ExpressionStatement dataItem in this.DataItems)
             {
@@ -33,17 +33,19 @@ namespace CyBF.BFC.Model.Statements.Commands
                     if (numericValue < 0 || 255 < numericValue)
                         throw new SemanticError("Invalid variable range for write operation.", this.Reference);
 
-                    writeArguments.Add(numericValue.ToString());
+                    data.Add((byte)numericValue);
                 }
                 else if (dataType is CharacterInstance)
                 {
-                    string rawString = ((CharacterInstance)dataType).RawString;
-                    writeArguments.Add(rawString);
+                    byte ordinal = ((CharacterInstance)dataType).Ordinal;
+                    data.Add(ordinal);
                 }
                 else if (dataType is StringInstance)
                 {
-                    string rawString = ((StringInstance)dataType).RawString;
-                    writeArguments.Add(rawString);
+                    byte[] asciiBytes = ((StringInstance)dataType).AsciiBytes;
+                    data.Add(0);
+                    data.AddRange(asciiBytes);
+                    data.Add(0);
                 }
                 else
                 {
@@ -51,9 +53,7 @@ namespace CyBF.BFC.Model.Statements.Commands
                 }
             }
 
-            compiler.Write("#(");
-            compiler.Write(string.Join(", ", writeArguments));
-            compiler.Write(")");
+            compiler.WriteData(data);
         }
     }
 }

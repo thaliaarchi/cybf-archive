@@ -47,17 +47,32 @@ namespace CyBF.BFC.Model.Statements.Expressions
                 throw new InvalidOperationException();
             }
 
-            string stringRepresentation = BuildStringRepresentation(datatype);
-            string rawRepresentation = BuildRawRepresentation(stringRepresentation);
+            compiler.TracePush(this.Reference);
 
-            this.ReturnVariable.Value = new BFObject(new StringInstance(rawRepresentation, stringRepresentation));
+            string processedString = BuildStringRepresentation(datatype);
+            byte[] asciiBytes = null;
+
+            try
+            {
+                asciiBytes = Encoding.ASCII.GetBytes(processedString);
+            }
+            catch(EncoderFallbackException)
+            {
+                compiler.RaiseSemanticError("Expression not representable as an ASCII encoded string.");
+            }
+
+            string literalString = BuildLiteralRepresentation(asciiBytes);
+
+            compiler.TracePop();
+
+            this.ReturnVariable.Value = new BFObject(new StringInstance(literalString, processedString, asciiBytes));
         }
 
         private string BuildStringRepresentation(TypeInstance datatype)
         {
             if (datatype is CharacterInstance)
             {
-                return ((CharacterInstance)datatype).RawString;
+                return ((CharacterInstance)datatype).LiteralString;
             }
             else if (datatype is ConstInstance)
             {
@@ -65,7 +80,7 @@ namespace CyBF.BFC.Model.Statements.Expressions
             }
             else if (datatype is StringInstance)
             {
-                return ((StringInstance)datatype).RawString;
+                return ((StringInstance)datatype).LiteralString;
             }
             else if (datatype is TupleInstance)
             {
@@ -81,12 +96,9 @@ namespace CyBF.BFC.Model.Statements.Expressions
             }
         }
         
-        private string BuildRawRepresentation(string stringRepresentation)
+        private string BuildLiteralRepresentation(byte[] asciiBytes)
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(stringRepresentation);
-            string raw = "\"" + string.Join("", bytes.Select(b => @"\x" + ((int)b).ToString("X2"))) + "\"";
-
-            return raw;
+            return "\"" + string.Join("", asciiBytes.Select(b => @"\x" + ((int)b).ToString("X2"))) + "\"";
         }
 
         public override bool IsVolatile()

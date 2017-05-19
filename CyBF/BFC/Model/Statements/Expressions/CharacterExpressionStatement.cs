@@ -2,26 +2,27 @@
 using CyBF.Parsing;
 using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Types.Instances;
+using System.Text;
 
 namespace CyBF.BFC.Model.Statements.Expressions
 {
     public class CharacterExpressionStatement : ExpressionStatement
     {
-        public string RawString { get; private set; }
-        public string ProcessedString { get; private set; }
-        public int Ordinal { get; private set; }
-
-        public CharacterExpressionStatement(Token reference, string rawString, string processedString, int ordinal) 
+        public string LiteralString { get; private set; }
+        public char Character { get; private set; }
+        public byte Ordinal { get; private set; }
+        
+        public CharacterExpressionStatement(Token reference) 
             : base(reference)
         {
-            this.RawString = rawString;
-            this.ProcessedString = processedString;
-            this.Ordinal = ordinal;
+            this.LiteralString = reference.TokenString;
+            this.Character = Encoding.ASCII.GetChars(reference.AsciiBytes)[0];
+            this.Ordinal = (byte)reference.NumericValue;
         }
 
         public override void Compile(BFCompiler compiler)
         {
-            this.ReturnVariable.Value = new BFObject(new CharacterInstance(this.RawString, this.ProcessedString, this.Ordinal));
+            this.ReturnVariable.Value = new BFObject(new CharacterInstance(this.LiteralString, this.Character, this.Ordinal));
         }
 
         public override bool IsVolatile()

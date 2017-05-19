@@ -26,12 +26,12 @@ namespace CyBF.BFC.Model.Statements.Commands
 
             BFObject beginningObject = compiler.CurrentAllocatedObject;
 
-            compiler.Write("[");
+            compiler.BeginCheckedLoop();
 
             foreach (Command command in this.InnerCommands)
                 command.Compile(compiler);
 
-            compiler.Write("]");
+            compiler.EndCheckedLoop();
 
             BFObject endingObject = compiler.CurrentAllocatedObject;
 

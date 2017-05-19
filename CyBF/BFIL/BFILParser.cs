@@ -79,12 +79,12 @@ namespace CyBF.BFIL
             StringBuilder commandString = new StringBuilder();
 
             Token reference = _parser.Match(_commandTokenTypes);
-            commandString.Append(reference.ProcessedValue);
+            commandString.Append(reference.TokenString);
 
             while(_parser.Matches(_commandTokenTypes) && 
                 reference.PositionInfo.LineNumber == _parser.Current.PositionInfo.LineNumber)
             {
-                commandString.Append(_parser.Current.ProcessedValue);
+                commandString.Append(_parser.Current.TokenString);
                 _parser.Next();
             }
 
@@ -101,7 +101,7 @@ namespace CyBF.BFIL
                 _parser.Next();
                 List<Token> dataTokens = ParseDataTokens();
                 List<byte> bytes = ConvertDataTokensToBytes(dataTokens);
-                return new BFILDeclarationStatement(reference, identifier.ProcessedValue, bytes);
+                return new BFILDeclarationStatement(reference, identifier.TokenString, bytes);
             }
             else
             {
@@ -111,14 +111,14 @@ namespace CyBF.BFIL
                 if (size.NumericValue <= 0)
                     throw new BFILProgramError(reference, "Invalid declared variable size.");
 
-                return new BFILDeclarationStatement(reference, identifier.ProcessedValue, size.NumericValue);
+                return new BFILDeclarationStatement(reference, identifier.TokenString, size.NumericValue);
             }
         }
 
         public BFILReferenceStatement ParseReferenceStatement()
         {
             Token identifier = _parser.Match(TokenType.Identifier);
-            return new BFILReferenceStatement(identifier, identifier.ProcessedValue);
+            return new BFILReferenceStatement(identifier, identifier.TokenString);
         }
 
         public BFILWriteStatement ParseWriteStatement()
@@ -154,33 +154,26 @@ namespace CyBF.BFIL
 
             foreach (Token token in dataTokens)
             {
-                if (token.TokenType == TokenType.Character || token.TokenType == TokenType.String)
+                switch (token.TokenType)
                 {
-                    if (token.TokenType == TokenType.String)
+                    case TokenType.String:
                         data.Add(0);
-
-                    try
-                    {
-                        data.AddRange(Encoding.ASCII.GetBytes(token.ProcessedValue));
-                    }
-                    catch (EncoderFallbackException)
-                    {
-                        throw new SyntaxError(token, "ascii encoding");
-                    }
-
-                    if (token.TokenType == TokenType.String)
+                        data.AddRange(token.AsciiBytes);
                         data.Add(0);
-                }
-                else if (token.TokenType == TokenType.Numeric)
-                {
-                    if (token.NumericValue < 0 || 255 < token.NumericValue)
-                        throw new SyntaxError(token, "value within byte range [0-255]");
+                        break;
 
-                    data.Add((byte)token.NumericValue);
-                }
-                else
-                {
-                    throw new SyntaxError(token, "data value");
+                    case TokenType.Character:
+                    case TokenType.Numeric:
+
+                        if (token.NumericValue < 0 || 255 < token.NumericValue)
+                            throw new SyntaxError(token, "value within byte range [0-255]");
+
+                        data.Add((byte)token.NumericValue);
+
+                        break;
+
+                    default:
+                        throw new SyntaxError(token, "data value");
                 }
             }
 

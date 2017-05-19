@@ -44,16 +44,16 @@ namespace CyBF
             //    "-run"
             //};
 
-            //args = new string[]
-            //{
-            //    @"..\..\..\Sudoku Solver",
-            //    "*.cbf",
-            //    @"stdlib\*.cbf",
-            //    //"-output",
-            //    //"code.txt",
-            //    //"-debug",
-            //    "-run"
-            //};
+            args = new string[]
+            {
+                @"..\..\..\CyBF Library",
+                "*.cbf",
+                @"stdlib\*.cbf",
+                //"-output",
+                //"code.txt",
+                //"-debug",
+                "-run"
+            };
 
             try
             {
@@ -64,26 +64,29 @@ namespace CyBF
                 }
 
                 LoadSettings(args);
+
+                Console.WriteLine("Loading Program...");
+
                 ModuleLibrary moduleLibrary = BuildModuleLibrary();
                 List<Token> programTokens = moduleLibrary.GetSortedProgramTokens();
 
                 if (programTokens.Count == 0)
                     throw new ArgumentException("No source code found.");
 
+                Console.WriteLine("Building Model...");
+
                 ModelBuilder modelBuilder = new ModelBuilder(programTokens);
                 CyBFProgram cybfProgram = modelBuilder.BuildProgram();
 
-                string rawBFIL = cybfProgram.Compile();
-
-                if (_debug)
-                    WriteFile(_debugRawBFILOutputFile, rawBFIL);
-
-                BFILParser bfilParser = new BFILParser(rawBFIL, "<BFIL SOURCE>");
-                BFILProgram bfilProgram = bfilParser.ParseProgram();
+                Console.WriteLine("Compiling to BFIL Model...");
+                
+                BFILProgram bfilProgram = cybfProgram.Compile();
                 BFILAssembler bfilAssembler = new BFILAssembler();
 
                 string processedBFIL;
                 int allocationMaximum;
+
+                Console.WriteLine("Assembling...");
 
                 string bfcode = bfilAssembler.AssembleProgram(bfilProgram, out processedBFIL, out allocationMaximum);
 
@@ -93,6 +96,8 @@ namespace CyBF
                 if (_output)
                     WriteFile(_codeOutputFile, bfcode);
 
+                Console.WriteLine("Generating Interpreter Instructions...");
+
                 BFAssembler bfAssembler = new BFAssembler(bfcode);
                 Instruction[] instructions = bfAssembler.Compile();
 
@@ -100,6 +105,8 @@ namespace CyBF
                     WriteFile(_debugBFASMOutputFile, string.Join("\n", instructions));
 
                 Console.WriteLine("Program Requires " + allocationMaximum.ToString() + " Bytes Memory.");
+
+                Console.WriteLine("Executing Interpreter...");
 
                 if (_run)
                     RunInterpreter(instructions);

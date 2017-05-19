@@ -15,7 +15,7 @@ namespace CyBF.BFC.Model.Statements.Commands
 
         public override void Compile(BFCompiler compiler)
         {
-            compiler.Write(this.Operators);
+            compiler.AppendBF(this.Operators);
         }
     }
 }

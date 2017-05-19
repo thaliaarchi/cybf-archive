@@ -18,12 +18,19 @@ namespace CyBF.BFIL
 
         public BFILProgramError(Token referenceToken, string message)
         {
-            _message =
-                "Line " + referenceToken.PositionInfo.LineNumber.ToString() + "\n" +
-                referenceToken.PositionInfo.Line.TrimEnd() + "\n" +
-                new string(' ', referenceToken.PositionInfo.LinePosition) + "^\n" +
-                referenceToken.ToString() + "\n" +
-                message;
+            if (referenceToken != null)
+            {
+                _message =
+                    "Line " + referenceToken.PositionInfo.LineNumber.ToString() + "\n" +
+                    referenceToken.PositionInfo.Line.TrimEnd() + "\n" +
+                    new string(' ', referenceToken.PositionInfo.LinePosition) + "^\n" +
+                    referenceToken.ToString() + "\n" +
+                    message;
+            }
+            else
+            {
+                _message = message;
+            }
         }
     }
 }

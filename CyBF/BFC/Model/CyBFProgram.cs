@@ -3,6 +3,7 @@ using CyBF.BFC.Model.Functions;
 using CyBF.BFC.Model.Statements;
 using CyBF.BFC.Model.Types;
 using CyBF.BFC.Model.Types.Definitions;
+using CyBF.BFIL;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,14 +25,14 @@ namespace CyBF.BFC.Model
             this.Statements = statements.ToList().AsReadOnly();
         }
 
-        public string Compile()
+        public BFILProgram Compile()
         {
             BFCompiler compiler = new BFCompiler(this.TypeLibrary, this.FunctionLibrary);
 
             foreach (Statement statement in this.Statements)
                 statement.Compile(compiler);
 
-            return compiler.GetCode();
+            return compiler.MakeBFILProgram();
         }
     }
 }

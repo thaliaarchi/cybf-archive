@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 using CyBF.BFC.Compilation;
 using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Types;
@@ -35,11 +32,11 @@ namespace CyBF.BFC.Model.Functions.Builtins
                     index, processedString.Length));
             }
 
-            string processedCharacter = processedString[index].ToString();
-            int ordinal = Encoding.ASCII.GetBytes(new char[] { processedString[index] })[0];
-            string rawCharacter = @"'\x" + ordinal.ToString("X2") + "'";
+            char character = processedString[index];
+            byte ordinal = Encoding.ASCII.GetBytes(new char[] { processedString[index] })[0];
+            string literalString = @"'\x" + ordinal.ToString("X2") + "'";
 
-            return new BFObject(new CharacterInstance(rawCharacter, processedCharacter, ordinal));
+            return new BFObject(new CharacterInstance(literalString, character, ordinal));
         }
     }
 }

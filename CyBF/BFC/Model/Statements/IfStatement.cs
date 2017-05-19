@@ -59,78 +59,91 @@ namespace CyBF.BFC.Model.Statements
             //  c = copy of conditionObject (to be zeroed out), 
             //  e = flag controlling whether to run elseBody code
             //      (only if condition is already zero).
+            //      Also used as a temp variable for copying conditionObject to c.
             */
 
             BFObject c = compiler.AllocateAndMoveToObject(new ByteInstance());
-            compiler.Write("[-]");
+            compiler.AppendBF("[-]");
 
             BFObject e = compiler.AllocateAndMoveToObject(new ByteInstance());
-            compiler.Write("[-]");
+            compiler.AppendBF("[-]");
 
             // First, copy from conditionObject to c, 
             // using e as the temporary variable since it's not needed yet.
             
             // Move data from conditionObject to both c and e.
             compiler.MoveToObject(conditionObject);
-            compiler.Write("[");
+            compiler.BeginCheckedLoop();
             compiler.MoveToObject(c);
-            compiler.Write("+");
+            compiler.AppendBF("+");
             compiler.MoveToObject(e);
-            compiler.Write("+");
+            compiler.AppendBF("+");
             compiler.MoveToObject(conditionObject);
-            compiler.Write("-");
-            compiler.Write("]");
+            compiler.AppendBF("-");
+            compiler.EndCheckedLoop();
 
             // Move the data from e back to conditionObject.
             compiler.MoveToObject(e);
-            compiler.Write("[");
+            compiler.BeginCheckedLoop();
             compiler.MoveToObject(conditionObject);
-            compiler.Write("+");
+            compiler.AppendBF("+");
             compiler.MoveToObject(e);
-            compiler.Write("-");
-            compiler.Write("]");
+            compiler.AppendBF("-");
+            compiler.EndCheckedLoop();
 
-            // Finally, set e = 1. 
-            // If it doesn't change, we will run the elseBody.
-            compiler.MoveToObject(e);
-            compiler.Write("+");
+            // Leave 'e' at 0 if there is no else body.
+            if (this.ElseBody.Count > 0)
+            {
+                // Finally, set e = 1. 
+                // If it doesn't change after this, we will run the elseBody.
+                compiler.MoveToObject(e);
+                compiler.AppendBF("+");
+            }
 
             /*
             while(c)
             {
                 Run conditionalBody code.
-                Zero out e, so we don't run the elseBody code.
+                If there is elseBody code, zero out e so we don't run it.
                 Zero out c, since we only want to iterate once.
             }
             */
             compiler.MoveToObject(c);
-            compiler.Write("[");
+            compiler.BeginCheckedLoop();
 
             foreach (Statement statement in this.ConditionalBody)
                 statement.Compile(compiler);
 
-            compiler.MoveToObject(e);
-            compiler.Write("-");
-            compiler.MoveToObject(c);
-            compiler.Write("[-]");
-            compiler.Write("]");
-
-            /*
-            while(e)
+            if (this.ElseBody.Count > 0)
             {
-                Run elseBody code.
-                Zero out e, since we only want to iterate once.
+                compiler.MoveToObject(e);
+                compiler.AppendBF("-");
             }
-            */
-            compiler.MoveToObject(e);
-            compiler.Write("[");
 
-            foreach (Statement statement in this.ElseBody)
-                statement.Compile(compiler);
+            compiler.MoveToObject(c);
+            compiler.AppendBF("[-]");
+            compiler.EndCheckedLoop();
 
-            compiler.MoveToObject(e);
-            compiler.Write("-");
-            compiler.Write("]");
+            // Only compile an else body if there is one.
+            if (this.ElseBody.Count > 0)
+            {
+                /*
+                while(e)
+                {
+                    Run elseBody code.
+                    Zero out e, since we only want to iterate once.
+                }
+                */
+                compiler.MoveToObject(e);
+                compiler.BeginCheckedLoop();
+
+                foreach (Statement statement in this.ElseBody)
+                    statement.Compile(compiler);
+
+                compiler.MoveToObject(e);
+                compiler.AppendBF("-");
+                compiler.EndCheckedLoop();
+            }
         }
     }
 }

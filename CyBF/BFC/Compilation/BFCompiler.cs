@@ -17,7 +17,7 @@ namespace CyBF.BFC.Compilation
 {
     public class BFCompiler
     {
-        private StringBuilder _compiledCode = new StringBuilder();
+        private BFILGenerator _generator = new BFILGenerator();
         private Stack<Token> _trace = new Stack<Token>();
         private HashSet<object> _currentlyCompilingDefinitions = new HashSet<object>();
 
@@ -31,14 +31,29 @@ namespace CyBF.BFC.Compilation
             this.FunctionLibrary = functionLibrary;
         }
 
-        public void Write(string code)
+        public void AppendBF(string code)
         {
-            _compiledCode.Append(code);
+            _generator.AppendBF(code);
         }
 
-        public string GetCode()
+        public void BeginCheckedLoop()
         {
-            return _compiledCode.ToString();
+            _generator.BeginCheckedLoop();
+        }
+
+        public void EndCheckedLoop()
+        {
+            _generator.EndCheckedLoop();
+        }
+
+        public void WriteData(IEnumerable<byte> data)
+        {
+            _generator.WriteData(data);
+        }
+        
+        public BFIL.BFILProgram MakeBFILProgram()
+        {
+            return _generator.MakeBFILProgram();
         }
 
         public void TracePush(Token token)
@@ -141,7 +156,7 @@ namespace CyBF.BFC.Compilation
 
             if (this.CurrentAllocatedObject == null)
             {
-                this.Write(derivationList[0].AllocationId + " ");
+                _generator.ReferenceVariable(derivationList[0].AllocationId);
                 this.CurrentAllocatedObject = derivationList[0];
                 commonRootIndex = 0;
             }
@@ -172,8 +187,8 @@ namespace CyBF.BFC.Compilation
                 this.CurrentAllocatedObject.Offset.Dereference(this);
                 this.CurrentAllocatedObject = this.CurrentAllocatedObject.Parent;
             }
-            
-            this.Write("@" + bfobject.AllocationId + ":" + size.ToString());
+
+            _generator.DeclareVariable(bfobject.AllocationId, size);
 
             this.CurrentAllocatedObject = bfobject;
 
