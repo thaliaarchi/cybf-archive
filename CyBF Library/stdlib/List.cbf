@@ -6,97 +6,28 @@ module List;
 ` Description:
 `
 `                       Initial Memory Layout
-`
+`                               
 `                       Header  Begin   0   1   2 ...   N   Footer
+` Boundary Element      0       1       1   1   1       1   0
 ` Stack Element         0       0       1   1   1       1   0
-` Enumerator Elements   
+` Enumerator Elements                   
 `   Element[0]          0       0       1   1   1       1   1
 `   Element[1]          0       0       1   1   1       1   1
-`   ...                 ...
+`   ...                 ...             
 `   Element[M]          0       0       1   1   1       1   1
 ` Content               X       X       X   X   X       X   X
 `
-`
-`   Any zeroes on the stack/enumerator elements between the 
-`   Begin and N items (inclusive) serve as markers for locating 
-`   select list items. 
-`   
-`   Header and Footer allows me to move the memory pointer to the 
-`   front of the list or to detect when I've reached the allocated 
-`   end of the list.
-`
-`   There is always exactly one item between Begin and N which has 
-`   a marked (zero) stack element. If it's on Begin, that means
-`   the user has not written anything to the list / i.e., the list
-`   is empty. Otherwise, it is on the last list item containing user data.
-`   
-` 
-`                       Memory Layout with Two Items (A and B)
-`
-`                       Header  Begin   0   1   2 ...   N   Footer
-` Stack Element         0       1       1   0   1       1   0
-` Enumerator Elements   
-`   Element[0]          0       0       1   1   1       1   1
-`   Element[1]          0       0       1   1   1       1   1
-`   ...                 ...
-`   Element[M]          0       0       1   1   1       1   1
-` Content               X       X       A   B   X       X   X
-`
-`
-`   Enumerator elements function much like stack elements, in that
-`   there is always exactly one that's "marked" between items Begin and N. 
-`   They can, however, mark whichever item the user needs and not simply the
-`   latest one. They're not meant to pass the item with a marked stack element.
-`   When advancing, enumerators check the stack element instead of their own
-`   element when determining whether to proceed. 
-`
-`   From here on out, we'll refer to the 0 marking a stack/enumerator element
-`   as a "stack pointer" or "enumerator pointer" respectively. 
-`
-`   
-`                       Memory Layout of an "Invalidated" Enumerator.
-`
-`                       Header  Begin   0   1   2 ...   N   Footer
-` Stack Element         0       1       0   1   1       1   0
-` Enumerator Elements   
-`   Element[0]          0       1       1   0   1       1   1
-`   Element[1]          0       0       1   1   1       1   1
-`   ...                 ...
-`   Element[M]          0       0       1   1   1       1   1
-` Content               X       X       A   B   X       X   X
-`
-`   In this example, the stack pointer was initially on item "1" where
-`   the letter "B" was written. The pointer for enumerator 0 was then
-`   also placed onto this item. Next, the stack pointer was moved back 
-`   to item "0" (ie., an item was "popped off the list"), leaving the
-`   enumerator pointer on some allocated item beyond the end of the user's
-`   data.
-`
-`   We'll call this enumerator "invalidated". It will not point to valid
-`   content data until it's moved back to where the stack pointer is
-`   or prior. It's important to note that the existence of such invalidated
-`   enumerators will not compromise the structure of the list.
-`
-`   As an enumerator advances its pointer down the list, it looks at the current 
-`   stack element and will only proceed if it's not zero. Any invalidated enumerator,
-`   therefore, will stop on the Footer item and will not advance the pointer further. 
-`
-`   When moving an invalidated enumerator backwards, however, it only looks at its 
-`   own elements, not the stack elements. Thus, it will stop on the "Begin" element. 
-`
-`   This is why enumerator elements have a '1' on the footer instead of a '0'.
-`   They only need to look at the stack element when going forward and they
-`   never change the stack element themselves. 
 `
 ` ================================================================
 
 
 struct [ListItem ~T](enumerators)
 
+    boundary_element : Byte
     stack_element : Byte
     enumerator_elements : [Array Byte](enumerators)
     content : ~T
-
+    
     total_enumerators : Const(enumerators)
     
     selector next_item(this:~I) : ~I
@@ -148,19 +79,23 @@ struct [List ~T](capacity, enumerators)
     total_enumerators : Const(enumerators)
 
     function init(this)
-    
-        memory_reset(this.header.stack_element, 0);
+        
+        this.header.boundary_element = 0;
+        this.header.stack_element = 0;
         memory_reset(this.header.enumerator_elements, 0);
 
-        memory_reset(this.begin.stack_element, 0);
+        this.begin.boundary_element = 1;
+        this.begin.stack_element = 0;
         memory_reset(this.begin.enumerator_elements, 0);
-
+        
         iterate i this.capacity:
-            memory_reset(this.items[i].stack_element, 1);
+            this.items[i].boundary_element = 1;
+            this.items[i].stack_element = 1;
             memory_reset(this.items[i].enumerator_elements, 1);
         end
 
-        memory_reset(this.footer.stack_element, 0);
+        this.footer.boundary_element = 0;
+        this.footer.stack_element = 0;
         memory_reset(this.footer.enumerator_elements, 1);
     
         return this;
@@ -175,8 +110,10 @@ struct [List ~T](capacity, enumerators)
             let itemSize : sizeof(this.header);
             
             {
-                (>)*itemSize
-                [ (>)*itemSize ]
+                >                   ` Move to the stack_element of the header.
+                (>)*itemSize        ` Move to the stack_element of the begin item.
+                [ (>)*itemSize ]    ` Scan for the list item with a marked stack_element.
+                <                   ` Move to the start of the selected list item
             }
         
         end
@@ -186,33 +123,35 @@ struct [List ~T](capacity, enumerators)
             let itemSize : sizeof(this.header);
             
             {
-                (<)*itemSize
-                [ (<)*itemSize ]
+                >                   ` Move to the stack_element of the selected list item.
+                (<)*itemSize        ` Move to the corresponding element of the prior item.
+                                    `   This will only be marked if it's the header.
+                [ (<)*itemSize ]    ` Scan for the stack_element of the header.
+                <                   ` Move to the start of the header item.
             }
         
         end
         
     end
-    
-    function current(this)
-    
-        return this.current_item().content;
-        
-    end
 
     function push(this)
-
-        let success : byte(0);
-        let current : this.current_item();
-        let next : current.next_item();
-        let itemSize : sizeof(current);
     
-        if next.stack_element:
+        let success : byte(0);
+        let currentItem : this.current_item();
+        let nextItem : currentItem.next_item();
+        let itemSize : sizeof(currentItem);
         
-            { current+ (>)*itemSize- }
-            
+        if nextItem.boundary_element:
+        
+            {
+                currentItem
+                > +                 ` Unmark the stack_element of the current item.
+                (>)*itemSize -      ` Mark the stack_element of the next item.
+                <                   ` Move to the start of the "next" (now current) item.
+            }
+        
             ++success;
-            
+        
         end
         
         return success;
@@ -222,51 +161,24 @@ struct [List ~T](capacity, enumerators)
     function pop(this)
     
         let success : byte(0);
-        let current : this.current_item();
-        let previous : current.previous_item();
-        let itemSize : sizeof(current);
+        let currentItem : this.current_item();
+        let previousItem : currentItem.previous_item();
+        let itemSize : sizeof(currentItem);
         
-        if previous.stack_element:
+        if previousItem.boundary_element:
         
-            { current+ (<)*itemSize- }
-            
+            {
+                currentItem 
+                > +                 ` Unmark the stack_element of the current item.
+                (<)*itemSize -      ` Mark the stack_element of the previous item.
+                <                   ` Move to the start of the "previous" (now current) item.
+            }
+        
             ++success;
-            
+        
         end
     
         return success;
-    
-    end
-    
-    function clear(this)
-        
-        let current : this.current_item();
-        ++current.stack_element;
-        --this.begin.stack_element;
-        
-    end
-    
-    function is_empty(this)
-        
-        let empty : byte(1);
-        
-        if this.current_item().previous_item().stack_element:
-            --empty;
-        end
-    
-        return empty;
-    
-    end
-    
-    function is_full(this)
-    
-        let full : byte(1);
-        
-        if this.current_item().next_item().stack_element:
-            --full;
-        end
-        
-        return full;
     
     end
     
@@ -295,10 +207,10 @@ struct [Enumerator ~L:[List ~T]](index)
             let index : this.index;
         
             {
-                > (>)*index 
-                (>)*itemSize
-                [ (>)*itemSize ]
-                (<)*index <
+                >>(>)*index         ` Move to the indexed enumerator_element of the header item.
+                (>)*itemSize        ` Move to the corresponding enumerator_element of the begin item.
+                [(>)*itemSize]      ` Scan for the list item marked by this enumerator.
+                (<)*index <<        ` Move to the beginning of the selected list item.    
             }
         
         end
@@ -309,38 +221,33 @@ struct [Enumerator ~L:[List ~T]](index)
             let index : this.index;        
         
             {
-                > (>)*index
-                (<)*itemSize
-                [ (<)*itemSize ]
-                (<)*index <
-            }
+                >>(>)*index         ` Move to the indexed enumerator_element of the current item.
+                (<)*itemSize        ` Move to the corresponding element of the prior item.
+                                    `   This will only be marked if it's the header.
+                [(<)*itemSize]      ` Scan for the indexed enumerator_element of the header item.
+                (<)*index <<        ` Move to the start of the header item.    
+            }               
         
         end
         
     end
 
-    function current(this)
-    
-        return this.current_item().content;
-        
-    end
-    
-    function move_next(this:[Enumerator ~L:[List ~T]])
+    function move_next(this)
     
         let success : byte(0);
+        let currentItem : this.current_item();
+        let itemSize : sizeof(currentItem);
         let index : this.index;
-        let current : this.current_item();
-        let itemSize : sizeof(current);
         
-        if current.stack_element:
+        if currentItem.stack_element:
         
-            { 
-                current 
-                > (>)*index +
-                (>)*itemSize - 
-                (<)*index <
+            {
+                currentItem
+                >>(>)*index +       ` Unmark the indexed enumerator_element of the current list item.
+                (>)*itemSize -      ` Mark the corresponding element of the next list item.
+                (<)*index <<        ` Move to the start of the newly selected list item.
             }
-            
+        
             ++success;
         
         end
@@ -349,66 +256,61 @@ struct [Enumerator ~L:[List ~T]](index)
     
     end    
     
-    function move_previous(this:[Enumerator ~L:[List ~T]])
+    function move_previous(this)
     
         let success : byte(0);
+        let currentItem : this.current_item();
+        let previousItem : currentItem.previous_item();
+        let itemSize : sizeof(currentItem);
         let index : this.index;
-        let current : this.current_item();
-        let previous : current.previous_item();
-        let itemSize : sizeof(current);
-
-        if previous.enumerator_elements[index]:
+        
+        if previousItem.boundary_element:
         
             {
-                current
-                > (>)*index +
-                (<)*itemSize -
-                (<)*index <
+                currentItem
+                >>(>)*index +       ` Unmark the indexed enumerator_element of the current list item.
+                (<)*itemSize -      ` Mark the corresponding element of the next list item.
+                (<)*index <<        ` Move to the start of the newly selected list item.
             }
         
             ++success;
         
         end
-    
+        
         return success;
     
     end        
     
-    function reset(this:[Enumerator ~L:[List ~T]])
-    
-        let current : this.current_item();
-        --current.enumerator_elements[this.index];
-        ++this.list.begin.enumerator_elements[this.index];
-    
-    end    
-    
 end
+
+
 
 function # (list:[List ~T], index:Const)
     return list.get_enumerator(index);
-end
-
-function ++ (enum:[Enumerator ~L])
-    return enum.move_next();
 end
 
 function ++ (list:[List ~T])
     return list.push();
 end
 
-function -- (enum:[Enumerator ~L])
-    return enum.move_previous();
-end
-
 function -- (list:[List ~T])
     return list.pop();
 end
 
-function * (enum:[Enumerator ~L])
-    return enum.current();
-end
-
 function * (list:[List ~T])
-    return list.current();
+    return list.current_item().content;
 end
 
+
+
+function ++ (enum:[Enumerator ~L])
+    return enum.move_next();
+end
+
+function -- (enum:[Enumerator ~L])
+    return enum.move_previous();
+end
+
+function * (enum:[Enumerator ~L])
+    return enum.current_item().content;
+end

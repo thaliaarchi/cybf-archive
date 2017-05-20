@@ -60,10 +60,12 @@ end
 
 function memory_copy(object:~T)
 
-    var copy : [Array Byte](sizeof(object))
-    memory_copy(object, copy);
+    let source : object;
+    var destination : ~T;
     
-    return copy    
+    memory_copy(source, destination);
+
+    return destination;
 
 end
 
@@ -80,12 +82,6 @@ function memory_reset(object:~T, value:Const)
         ( < )*size
     }
     
-end
-
-function memory_reset(object:~T)
-
-    memory_reset(object);
-
 end
 
 function assert(condition:Const)

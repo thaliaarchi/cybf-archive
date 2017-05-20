@@ -1,5 +1,57 @@
 module Main;
 
+` let xs : (new [List Byte](3, 1)).init();
+
+` xs.push();
+` *xs = 111;
+
+` xs.push();
+` *xs = 222;
+
+` function print_bytes(object:~T)
+    
+    ` let bytes : 
+        ` cast object : [Array Byte](sizeof(object));
+     
+    ` println();
+    ` println("BYTES:");
+     
+    ` iterate i bytes.capacity:
+        ` println(bytes[i]);
+    ` end
+        
+` end
+
+` print_bytes(xs);
+` xs.pop();
+` print_bytes(xs);
+
+
+` println(enum.current_item().content);
+
+
+` function print_table(columns:Tuple)
+    
+    ` let ncolumns : columns.size;
+    ` let nrows : columns[0].capacity;
+    
+    ` iterate i nrows:
+        ` iterate j ncolumns:
+            ` print(columns[j][i]);
+            ` print("\t-\t");
+        ` end
+        ` println();
+    ` end
+    
+` end
+
+` function copy_bytes(object:~T)
+
+    ` return cast memory_copy(object) : [Array Byte](sizeof(object))
+    
+` end
+
+
 let xs : (new [List Byte](10, 1)).init();
 
 while ++xs:
@@ -12,29 +64,9 @@ let counter : byte(0);
 while ++(xs#0):
 end
 
-function print_bytes(object:~T)
-    
-    let bytes : 
-        cast object : [Array Byte](sizeof(object));
-        
-    iterate i bytes.capacity:
-        println(bytes[i]);
-    end
-        
-end
-
-println();
-print("List Size: ");
-println(sizeof(xs));
-print_bytes(xs);
 println();
 
---(xs#0);
-
-print("List Size: ");
-println(sizeof(xs));
-print_bytes(xs);
-println();
-
-` var tmp : Byte
-` { tmp # "Hello, world!" >[.>]<[<] }
+do
+    let b : *(xs#0);
+    { b. }
+while --(xs#0);
