@@ -17,6 +17,7 @@ namespace CyBF.BFC.Model.Functions
         public TypeExpressionStatement ReturnTypeExpression { get; private set; }
         public IReadOnlyList<Statement> ReferenceBody { get; private set; }
         public IReadOnlyList<Statement> DereferenceBody { get; private set; }
+        public bool IsReferenceCompiling { get; private set; }
 
         public SelectorDefinition(
             Token referenceToken,
@@ -31,22 +32,18 @@ namespace CyBF.BFC.Model.Functions
             this.ReturnTypeExpression = returnTypeExpression;
             this.ReferenceBody = referenceBody.ToList().AsReadOnly();
             this.DereferenceBody = dereferenceBody.ToList().AsReadOnly();
+            this.IsReferenceCompiling = false;
         }
         
-        public override BFObject Compile(BFCompiler compiler, IEnumerable<BFObject> arguments)
+        protected override BFObject OnCompile(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {
             compiler.TracePush(this.ReferenceToken);
-            
+
             this.ApplyArguments(compiler, arguments);
 
-            TypeInstance returnType;
-
-            using (compiler.BeginRecursionCheck(this))
-            {
-                this.ReturnTypeExpression.Compile(compiler);
-                returnType = this.ReturnTypeExpression.ReturnVariable.Value;
-            }
-
+            this.ReturnTypeExpression.Compile(compiler);
+            TypeInstance returnType = this.ReturnTypeExpression.ReturnVariable.Value;
+            
             if (!arguments.Any())
                 compiler.RaiseSemanticError("Empty selector argument list.");
 
@@ -63,14 +60,18 @@ namespace CyBF.BFC.Model.Functions
         public void CompileReference(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {
             compiler.TracePush(this.ReferenceToken);
+            
+            if (this.IsReferenceCompiling)
+                compiler.RaiseSemanticError("Recursive selector reference definitions are not supported.");
+
+            this.IsReferenceCompiling = true;
 
             this.ApplyArguments(compiler, arguments);
 
-            using (compiler.BeginRecursionCheck(this))
-            {
-                foreach (Statement statement in this.ReferenceBody)
-                    statement.Compile(compiler);
-            }
+            foreach (Statement statement in this.ReferenceBody)
+                statement.Compile(compiler);
+            
+            this.IsReferenceCompiling = false;
 
             compiler.TracePop();
         }
@@ -78,15 +79,19 @@ namespace CyBF.BFC.Model.Functions
         public void CompileDereference(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {
             compiler.TracePush(this.ReferenceToken);
-            
+
+            if (this.IsReferenceCompiling)
+                compiler.RaiseSemanticError("Recursive selector reference definitions are not supported.");
+
+            this.IsReferenceCompiling = true;
+
             this.ApplyArguments(compiler, arguments);
 
-            using (compiler.BeginRecursionCheck(this))
-            {
-                foreach (Statement statement in this.DereferenceBody)
-                    statement.Compile(compiler);
-            }
+            foreach (Statement statement in this.DereferenceBody)
+                statement.Compile(compiler);
             
+            this.IsReferenceCompiling = false;
+
             compiler.TracePop();
         }
     }

@@ -17,7 +17,7 @@ namespace CyBF.BFC.Model.Functions.Builtins
         {
         }
 
-        public override BFObject Compile(BFCompiler compiler, IEnumerable<BFObject> arguments)
+        protected override BFObject OnCompile(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {
             this.ApplyArguments(compiler, arguments);
 

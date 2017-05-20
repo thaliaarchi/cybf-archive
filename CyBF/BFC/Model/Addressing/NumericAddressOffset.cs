@@ -19,7 +19,8 @@ namespace CyBF.BFC.Model.Addressing
             if (this.Amount < 0)
                 shiftchar = '<';
 
-            compiler.AppendBF(new string(shiftchar, Math.Abs(this.Amount)));
+            if (this.Amount != 0)
+                compiler.AppendBF(new string(shiftchar, Math.Abs(this.Amount)));
         }
 
         public override void Dereference(BFCompiler compiler)
@@ -29,7 +30,8 @@ namespace CyBF.BFC.Model.Addressing
             if (this.Amount < 0)
                 shiftchar = '>';
 
-            compiler.AppendBF(new string(shiftchar, Math.Abs(this.Amount)));
+            if (this.Amount != 0)
+                compiler.AppendBF(new string(shiftchar, Math.Abs(this.Amount)));
         }
     }
 }

@@ -37,7 +37,7 @@ namespace CyBF.BFC.Model.Types.Definitions
             this.Fields = fieldsList.AsReadOnly();
         }
 
-        public override TypeInstance Compile(BFCompiler compiler, IEnumerable<TypeInstance> typeArguments, IEnumerable<BFObject> valueArguments)
+        protected override TypeInstance OnCompile(BFCompiler compiler, IEnumerable<TypeInstance> typeArguments, IEnumerable<BFObject> valueArguments)
         {
             compiler.TracePush(this.Reference);
             
@@ -46,16 +46,13 @@ namespace CyBF.BFC.Model.Types.Definitions
             List<FieldInstance> fieldInstances = new List<FieldInstance>();
             int offset = 0;
 
-            using (compiler.BeginRecursionCheck(this))
+            foreach (FieldDefinition fieldDefinition in this.Fields)
             {
-                foreach (FieldDefinition fieldDefinition in this.Fields)
-                {
-                    FieldInstance fieldInstance = fieldDefinition.Compile(compiler, offset);
-                    offset += fieldInstance.DataType.Size();
-                    fieldInstances.Add(fieldInstance);
-                }
+                FieldInstance fieldInstance = fieldDefinition.Compile(compiler, offset);
+                offset += fieldInstance.DataType.Size();
+                fieldInstances.Add(fieldInstance);
             }
-
+            
             StructInstance structInstance = new StructInstance(this.Reference, this.Name, typeArguments, fieldInstances, this.Methods);
 
             compiler.TracePop();

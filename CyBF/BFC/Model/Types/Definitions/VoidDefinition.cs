@@ -14,7 +14,7 @@ namespace CyBF.BFC.Model.Types.Definitions
         {
         }
 
-        public override TypeInstance Compile(BFCompiler compiler, IEnumerable<TypeInstance> typeArguments, IEnumerable<BFObject> valueArguments)
+        protected override TypeInstance OnCompile(BFCompiler compiler, IEnumerable<TypeInstance> typeArguments, IEnumerable<BFObject> valueArguments)
         {
             this.ApplyArguments(compiler, typeArguments, valueArguments);
             return new VoidInstance();

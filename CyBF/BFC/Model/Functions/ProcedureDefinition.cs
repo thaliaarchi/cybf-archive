@@ -27,23 +27,18 @@ namespace CyBF.BFC.Model.Functions
             this.ReturnExpression = returnExpression;
         }
 
-        public override BFObject Compile(BFCompiler compiler, IEnumerable<BFObject> arguments)
+        protected override BFObject OnCompile(BFCompiler compiler, IEnumerable<BFObject> arguments)
         {
             compiler.TracePush(this.Reference);
-            
+
             this.ApplyArguments(compiler, arguments);
 
-            BFObject returnValue;
+            foreach (Statement statement in this.Body)
+                statement.Compile(compiler);
 
-            using (compiler.BeginRecursionCheck(this))
-            {
-                foreach (Statement statement in this.Body)
-                    statement.Compile(compiler);
-
-                this.ReturnExpression.Compile(compiler);
-                returnValue = this.ReturnExpression.ReturnVariable.Value;
-            }
-
+            this.ReturnExpression.Compile(compiler);
+            BFObject returnValue = this.ReturnExpression.ReturnVariable.Value;
+            
             compiler.TracePop();
 
             return returnValue;

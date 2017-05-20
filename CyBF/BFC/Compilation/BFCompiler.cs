@@ -19,7 +19,6 @@ namespace CyBF.BFC.Compilation
     {
         private BFILGenerator _generator = new BFILGenerator();
         private Stack<Token> _trace = new Stack<Token>();
-        private HashSet<object> _currentlyCompilingDefinitions = new HashSet<object>();
 
         public DefinitionLibrary<TypeDefinition> TypeLibrary { get; private set; }
         public DefinitionLibrary<FunctionDefinition> FunctionLibrary { get; private set; }
@@ -193,19 +192,6 @@ namespace CyBF.BFC.Compilation
             this.CurrentAllocatedObject = bfobject;
 
             return bfobject;
-        }
-
-        public RecursionChecker BeginRecursionCheck(object item)
-        {
-            if (!_currentlyCompilingDefinitions.Add(item))
-                RaiseSemanticError("Recursive definitions are not supported.");
-
-            return new RecursionChecker(this, item);
-        }
-
-        public void EndRecursionCheck(object item)
-        {
-            _currentlyCompilingDefinitions.Remove(item);
         }
 
         public void RaiseSemanticError(string message)

@@ -44,16 +44,16 @@ namespace CyBF
             //    "-run"
             //};
 
-            args = new string[]
-            {
-                @"..\..\..\CyBF Library",
-                "*.cbf",
-                @"stdlib\*.cbf",
-                //"-output",
-                //"code.txt",
-                //"-debug",
-                "-run"
-            };
+            //args = new string[]
+            //{
+            //    @"..\..\..\CyBF Library",
+            //    "*.cbf",
+            //    @"stdlib\*.cbf",
+            //    "-output",
+            //    "code.txt",
+            //    "-debug",
+            //    "-run"
+            //};
 
             try
             {
