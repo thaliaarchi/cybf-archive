@@ -1,72 +1,36 @@
 module Main;
 
-` let xs : (new [List Byte](3, 1)).init();
+` Note: CyBF could probably make good use of cached string literals.
+` Iterate statements are *way* more useful than I originally thought they'd be.
 
-` xs.push();
-` *xs = 111;
+let xs : new [List Byte](6, 3).init();
 
-` xs.push();
-` *xs = 222;
+let b : byte('A');
+let counter : byte(4);
 
-` function print_bytes(object:~T)
-    
-    ` let bytes : 
-        ` cast object : [Array Byte](sizeof(object));
-     
-    ` println();
-    ` println("BYTES:");
-     
-    ` iterate i bytes.capacity:
-        ` println(bytes[i]);
-    ` end
-        
-` end
-
-` print_bytes(xs);
-` xs.pop();
-` print_bytes(xs);
-
-
-` println(enum.current_item().content);
-
-
-` function print_table(columns:Tuple)
-    
-    ` let ncolumns : columns.size;
-    ` let nrows : columns[0].capacity;
-    
-    ` iterate i nrows:
-        ` iterate j ncolumns:
-            ` print(columns[j][i]);
-            ` print("\t-\t");
-        ` end
-        ` println();
-    ` end
-    
-` end
-
-` function copy_bytes(object:~T)
-
-    ` return cast memory_copy(object) : [Array Byte](sizeof(object))
-    
-` end
-
-
-let xs : (new [List Byte](10, 1)).init();
-
-while ++xs:
-    let buffer : *xs;
-    { buffer,. }
+while counter:
+    ++xs;
+    *xs = b;
+    ++b;
+    --counter;
 end
 
-let counter : byte(0);
+print_list(xs);
 
 while ++(xs#0):
+    print(cast *(xs#0) : BChar);
 end
 
 println();
 
+print_list(xs);
+
 do
-    let b : *(xs#0);
-    { b. }
+    print(cast *(xs#0) : BChar);
 while --(xs#0);
+
+println();
+
+print_list(xs);
+
+

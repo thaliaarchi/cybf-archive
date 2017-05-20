@@ -1,4 +1,2 @@
-..\CyBF\bin\Debug\cybf "." "Main.cbf" "stdlib\*.cbf" -run 
-
-
+..\CyBF\bin\Debug\cybf "." "Main.cbf" "stdlib\*.cbf" -run
 

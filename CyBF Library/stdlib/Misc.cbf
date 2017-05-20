@@ -1,0 +1,121 @@
+module Misc;
+
+function byte(c:Character)
+    return byte(c.ordinal);
+end
+
+function printb(b:Byte)
+
+    let bstr : bstring(b);
+    
+    if bstr[0] != '0':
+        print(bstr[0]);
+        print(bstr[1]);
+        print(bstr[2]);
+        
+    elif bstr[1] != '0':
+        print(' ');
+        print(bstr[1]);
+        print(bstr[2]);
+
+    else:
+        print(' ');
+        print(' ');
+        print(bstr[2]);
+        
+    end
+
+end
+
+` +-----+-+-+-+-+-+-+-+-+-+
+` |     |H|B|0|1|2|3|4|5|F|
+` |BOUND| | | | | | | | | |
+` |STACK| | | | | | | | | |
+` |ENUM0| | | | | | | | | |
+` |ENUM1| | | | | | | | | |
+` |ENUM2| | | | | | | | | |
+` |DATA | | | | | | | | | |
+` +-----+-+-+-+-+-+-+-+-+-+
+
+function print_list(xs:[List Byte])
+
+
+    print("+-----+---+---");
+    iterate i xs.capacity:
+        print("+---");
+    end
+    println("+---+");
+
+    
+    print("|     | H | B |");
+    iterate i xs.capacity:
+        print(' ');
+        print(byte(i));
+        print(" |");
+    end
+    println(" F |");
+
+    
+    print("|BOUND| ");
+    print(xs.header.boundary_element);
+    print(" | ");
+    print(xs.begin.boundary_element);
+    print(" | ");
+    iterate i xs.capacity:
+        print(xs.items[i].boundary_element);
+        print(" | ");
+    end
+    print(xs.footer.boundary_element);
+    println(" |");
+    
+    
+    print("|STACK| ");
+    print(xs.header.stack_element);
+    print(" | ");
+    print(xs.begin.stack_element);
+    print(" | ");
+    iterate i xs.capacity:
+        print(xs.items[i].stack_element);
+        print(" | ");
+    end
+    print(xs.footer.stack_element);
+    println(" |");
+    
+
+    iterate enum xs.total_enumerators:
+        print("|ENUM");
+        print(enum);
+        print("| ");
+        print(xs.header.enumerator_elements[enum]);
+        print(" | ");
+        print(xs.begin.enumerator_elements[enum]);
+        print(" | ");
+        iterate i xs.capacity:
+            print(xs.items[i].enumerator_elements[enum]);
+            print(" | ");
+        end
+        print(xs.footer.enumerator_elements[enum]);
+        println(" |");
+    end
+
+
+    print("|DATA | ");
+    print(cast xs.header.content : BChar);
+    print(" | ");
+    print(cast xs.begin.content : BChar);
+    print(" | ");
+    iterate i xs.capacity:
+        print(cast xs.items[i].content : BChar);
+        print(" | ");
+    end
+    print(cast xs.footer.content : BChar);
+    println(" |");
+    
+    
+    print("+-----+---+---");
+    iterate i xs.capacity:
+        print("+---");
+    end
+    println("+---+");
+    
+end
