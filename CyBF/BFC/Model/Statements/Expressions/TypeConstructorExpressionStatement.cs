@@ -2,13 +2,11 @@
 using System.Linq;
 using CyBF.BFC.Compilation;
 using CyBF.Parsing;
-using CyBF.BFC.Model.Types;
 using CyBF.BFC.Model.Data;
 using CyBF.BFC.Model.Types.Instances;
 using CyBF.BFC.Model.Types.Definitions;
-using CyBF.BFC.Model.Statements.Expressions;
 
-namespace CyBF.BFC.Model.Statements
+namespace CyBF.BFC.Model.Statements.Expressions
 {
     public class TypeConstructorStatement : TypeExpressionStatement
     {

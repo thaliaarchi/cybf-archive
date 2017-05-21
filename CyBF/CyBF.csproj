@@ -91,7 +91,7 @@
     <Compile Include="BFC\Model\Statements\Expressions\SizeOfExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Statement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\StringExpressionStatement.cs" />
-    <Compile Include="BFC\Model\Statements\TypeConstructorStatement.cs" />
+    <Compile Include="BFC\Model\Statements\Expressions\TypeConstructorExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\TypeExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\TypeVariableExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\VariableAssignmentStatement.cs" />
