@@ -168,7 +168,7 @@ namespace CyBF
                 if (_run)
                     RunInterpreter(instructions);
             }
-            catch(CyBFException e)
+            catch(Exception e)
             {
                 Console.WriteLine(e.GetType().Name + ": " + e.Message);
                 Console.WriteLine("Press any key to quit...");
