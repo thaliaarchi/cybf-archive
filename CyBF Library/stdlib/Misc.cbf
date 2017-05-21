@@ -5,26 +5,7 @@ function byte(c:Character)
 end
 
 function printb(b:Byte)
-
-    let bstr : bstring(b);
-    
-    if bstr[0] != '0':
-        print(bstr[0]);
-        print(bstr[1]);
-        print(bstr[2]);
-        
-    elif bstr[1] != '0':
-        print(' ');
-        print(bstr[1]);
-        print(bstr[2]);
-
-    else:
-        print(' ');
-        print(' ');
-        print(bstr[2]);
-        
-    end
-
+    { b (+)*'0' . (-)*'0' }
 end
 
 ` +-----+-+-+-+-+-+-+-+-+-+
@@ -50,51 +31,51 @@ function print_list(xs:[List Byte])
     print("|     | H | B |");
     iterate i xs.capacity:
         print(' ');
-        print(byte(i));
+        printb(byte(i));
         print(" |");
     end
     println(" F |");
 
     
     print("|BOUND| ");
-    print(xs.header.boundary_element);
+    printb(xs.header.boundary_element);
     print(" | ");
-    print(xs.begin.boundary_element);
+    printb(xs.begin.boundary_element);
     print(" | ");
     iterate i xs.capacity:
-        print(xs.items[i].boundary_element);
+        printb(xs.items[i].boundary_element);
         print(" | ");
     end
-    print(xs.footer.boundary_element);
+    printb(xs.footer.boundary_element);
     println(" |");
     
     
     print("|STACK| ");
-    print(xs.header.stack_element);
+    printb(xs.header.stack_element);
     print(" | ");
-    print(xs.begin.stack_element);
+    printb(xs.begin.stack_element);
     print(" | ");
     iterate i xs.capacity:
-        print(xs.items[i].stack_element);
+        printb(xs.items[i].stack_element);
         print(" | ");
     end
-    print(xs.footer.stack_element);
+    printb(xs.footer.stack_element);
     println(" |");
     
 
     iterate enum xs.total_enumerators:
         print("|ENUM");
-        print(enum);
+        printb(byte(enum));
         print("| ");
-        print(xs.header.enumerator_elements[enum]);
+        printb(xs.header.enumerator_elements[enum]);
         print(" | ");
-        print(xs.begin.enumerator_elements[enum]);
+        printb(xs.begin.enumerator_elements[enum]);
         print(" | ");
         iterate i xs.capacity:
-            print(xs.items[i].enumerator_elements[enum]);
+            printb(xs.items[i].enumerator_elements[enum]);
             print(" | ");
         end
-        print(xs.footer.enumerator_elements[enum]);
+        printb(xs.footer.enumerator_elements[enum]);
         println(" |");
     end
 

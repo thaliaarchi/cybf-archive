@@ -1,8 +1,5 @@
 module Main;
 
-` Note: CyBF could probably make good use of cached string literals.
-` Iterate statements are *way* more useful than I originally thought they'd be.
-
 let xs : new [List Byte](6, 3).init();
 
 let b : byte('A');

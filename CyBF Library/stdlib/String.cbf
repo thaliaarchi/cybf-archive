@@ -100,8 +100,8 @@ function print(chr:Character)
 end
 
 function print(str:String)
-    let bstr : bstring(str);
-    print(bstr);
+    { str >[.>]<[<] }
+    ` print(bstring(str));
 end
 
 function println()
