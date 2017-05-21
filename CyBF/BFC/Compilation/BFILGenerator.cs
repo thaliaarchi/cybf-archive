@@ -1,4 +1,6 @@
-﻿using CyBF.BFIL;
+﻿using CyBF.BFC.Model.Data;
+using CyBF.BFC.Model.Types.Instances;
+using CyBF.BFIL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,6 +76,20 @@ namespace CyBF.BFC.Compilation
         public void WriteData(IEnumerable<byte> data)
         {
             _statements.Add(new BFILWriteStatement(null, data));
+        }
+
+        public void WriteStringCache(StringCache cache)
+        {
+            List<BFILStatement> programStatements = new List<BFILStatement>();
+
+            foreach (StringCache.StringCacheItem item in cache.Items)
+            {
+                programStatements.Add(new BFILDeclarationStatement(
+                    null, item.BFObject.AllocationId, item.Bytes));
+            }
+
+            programStatements.AddRange(_statements);
+            _statements = programStatements;
         }
     }
 }

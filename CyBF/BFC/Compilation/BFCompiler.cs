@@ -19,6 +19,7 @@ namespace CyBF.BFC.Compilation
     {
         private BFILGenerator _generator = new BFILGenerator();
         private Stack<Token> _trace = new Stack<Token>();
+        private StringCache _stringCache = new StringCache();
 
         public DefinitionLibrary<TypeDefinition> TypeLibrary { get; private set; }
         public DefinitionLibrary<FunctionDefinition> FunctionLibrary { get; private set; }
@@ -28,6 +29,11 @@ namespace CyBF.BFC.Compilation
         {
             this.TypeLibrary = typeLibrary;
             this.FunctionLibrary = functionLibrary;
+        }
+
+        public BFObject GetCachedString(StringInstance instance)
+        {
+            return _stringCache.GetCachedString(instance).BFObject;
         }
 
         public void AppendBF(string code)
@@ -52,6 +58,7 @@ namespace CyBF.BFC.Compilation
         
         public BFIL.BFILProgram MakeBFILProgram()
         {
+            _generator.WriteStringCache(_stringCache);
             return _generator.MakeBFILProgram();
         }
 
