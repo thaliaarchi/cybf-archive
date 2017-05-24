@@ -18,6 +18,7 @@ namespace CyBF
         static string _workingFolder;
         static IEnumerable<string> _filePatterns;
 
+        static bool _echo;
         static bool _recursive;
         static bool _debug;
         static bool _output;
@@ -135,6 +136,7 @@ namespace CyBF
                 else
                 {
                     input = output = new AsciiConsoleStream();
+                    ((AsciiConsoleStream)input).Echo = _echo;
                 }
 
                 using (input)
@@ -174,6 +176,7 @@ namespace CyBF
         {
             _workingFolder = args[0];
             _filePatterns = args.Skip(1).TakeWhile(arg => !arg.StartsWith("-"));
+            _echo = args.Contains("-echo");
             _recursive = args.Contains("-recursive");
             _output = args.Contains("-output");
             _debug = _output && args.Contains("-debug");
@@ -217,7 +220,8 @@ namespace CyBF
 
         static void PrintHelp()
         {
-            Console.WriteLine("cybf workingFolder filePattern* -recursive -output outputFile\n     -debug -run -fileio inputDataFile outputDataFile");
+            Console.WriteLine("cybf workingFolder filePattern* -echo -recursive -output outputFile");
+            Console.WriteLine("     -debug -run -fileio inputDataFile outputDataFile");
             Console.WriteLine();
             Console.WriteLine("Press any key to quit...");
             Console.ReadKey();

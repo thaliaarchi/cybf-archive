@@ -54,10 +54,13 @@ namespace CyBF.Utility
             }
         }
 
+        public bool Echo { get; set; }
+
         public AsciiConsoleStream()
         {
             Console.InputEncoding = Encoding.ASCII;
             Console.OutputEncoding = Encoding.ASCII;
+            this.Echo = true;
         }
 
         public override void Flush()
@@ -73,7 +76,7 @@ namespace CyBF.Utility
 
             for (int i = 0; i < count; i++)
             {
-                ConsoleKeyInfo key = Console.ReadKey(true);
+                ConsoleKeyInfo key = Console.ReadKey(!this.Echo);
 
                 if (key.Key == ConsoleKey.Enter)
                     chars[i] = '\n';
