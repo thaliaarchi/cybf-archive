@@ -1,0 +1,208 @@
+
+Core
+
+    selector [] (array:[Array ~T], index:Const) : ~T
+    function memory_copy(source:~T, destination:~T)
+    function memory_copy(object:~T)
+    function memory_reset(object:~T, value:Const)
+    function assert(condition:Const)
+    
+Math
+
+    function byte(value:Const)
+    function byte(value:Byte)
+    
+    function = (left:Byte, right:Const)
+    function = (left:Byte, right:Byte)
+    
+        *** Perhaps the byte() functions and assignment operator
+            should be moved to Core. They're not really math.
+    
+    Summation operators for every combination of bytes/consts.
+        a + b   3x
+        a - b   3x
+        a += b  2x
+        a -= b  2x
+        ++      1x
+        --      1x
+        
+        *** Currently missing the unary - for bytes and consts!
+            (never mind - they're built-in for consts).
+        
+    Equality Operators
+        a == b  x3
+        a += b  x3
+        
+    Logical Operators
+        a & b   x3
+        a | b   x3
+        !a      x1
+        
+    Comparison Operators
+        < <= >= >       Technically 3x each.
+                        Const versions just call byte versions.
+    
+
+        *** Although there seems to be a lot of redundancy with the
+            arithmetic operators, the byte vs. const and byte vs. byte
+            implementations are usually different.
+    
+List
+
+        *** Ideally lists are only accessed via the (new ...).init()
+        and operators. So much stuff in them can break if used incorrectly.
+        Perhaps I ought to make a naming convention to indicate "private"?
+
+    struct [ListItem ~T](enumerators)
+    
+        boundary_element : Byte
+        stack_element : Byte
+        enumerator_elements : [Array Byte](enumerators)
+        content : ~T
+        total_enumerators : Const(enumerators)
+        
+        selector next_item(this:~I) : ~I
+        selector previous_item(this:~I) : ~I
+    
+    struct [List ~T](capacity, enumerators)
+    
+        header : [ListItem ~T](enumerators)
+        begin : [ListItem ~T](enumerators)
+        items : [Array [ListItem ~T](enumerators)](capacity)
+        footer : [ListItem ~T](enumerators)
+        
+        capacity : Const(capacity)
+        total_enumerators : Const(enumerators)
+        
+        function init(this)
+        
+        selector current_item(this:[List ~T]) 
+            : [ListItem ~T](this.total_enumerators)
+        
+        function push(this)
+        function pop(this)
+        function get_enumerator(this:~L, index:Const)
+        
+    struct [Enumerator ~L:[List ~T]](index)
+        
+        list : ~L
+        index : Const(index)
+        
+        selector current_item(this:[Enumerator [List ~T]]) 
+            : [ListItem ~T](this.list.total_enumerators)
+            
+        function move_next(this)
+        
+        function move_previous(this)
+        
+    function # (list:[List ~T], index:Const)
+    function ++ (list:[List ~T])
+    function -- (list:[List ~T])
+    function * (list:[List ~T])
+    
+    function ++ (enum:[Enumerator ~L])
+    function -- (enum:[Enumerator ~L])
+    function * (enum:[Enumerator ~L])
+    
+    
+Strings and IO
+    
+    Once I figure out this part, I'll be "done enough" with the API
+    to start writing the solver. 
+    
+    What are all of the string/io functions I want?
+    
+        print(String)
+        print(Character)
+        
+        string[i]   <-- I think this is builtin
+        
+        println(String)
+            println(Character)          <-- Maybe?
+        
+    
+    I'll also want mutable strings.
+    
+        struct BString
+        struct BCharacter
+        
+        print(BString)
+        print(BCharacter)
+        
+        BString[i]
+        
+        println(BString)
+            println(BCharacter)         <-- Maybe?
+    
+    
+    Conversions
+    
+        BString(String)
+        BString(BString)                <-- These all seem 
+        BString(Character)              <-- a tiny bit
+        BString(BCharacter)             <-- extraneous
+        
+        BString([Array Byte])           <-- This one is potentially dangerous.
+        
+        BString(Byte)                   <-- Almost. Hmm...
+                                            I can modify it to null-terminate early for byte values
+                                            under 100/10. Or pad with spaces instead of zeroes - that
+                                            might make custom formatting simpler.
+    
+        BCharacter(Character)
+        BCharacter(BCharacter)
+        BCharacter(Byte)                <-- Maybe?
+        
+        Character(Const)                <-- This needs to be builtin. I should make this change though.
+        BCharacter(Const)               <-- Maybe?
+        
+    Operators
+    
+        < <= == != >= >                 <-- Screw it. I can just compare via ordinals.
+    
+        Every combination of            <-- This seems a little bit excessive.
+        Character and BCharacter
+        
+        What about + and - for Characters?
+        Combinations of them and BCharacers?
+            Ordinals.
+        
+    Printing
+    
+        print(Character)
+        print(String)
+    
+        print(BCharacter)
+        print(BString)
+        
+        println()
+        
+        println(Character)
+        println(String)
+    
+        println(BCharacter)
+        println(BString)
+    
+        print(Byte)                     <-- This is a bit ambiguous.
+                                            Interpret Byte as a number or character?
+                                            Distinguish with a "printb" function?
+                                            Think about this a bit more.
+    
+    Specialized Printing
+    
+        I can convert bytes to characters easily enough.
+        You know... don't worry about this right now.
+        
+        
+    Reading Input
+    
+        read() -> BCharacter
+        
+        readline(BString) -> Whether or not BString had sufficient capacity?
+            Or should I read into a list of characters instead?
+            Read only while current array is non-zero?
+
+    
+            
+            
+            
