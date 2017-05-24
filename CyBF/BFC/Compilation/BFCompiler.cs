@@ -201,6 +201,47 @@ namespace CyBF.BFC.Compilation
             return bfobject;
         }
 
+        public void CopyByte(BFObject source, BFObject destination)
+        {
+            if (!(source.DataType is ByteInstance))
+                throw new ArgumentException("Source BFObject is not a ByteInstance.");
+
+            if (!(destination.DataType is ByteInstance))
+                throw new ArgumentException("Destination BFObject is not a ByteInstance.");
+
+            MoveToObject(destination);
+            AppendBF("[-]");
+
+            BFObject temp = this.AllocateAndMoveToObject(new ByteInstance());
+            AppendBF("[-]");
+
+            MoveToObject(source);
+            BeginCheckedLoop();
+            MoveToObject(destination);
+            AppendBF("+");
+            MoveToObject(temp);
+            AppendBF("+");
+            MoveToObject(source);
+            AppendBF("-");
+            EndCheckedLoop();
+
+            MoveToObject(temp);
+            BeginCheckedLoop();
+            MoveToObject(source);
+            AppendBF("+");
+            MoveToObject(temp);
+            AppendBF("-");
+            EndCheckedLoop();
+        }
+
+        public BFObject CopyByte(BFObject bfobject)
+        {
+            BFObject result = AllocateAndMoveToObject(new ByteInstance());
+            CopyByte(bfobject, result);
+
+            return result;
+        }
+
         public void RaiseSemanticError(string message)
         {
             List<Token> tokens = new List<Token>();

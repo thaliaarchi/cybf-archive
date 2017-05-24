@@ -13,63 +13,6 @@ using CyBF.BFC.Model.Types.Instances;
 
 namespace CyBF
 {
-    /*
-        StringExpressionStatement
-            Referenced only in ParseLiteralExpression. Hence, StringExpressionStatement always
-            corresponds to an actual String token.
-
-            ParseLiteralExpression is called in two places:
-            ParseCommandDataItem and ParseAtomicExpression
-
-            ParseCommandDataItem is called from:
-            ParseRepeatCommand and ParseWriteCommand.
-
-        StringDefinition
-            Not referenced anywhere. Exists only to prevent the programmer
-            from creating a String struct whose instances would conflict
-            with real StringInstances. Returns a "default" empty string instance.
-
-        StringInstance
-            Created in the Compile routines for StringExpressionStatement, 
-            ToStringExpressionStatement, and StringDefinition.
-
-        What is the problem I'm trying to solve?
-        Let's say I've defined a function to print a string literal. It allocates a byte array,
-        fills the array with characters from the literal, then prints those characters. 
-
-            -> Come to think of it, it's not a big change to print whole strings using
-               only a single byte buffer which continually gets overwritten. This is a
-               tangental issue, but an interesting one. 
-
-        Now imagine that I'm calling this print function from within an iterator, 
-        or from within another function which in turn is called twice. The same literal
-        is passed to the print function every time. That byte array, however, will be
-        created and filled on every single call. This is wasteful.
-
-        What I'd like is for the byte array to have already been created & populated.
-        Then the print function would simply reference the array.
-
-        I've been focused so much on making StringInstance a runtime type, which would 
-        create a few difficulties and adverse effects (consider how
-        ToStringExpression cannot be cached and how WriteCommands should *not*
-        allocate their strings). 
-
-        What if I somehow did this later on in the chain? What if the compiler kept note
-        of all the string instances it came across and any references to them, then when
-        building the BFILProgram it would *prepend* statements for actually allocating
-        and writing those strings?
-            
-            Ahh. VariableReferenceCommand. It would only allocate those string instances 
-            which are referred to by VariableReferenceCommand objects. 
-
-                -> They'd be the only constant data type allowed in VariableReferenceCommand?
-                   Or would I want to "cache" other data types too? Nah, just string. 
-                   The other types are just Const, Character, Void, Tuple, etc...
-                   Not things that make sense to build a cache for (maybe it makes sense
-                   for character, but meh... it's unimportant for that).
-
-    */
-
     class Program
     {
         static string _workingFolder;

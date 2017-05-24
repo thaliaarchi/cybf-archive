@@ -78,7 +78,7 @@
     <Compile Include="BFC\Model\Statements\Commands\WriteCommand.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\CharacterExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\ConstExpressionStatement.cs" />
-    <Compile Include="BFC\Model\Statements\DoWhileLoopStatement.cs" />
+    <Compile Include="BFC\Model\Statements\DoLoopWhileStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\ExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\FieldExpressionStatement.cs" />
     <Compile Include="BFC\Model\Statements\Expressions\ToStringExpressionStatement.cs" />

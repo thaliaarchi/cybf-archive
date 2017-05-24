@@ -79,12 +79,14 @@ namespace CyBF.BFC.Compilation
             List<FunctionDefinition> functions = new List<FunctionDefinition>();
             List<Statement> statements = new List<Statement>();
 
-            dataTypes.Add(new ByteDefinition());
-            dataTypes.Add(new ConstDefinition());
             dataTypes.Add(new ArrayDefinition());
-            dataTypes.Add(new VoidDefinition());
+            dataTypes.Add(new ByteDefinition());
+            dataTypes.Add(new CharacterDefinition());
+            dataTypes.Add(new ConstDefinition());
             dataTypes.Add(new StringDefinition());
-
+            dataTypes.Add(new TupleDefinition());
+            dataTypes.Add(new VoidDefinition());
+           
             functions.Add(new BinaryMathOperatorDefinition("+", (left, right) => left + right));
             functions.Add(new BinaryMathOperatorDefinition("-", (left, right) => left - right));
             functions.Add(new BinaryMathOperatorDefinition("*", (left, right) => left * right));
@@ -581,17 +583,17 @@ namespace CyBF.BFC.Compilation
 
             List<Statement> body = new List<Statement>();
 
-            while (!_parser.Matches(TokenType.Keyword_While))
+            while (!_parser.Matches(TokenType.Keyword_Loop))
                 body.Add(ParseStatement());
 
-            _userVariables.Pop();
-
+            _parser.Match(TokenType.Keyword_Loop);
             _parser.Match(TokenType.Keyword_While);
             ExpressionStatement condition = ParseExpression();
-
             _parser.Match(TokenType.Semicolon);
+
+            _userVariables.Pop();
             
-            return new DoWhileLoopStatement(reference, condition, body);
+            return new DoLoopWhileStatement(reference, condition, body);
         }
 
         public Statement ParseForLoopStatement()
@@ -624,27 +626,45 @@ namespace CyBF.BFC.Compilation
 
         public Statement ParseIterateStatement()
         {
-            _userVariables.Push();
-
             Token reference = _parser.Match(TokenType.Keyword_Iterate);
 
-            Token variableNameToken = _parser.Match(TokenType.Identifier);
-            Variable controlVariable = CreateEnvironmentVariable(variableNameToken);
+            Variable controlVariable;
 
-            ExpressionStatement limitExpression = ParseExpression();
+            if (_parser.Matches(TokenType.Keyword_Let))
+            {
+                _parser.Next();
+                Token variableNameToken = _parser.Match(TokenType.Identifier);
+                controlVariable = CreateEnvironmentVariable(variableNameToken);
+                _userVariables.Push();
+            }
+            else
+            {
+                _userVariables.Push();
+                Token variableNameToken = _parser.Match(TokenType.Identifier);
+                controlVariable = CreateEnvironmentVariable(variableNameToken);
+            }
 
+            _parser.Match(TokenType.Colon);
+
+            ExpressionStatement initializeExpression = ParseExpression();
+            _parser.Match(TokenType.Keyword_While);
+
+            ExpressionStatement conditionExpression = ParseExpression();
             _parser.Match(TokenType.Colon);
 
             List<Statement> body = new List<Statement>();
 
-            while (!_parser.Matches(TokenType.Keyword_End))
+            while (!_parser.Matches(TokenType.Keyword_Next))
                 body.Add(ParseStatement());
 
-            _parser.Match(TokenType.Keyword_End);
+            _parser.Match(TokenType.Keyword_Next);
+
+            ExpressionStatement nextExpression = ParseExpression();
+            _parser.Match(TokenType.Semicolon);
 
             _userVariables.Pop();
 
-            return new IterateStatement(reference, controlVariable, limitExpression, body);
+            return new IterateStatement(reference, controlVariable, initializeExpression, conditionExpression, body, nextExpression);
         }
 
         public Statement ParseIfStatement()
