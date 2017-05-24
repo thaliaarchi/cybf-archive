@@ -22,18 +22,18 @@ function print_list(xs:[List Byte])
 
 
     print("+-----+---+---");
-    iterate i xs.capacity:
+    iterate i : 0 while i < xs.capacity:
         print("+---");
-    end
+    next i + 1;
     println("+---+");
 
     
     print("|     | H | B |");
-    iterate i xs.capacity:
+    iterate i : 0 while i < xs.capacity:
         print(' ');
         printb(byte(i));
         print(" |");
-    end
+    next i + 1;
     println(" F |");
 
     
@@ -42,10 +42,10 @@ function print_list(xs:[List Byte])
     print(" | ");
     printb(xs.begin.boundary_element);
     print(" | ");
-    iterate i xs.capacity:
+    iterate i : 0 while i < xs.capacity:
         printb(xs.items[i].boundary_element);
         print(" | ");
-    end
+    next i + 1;
     printb(xs.footer.boundary_element);
     println(" |");
     
@@ -55,15 +55,15 @@ function print_list(xs:[List Byte])
     print(" | ");
     printb(xs.begin.stack_element);
     print(" | ");
-    iterate i xs.capacity:
+    iterate i : 0 while i < xs.capacity:
         printb(xs.items[i].stack_element);
         print(" | ");
-    end
+    next i + 1;
     printb(xs.footer.stack_element);
     println(" |");
     
 
-    iterate enum xs.total_enumerators:
+    iterate enum : 0 while enum < xs.total_enumerators:
         print("|ENUM");
         printb(byte(enum));
         print("| ");
@@ -71,13 +71,13 @@ function print_list(xs:[List Byte])
         print(" | ");
         printb(xs.begin.enumerator_elements[enum]);
         print(" | ");
-        iterate i xs.capacity:
+        iterate i : 0 while i < xs.capacity:
             printb(xs.items[i].enumerator_elements[enum]);
             print(" | ");
-        end
+        next i + 1;
         printb(xs.footer.enumerator_elements[enum]);
         println(" |");
-    end
+    next enum + 1;
 
 
     print("|DATA | ");
@@ -85,18 +85,18 @@ function print_list(xs:[List Byte])
     print(" | ");
     print(cast xs.begin.content : BChar);
     print(" | ");
-    iterate i xs.capacity:
+    iterate i : 0 while i < xs.capacity:
         print(cast xs.items[i].content : BChar);
         print(" | ");
-    end
+    next i + 1;
     print(cast xs.footer.content : BChar);
     println(" |");
     
     
     print("+-----+---+---");
-    iterate i xs.capacity:
+    iterate i : 0 while i < xs.capacity:
         print("+---");
-    end
+    next i + 1;
     println("+---+");
     
 end

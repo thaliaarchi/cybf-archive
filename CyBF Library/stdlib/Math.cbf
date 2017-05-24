@@ -1,183 +1,8 @@
 module Math;
 
 ` ================================================================
-` Byte Constructor Functions
-` ================================================================
-
-function byte(value:Const)
-
-    var byte : Byte
-    { byte # value }
-    
-    return byte
-
-end
-
-function byte(value:Byte)
-
-    var copy : Byte
-    var temp : Byte
-    
-    {
-        copy # 0 
-        temp # 0
-        
-        value [ copy+  temp+ value- ]
-        temp  [ value+ temp-        ]
-    }
-
-    return copy
-    
-end
-
-
-
-` ================================================================
-` Copy Operators
-` ================================================================
-
-function = (left:Byte, right:Const)
-
-    { left # right }
-    
-    return left
-    
-end
-
-function = (left:Byte, right:Byte)
-
-    var temp : Byte
-    
-    {
-        left # 0
-        temp # 0
-    
-        right [ left+  temp+ right- ]
-        temp  [ right+ temp-        ]
-    }
-
-    return left
-    
-end
-
-
-
-` ================================================================
 ` Summation Operators + - += -= ++ --
 ` ================================================================
-
-function + (left:Byte, right:Const)
-
-    var result : Byte
-    var temp : Byte
-    
-    {
-        result # 0
-        temp   # 0
-        
-        left [ result+ temp+ left- ]
-        temp [ left+   temp-       ]
-        
-        result (+)*right
-    }
-    
-    return result
-
-end
-
-function + (left:Const, right:Byte)
-
-    var result : Byte
-    var temp : Byte
-    
-    {
-        result # left
-        temp   # 0
-        
-        right [ result+ temp+ right- ]
-        temp  [ right+  temp-        ]
-    }
-
-    return result
-    
-end
-
-function + (left:Byte, right:Byte)
-
-    var result : Byte
-    var temp : Byte
-    
-    {
-        result # 0
-        temp   # 0
-        
-        left [ result+ temp+ left- ]
-        temp [ left+   temp-       ]
-        
-        right [ result+ temp+ right- ]
-        temp  [ right+  temp-        ]
-    }
-    
-    return result
-
-end
-
-function - (left:Byte, right:Const)
-
-    var result : Byte
-    var temp : Byte
-    
-    {
-        result # 0
-        temp # 0
-        
-        left [ result+ temp+ left- ]
-        temp [ left+   temp-       ]
-        
-        result (-)*right
-    }
-    
-    return result
-
-end
-
-function - (left:Const, right:Byte)
-    
-    var result : Byte
-    var temp : Byte
-    
-    {
-        result # left
-        temp # 0
-        
-        right [ result- temp+ right- ]
-        temp  [ right+  temp-        ]
-    }
-    
-    return result
-
-end
-
-function - (left:Byte, right:Byte)
-
-    var result : Byte
-    var temp : Byte
-    
-    {
-        result # 0
-        temp # 0 
-        
-        left [ result+ temp+ left- ]
-        temp [ left+   temp-       ]
-        
-        right [ result- temp+ right- ]
-        temp  [ right+  temp-        ]
-    }
-    
-    return result
-
-end
-
 
 function += (left:Byte, right:Const)
 
@@ -189,11 +14,9 @@ end
 
 function += (left:Byte, right:Byte)
 
-    var temp : Byte
+    let temp : byte(0);
     
     {
-        temp # 0
-        
         right [ left+  temp+ right- ]
         temp  [ right+ temp-        ]
     }
@@ -212,16 +35,65 @@ end
 
 function -= (left:Byte, right:Byte)
 
-    var temp : Byte
+    let temp : byte(0);
     
     {
-        temp # 0
-        
         right [ left-  temp+ right- ]
         temp  [ right+ temp-        ]
     }
     
     return left
+
+end
+
+function + (left:Byte, right:Const)
+
+    let result : byte(left);
+    result += right;
+
+    return result
+
+end
+
+function + (left:Const, right:Byte)
+
+    return right + left;
+    
+end
+
+function + (left:Byte, right:Byte)
+
+    let result : byte(left);
+    result += right;
+
+    return result
+
+end
+
+function - (left:Byte, right:Const)
+
+    let result : byte(left);
+    result -= right;
+    
+    return result
+
+end
+
+function - (left:Const, right:Byte)
+    
+    let result : byte(left);
+    result -= right;
+    
+    return result
+
+end
+
+function - (left:Byte, right:Byte)
+
+    let result : byte(left);
+    result -= right;
+    
+    return result
 
 end
 
@@ -237,6 +109,18 @@ function -- (value:Byte)
 
 end
 
+function + (value:Byte)
+
+    return byte(value)
+
+end
+
+function - (value:Byte)
+    
+    return 0 - value
+
+end
+
 
 
 ` ================================================================
@@ -246,11 +130,8 @@ end
 function == (left:Byte, right:Const)
 
     let result : byte(1);
-    let temp : byte(left);
     
-    temp -= right;
-    
-    if temp:
+    if left - right:
         --result;
     end
     
@@ -259,17 +140,16 @@ function == (left:Byte, right:Const)
 end
 
 function == (left:Const, right:Byte)
+
     return right == left
+    
 end
 
 function == (left:Byte, right:Byte)
 
     let result : byte(1);
-    let temp : byte(left);
     
-    temp -= right;
-    
-    if temp:
+    if left - right:
         --result;
     end
     
@@ -280,11 +160,8 @@ end
 function != (left:Byte, right:Const)
 
     let result : byte(0);
-    let temp : byte(left);
     
-    temp -= right;
-    
-    if temp:
+    if left - right:
         ++result;
     end
     
@@ -293,17 +170,16 @@ function != (left:Byte, right:Const)
 end
 
 function != (left:Const, right:Byte)
-    return right == left
+
+    return right != left
+    
 end
 
 function != (left:Byte, right:Byte)
 
     let result : byte(0);
-    let temp : byte(left);
     
-    temp -= right;
-    
-    if temp:
+    if left - right:
         ++result;
     end
     
@@ -488,7 +364,41 @@ end
 
 
 ` ================================================================
-` Multiplication
+` Min/Max
 ` ================================================================
 
+function min(a:Const, b:Const)
+    return (a * (a <= b)) + (b * (a > b));
+end
 
+function max(a:Const, b:Const)
+    return (a * (a >= b)) + (b * (a < b));
+end
+
+function min(a:Byte, b:Byte)
+    
+    var result : Byte
+    
+    if a <= b:
+        result = a;
+    else:
+        result = b;
+    end
+    
+    return result;
+    
+end
+
+function max(a:Byte, b:Byte)
+
+    var result : Byte
+    
+    if a >= b:
+        result = a;
+    else:
+        result = b;
+    end
+    
+    return result;
+
+end

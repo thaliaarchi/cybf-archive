@@ -21,7 +21,7 @@ struct BString(maxLength)
         let count : byte(0);
         let stillCounting : byte(1);
     
-        iterate i this.characters.capacity:
+        iterate i : 0 while i < this.characters.capacity:
 
             if this.characters[i].ordinal:
             
@@ -37,7 +37,7 @@ struct BString(maxLength)
             
             end
         
-        end
+        next i + 1;
         
         return count;
     
@@ -65,47 +65,20 @@ function bstring(str:String)
 
 end
 
-function bstring(maxLength:Const)
-    
-    var bstring : BString(maxLength);
-    
-    bstring._header = 0;
-    bstring._footer = 0;
-    
-    return bstring;
-    
-end
-
 
 
 ` ================================================================
 ` Basic print functions.
 ` ================================================================
 
-function print(value:Const)
-    print(string(value));
-end
-
-function print(bchr:BChar)
-    { bchr. }
-end
-
-function print(bstr:BString)
-    { bstr >[.>]<[<] }
-end
-
-function print(chr:Character)
-    let bchr : bchar(chr);
-    print(bchr);
-end
-
-function print(str:String)
-    { str >[.>]<[<] }
-    ` print(bstring(str));
-end
-
 function println()
     print(bchar('\n'));
+end
+
+
+
+function print(value:Const)
+    print(string(value));
 end
 
 function println(value:Const)
@@ -113,19 +86,33 @@ function println(value:Const)
     println();
 end
 
-function println(bchr:BChar)
-    print(bchr);
-    println();
-end
 
-function println(bstr:BString)
-    print(bstr);
-    println();
+
+function print(chr:Character)
+    let bchr : bchar(chr);
+    print(bchr);
 end
 
 function println(chr:Character)
     print(chr);
     println();
+end
+
+
+
+function print(bchr:BChar)
+    { bchr. }
+end
+
+function println(bchr:BChar)
+    print(bchr);
+    println();
+end
+
+
+
+function print(str:String)
+    { str >[.>]<[<] }
 end
 
 function println(str:String)
@@ -135,8 +122,19 @@ end
 
 
 
+function print(bstr:BString)
+    { bstr >[.>]<[<] }
+end
+
+function println(bstr:BString)
+    print(bstr);
+    println();
+end
+
+
+
 ` ================================================================
-` Converting bytes into decimal digit strings.
+` Converting numeric types into decimal digit strings.
 ` ================================================================
 
 function bstring(value:Const)
@@ -155,42 +153,33 @@ function bstring(value:Byte)
     b1 = 0;
     b2 = value;
     
-    ` 200 = 100 + 100
-    
-    if b2 >= 100:
+    while b2 >= 100:
         b0 += 1;
         b2 -= 100;
     end
-        
-    if b2 >= 100:
-        b0 += 1;
-        b2 -= 100;
+    
+    while b2 >= 10:
+        b1 += 1;
+        b2 -= 10;
     end
 
-    ` 90 = 40 + 30 + 10 + 10
+    if b0:
     
-    if b2 >= 40:
-        b1 += 4;
-        b2 -= 40;
+        b0 += '0'.ordinal;
+        b1 += '0'.ordinal;
+    
+    elif b1:
+    
+        b0 += ' '.ordinal;
+        b1 += '0'.ordinal;
+    
+    else:
+    
+        b0 += ' '.ordinal;
+        b1 += ' '.ordinal;
+    
     end
     
-    if b2 >= 30:
-        b1 += 3;
-        b2 -= 30;
-    end
-    
-    if b2 >= 10:
-        b1 += 1;
-        b2 -= 10;
-    end    
-    
-    if b2 >= 10:
-        b1 += 1;
-        b2 -= 10;
-    end        
-    
-    b0 += '0'.ordinal;
-    b1 += '0'.ordinal;
     b2 += '0'.ordinal;
     
     return result;
@@ -201,12 +190,12 @@ function print(b:Byte)
     
     let bstr : bstring(b);
     
-    if bstr[0] != '0':
+    if bstr[0] != ' ':
         print(bstr[0]);
         print(bstr[1]);
         print(bstr[2]);
         
-    elif bstr[1] != '0':
+    elif bstr[1] != ' ':
         print(bstr[1]);
         print(bstr[2]);
 
@@ -240,42 +229,6 @@ end
 
 function = (left:BChar, right:BChar)
     left.ordinal = right.ordinal;
-end
-
-
-
-function < (left:Character, right:Character)
-    return left.ordinal < right.ordinal;
-end
-
-function < (left:Character, right:BChar)
-    return left.ordinal < right.ordinal;
-end
-
-function < (left:BChar, right:Character)
-    return left.ordinal < right.ordinal;
-end
-
-function < (left:BChar, right:BChar)
-    return left.ordinal < right.ordinal;
-end
-
-
-
-function <= (left:Character, right:Character)
-    return left.ordinal <= right.ordinal;
-end
-
-function <= (left:Character, right:BChar)
-    return left.ordinal <= right.ordinal;
-end
-
-function <= (left:BChar, right:Character)
-    return left.ordinal <= right.ordinal;
-end
-
-function <= (left:BChar, right:BChar)
-    return left.ordinal <= right.ordinal;
 end
 
 
@@ -316,36 +269,21 @@ end
 
 
 
-function >= (left:Character, right:Character)
-    return left.ordinal >= right.ordinal;
+` ================================================================
+` Input Functions
+` ================================================================
+
+function read()
+
+    var bchar : BChar
+    { bchar[-], }
+
+    return bchar
+    
 end
 
-function >= (left:Character, right:BChar)
-    return left.ordinal >= right.ordinal;
-end
+function readline()
 
-function >= (left:BChar, right:Character)
-    return left.ordinal >= right.ordinal;
-end
-
-function >= (left:BChar, right:BChar)
-    return left.ordinal >= right.ordinal;
-end
-
-
-
-function > (left:Character, right:Character)
-    return left.ordinal > right.ordinal;
-end
-
-function > (left:Character, right:BChar)
-    return left.ordinal > right.ordinal;
-end
-
-function > (left:BChar, right:Character)
-    return left.ordinal > right.ordinal;
-end
-
-function > (left:BChar, right:BChar)
-    return left.ordinal > right.ordinal;
+    
+    
 end

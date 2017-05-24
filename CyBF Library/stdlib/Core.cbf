@@ -1,5 +1,9 @@
 module Core;
 
+` ================================================================
+` Array Index Function
+` ================================================================
+
 selector [] (array:[Array ~T], index:Const) : ~T
     
     reference
@@ -31,6 +35,12 @@ selector [] (array:[Array ~T], index:Const) : ~T
     
 end
 
+
+
+` ================================================================
+` Memory Functions
+` ================================================================
+
 function memory_copy(source:~T, destination:~T)
 
     let sourceBytes : 
@@ -42,7 +52,7 @@ function memory_copy(source:~T, destination:~T)
     assert(sourceBytes.capacity == destBytes.capacity,
         "Cannot perform a memory copy on objects of different sizes.");
 
-    iterate i sourceBytes.capacity:
+    iterate i : 0 while i < sourceBytes.capacity:
         
         let src : sourceBytes[i];
         let dst : destBytes[i];
@@ -54,7 +64,7 @@ function memory_copy(source:~T, destination:~T)
             tmp [ src+ tmp-    ]
         }
         
-    end
+    next i + 1;
 
 end
 
@@ -84,10 +94,61 @@ function memory_reset(object:~T, value:Const)
     
 end
 
+
+
+` ================================================================
+` Core Byte Functions
+` ================================================================
+
+function byte(value:Const)
+
+    var byte : Byte
+    { byte # value }
+    
+    return byte
+
+end
+
+function byte(value:Byte)
+
+    return memory_copy(value)
+
+end
+
+function = (left:Byte, right:Const)
+
+    { left # right }
+    return left
+    
+end
+
+function = (left:Byte, right:Byte)
+
+    memory_copy(right, left);
+    return left
+    
+end
+
+
+
+` ================================================================
+` Error Functions
+` ================================================================
+
 function assert(condition:Const)
 
     assert(condition, "");
     
 end
 
+function error(message:String)
 
+    let notice : "Program Error: ";
+    
+    { 
+        notice  >[.>]<[<]
+        message >[.>]<[<]
+        _NULL_[-]+[]
+    }
+
+end

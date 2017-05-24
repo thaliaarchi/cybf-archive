@@ -88,11 +88,11 @@ struct [List ~T](capacity, enumerators)
         this.begin.stack_element = 0;
         memory_reset(this.begin.enumerator_elements, 0);
         
-        iterate i this.capacity:
+        iterate i : 0 while i < this.capacity:
             this.items[i].boundary_element = 1;
             this.items[i].stack_element = 1;
             memory_reset(this.items[i].enumerator_elements, 1);
-        end
+        next i + 1;
 
         this.footer.boundary_element = 0;
         this.footer.stack_element = 0;
