@@ -182,6 +182,23 @@ struct [List ~T](capacity, enumerators)
     
     end
     
+    function clear(this)
+
+        let currentItem : this.current_item();
+        let itemSize : sizeof(currentItem);
+        
+        {
+            currentItem
+            > +                     ` Unmark the stack_element of the current item.
+            (<)*itemSize            ` Move to the stack_element of the prior item.
+            [ (<)*itemSize ]        ` Scan for the stack_element of the header.
+            (>)*itemSize            ` Move to the stack_element of the begin item.
+            -                       ` Mark the begin item as current.
+            <                       ` Move to the start of the now current item.
+        }
+    
+    end
+    
     function get_enumerator(this:~L, index:Const)
     
         assert((0 <= index) & (index < this.total_enumerators),
@@ -279,7 +296,25 @@ struct [Enumerator ~L:[List ~T]](index)
         
         return success;
     
-    end        
+    end
+    
+    function reset(this)
+    
+        let currentItem : this.current_item();
+        let itemSize : sizeof(currentItem);
+        let index : this.index;
+        
+        {
+            currentItem
+            >>(>)*index +           ` Unmark the indexed enumerator_element of the current list item.
+            (<)*itemSize            ` Move to the indexed enumerator_element of the prior item.
+            [(<)*itemSize]          ` Scan for the indexed enumerator_element of the header item.
+            (>)*itemSize            ` Move to the indexed enumerator_element of the begin item.
+            -                       ` Mark this element as the new 'current'.
+            (<)*index <<            ` Move to the start of the now current item.
+        }
+    
+    end
     
 end
 
