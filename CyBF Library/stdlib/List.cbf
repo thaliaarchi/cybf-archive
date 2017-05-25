@@ -158,8 +158,8 @@ struct [List ~T](capacity, enumerators)
     
     end
     
-    function append(this, content)
-    
+    function append(this, content)  ` Don't specify content data type here. Make use of
+                                    ` the overloaded '=' to copy the data appropriately.
         let success : byte(0);
     
         if this.push():
@@ -348,6 +348,20 @@ struct [Enumerator ~L:[List ~T]](index)
             (<)*index <<            ` Move to the start of the now current item.
         }
     
+    end
+    
+    function contains(this, content)    ` The overloaded equality operator will force content
+                                        ` to be the correct data type.
+        let searching : byte(1);
+        
+        this.reset();
+        
+        while this.move_next() & searching:
+            searching = (this.current_item().content != content);
+        end
+        
+        return !searching;
+        
     end
     
 end

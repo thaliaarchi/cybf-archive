@@ -1,8 +1,15 @@
 module Main;
 
-let buffer : (new [List BChar](10, 0)).init();
+let buffer : (new [List BChar](10, 1)).init();
 buffer.extend((,'A', 'B', 'C', 'D', 'E'));
 print_list(buffer);
+
+print("Contains Z: ");
+println((buffer#0).contains('Z'));
+
+print("Contains C: ");
+println((buffer#0).contains('C'));
+
 
 `===============
 
