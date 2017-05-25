@@ -158,6 +158,33 @@ struct [List ~T](capacity, enumerators)
     
     end
     
+    function append(this, content)
+    
+        let success : byte(0);
+    
+        if this.push():
+            this.current_item().content = content;
+            ++success;
+        end
+    
+        return success;
+    
+    end
+    
+    function extend(this:[List ~T], content:Tuple)
+    
+        let success : byte(1);
+    
+        iterate i : 0 while i < content.size:
+        
+            success = success & this.append(content[i]);
+        
+        next i + 1;
+    
+        return success;
+    
+    end
+    
     function pop(this)
     
         let success : byte(0);
@@ -179,6 +206,13 @@ struct [List ~T](capacity, enumerators)
         end
     
         return success;
+    
+    end
+    
+    function pop(this:[List ~T], content:~T)
+    
+        content = this.current_item().content;
+        return this.pop();
     
     end
     

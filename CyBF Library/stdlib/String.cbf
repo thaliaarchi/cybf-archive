@@ -10,11 +10,20 @@ end
 
 struct BString(maxLength)
 
-    _header : BChar
+    header : BChar
     characters : [Array BChar](maxLength)
-    _footer : BChar
+    footer : BChar
     
     max_length : Const(maxLength)
+    
+    function init(this)
+        
+        this.header.ordinal = 0;
+        this.footer.ordinal = 0;
+        
+        return this;
+        
+    end
     
     function length(this)
     
@@ -143,12 +152,12 @@ end
 
 function bstring(value:Byte)
 
-    var result : BString(3);
+    let result : (new BString(3)).init();
     
     let b0 : result.characters[0].ordinal;
     let b1 : result.characters[1].ordinal;
     let b2 : result.characters[2].ordinal;
-
+    
     b0 = 0;
     b1 = 0;
     b2 = value;

@@ -1,10 +1,10 @@
 module Main;
 
 let buffer : (new [List BChar](10, 0)).init();
-print("Enter some text:\n");
-readline(buffer);
-readline(buffer);
+buffer.extend((,'A', 'B', 'C', 'D', 'E'));
+print_list(buffer);
 
+`===============
 
 ` readline(buffer);
 ` println();
