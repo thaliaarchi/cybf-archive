@@ -85,12 +85,16 @@ function memory_reset(object:~T, value:Const)
 
     let bytes :
         cast object : [Array Byte](size);
+
+    if size > 0:
         
-    {
-        bytes 
-        ( # value > )*size 
-        ( < )*size
-    }
+        {
+            bytes 
+            ( # value > )*size 
+            ( < )*size
+        }
+    
+    end
     
 end
 

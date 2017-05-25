@@ -273,17 +273,43 @@ end
 ` Input Functions
 ` ================================================================
 
-function read()
+function readchar()
 
-    var bchar : BChar
-    { bchar[-], }
+    var c : BChar
+    { c, }
 
-    return bchar
+    return c
     
 end
 
-function readline()
+function readline(buffer:[List BChar])
 
+    buffer.clear();
+    let advance : ++buffer;
     
+    while advance:
+    
+        let input : readchar();
+        *buffer = input;
+        
+        if input == '\0':
+            
+            --advance;
+        
+        elif input == '\n':
+            
+            --advance;
+            
+            if ++buffer:
+                *buffer = '\0';
+            end
+            
+        else:
+        
+            advance = ++buffer;
+        
+        end
+    
+    end
     
 end

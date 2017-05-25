@@ -1,33 +1,62 @@
 module Main;
 
-let xs : new [List Byte](6, 3).init();
-
-let b : byte('A');
-let counter : byte(4);
-
-while counter:
-    ++xs;
-    *xs = b;
-    ++b;
-    --counter;
-end
-
-print_list(xs);
-
-while ++(xs#0):
-    print(cast *(xs#0) : BChar);
-end
-
-println();
-
-print_list(xs);
-
-do
-    print(cast *(xs#0) : BChar);
-loop while --(xs#0);
-
-println();
-
-print_list(xs);
+let buffer : (new [List BChar](10, 0)).init();
+print("Enter some text:\n");
+readline(buffer);
+readline(buffer);
 
 
+` readline(buffer);
+` println();
+` print_list(buffer);
+
+` readline(buffer);
+` println();
+` print_list(buffer);
+
+` let buffer : (new [List BChar](255, 0)).init();
+` readline(buffer);
+` readline(buffer);
+
+
+` readline(buffer);
+` println();
+` print_list(buffer);
+
+` let xs : new [List Byte](6, 3).init();
+
+` let b : byte('A');
+` let counter : byte(4);
+
+` while counter:
+    ` ++xs;
+    ` *xs = b;
+    ` ++b;
+    ` --counter;
+` end
+
+` print_list(xs);
+
+` while ++(xs#0):
+    ` print(cast *(xs#0) : BChar);
+` end
+
+` println();
+
+` print_list(xs);
+
+` ` do
+    ` ` print(cast *(xs#0) : BChar);
+` ` loop while --(xs#0);
+
+` ` println();
+
+` ` print_list(xs);
+
+` xs.clear();
+` println();
+` print_list(xs);
+
+` (xs#0).reset();
+` println();
+` print_list(xs);

@@ -54,13 +54,10 @@ namespace CyBF.Utility
             }
         }
 
-        public bool Echo { get; set; }
-
         public AsciiConsoleStream()
         {
             Console.InputEncoding = Encoding.ASCII;
             Console.OutputEncoding = Encoding.ASCII;
-            this.Echo = true;
         }
 
         public override void Flush()
@@ -73,17 +70,8 @@ namespace CyBF.Utility
                 throw new ArgumentOutOfRangeException();
 
             char[] chars = new char[count];
+            Console.In.Read(chars, 0, count);
 
-            for (int i = 0; i < count; i++)
-            {
-                ConsoleKeyInfo key = Console.ReadKey(!this.Echo);
-
-                if (key.Key == ConsoleKey.Enter)
-                    chars[i] = '\n';
-                else
-                    chars[i] = key.KeyChar;
-            }
-            
             byte[] bytes = Encoding.ASCII.GetBytes(chars);
             Array.Copy(bytes, 0, buffer, offset, count);
 
@@ -106,6 +94,7 @@ namespace CyBF.Utility
                 throw new ArgumentOutOfRangeException();
 
             char[] chars = Encoding.ASCII.GetChars(buffer, offset, count);
+
             Console.Write(chars);
         }
     }

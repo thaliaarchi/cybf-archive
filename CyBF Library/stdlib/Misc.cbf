@@ -8,6 +8,22 @@ function printb(b:Byte)
     { b (+)*'0' . (-)*'0' }
 end
 
+function printc(c:BChar)
+    
+    if (c.ordinal >= ' '.ordinal):
+      
+        print(' ');
+        print(c);
+        print(' ');
+       
+    else:
+    
+        print(bstring(c.ordinal));
+       
+    end
+    
+end
+
 ` +-----+-+-+-+-+-+-+-+-+-+
 ` |     |H|B|0|1|2|3|4|5|F|
 ` |BOUND| | | | | | | | | |
@@ -18,7 +34,7 @@ end
 ` |DATA | | | | | | | | | |
 ` +-----+-+-+-+-+-+-+-+-+-+
 
-function print_list(xs:[List Byte])
+function print_list(xs:[List BChar])
 
 
     print("+-----+---+---");
@@ -80,17 +96,17 @@ function print_list(xs:[List Byte])
     next enum + 1;
 
 
-    print("|DATA | ");
-    print(cast xs.header.content : BChar);
-    print(" | ");
-    print(cast xs.begin.content : BChar);
-    print(" | ");
+    print("|DATA |");
+    printc(xs.header.content);
+    print("|");
+    printc(xs.begin.content);
+    print("|");
     iterate i : 0 while i < xs.capacity:
-        print(cast xs.items[i].content : BChar);
-        print(" | ");
+        printc(xs.items[i].content);
+        print("|");
     next i + 1;
-    print(cast xs.footer.content : BChar);
-    println(" |");
+    printc(xs.footer.content);
+    println("|");
     
     
     print("+-----+---+---");
