@@ -1,0 +1,136 @@
+module Sudoku;
+
+struct Cell
+    
+    row : Byte
+    column : Byte
+    block : Byte
+    value : Byte
+    
+end
+
+function = (left:Cell, right:Cell)
+
+    left.row = right.row;
+    left.column = right.column;
+    left.block = right.block;
+    left.value = right.value;
+
+    return left;
+    
+end
+
+struct Sudoku
+
+    cells : [List Cell](81, 1)
+    
+    function init(this, values:[Enumerator [List Byte]])
+    
+        this.cells.init();
+        
+        let blocks : (new [List Byte](81, 1)).init((
+            , 0 , 0 , 0  ,  1 , 1 , 1  ,  2 , 2 , 2
+            , 0 , 0 , 0  ,  1 , 1 , 1  ,  2 , 2 , 2
+            , 0 , 0 , 0  ,  1 , 1 , 1  ,  2 , 2 , 2
+                                         
+            , 3 , 3 , 3  ,  4 , 4 , 4  ,  5 , 5 , 5
+            , 3 , 3 , 3  ,  4 , 4 , 4  ,  5 , 5 , 5
+            , 3 , 3 , 3  ,  4 , 4 , 4  ,  5 , 5 , 5
+                                         
+            , 6 , 6 , 6  ,  7 , 7 , 7  ,  8 , 8 , 8
+            , 6 , 6 , 6  ,  7 , 7 , 7  ,  8 , 8 , 8
+            , 6 , 6 , 6  ,  7 , 7 , 7  ,  8 , 8 , 8            
+        ));
+    
+        for let row : byte(0) , row <= 9 , ++row:
+            for let column : byte(0) , column <= 9 , ++column:
+            
+                var cell : Cell
+                
+                cell.row = row;
+                cell.column = column;
+                
+                ++(blocks#0);
+                cell.block = *blocks;
+                
+                ++values;
+                cell.value = *values;
+                
+                this.cells.append(cell);
+            
+            end
+        end
+    
+        return this;
+    
+    end
+    
+    function print(this)
+    
+        let enum : this.cells # 0;
+
+        for let k : byte(0) , k < 3 , ++k:
+            for let j : byte(0) , j < 3 , ++j:
+                for let i : byte(0) , i < 3 , ++i:
+                    ++enum; print(bchar((*enum).value + '0'.ordinal));
+                    ++enum; print(bchar((*enum).value + '0'.ordinal));
+                    ++enum; print(bchar((*enum).value + '0'.ordinal));
+                    print(' ');
+                end
+                println();
+            end
+            println();
+        end
+        
+    end
+    
+end
+
+
+function print_title_screen()
+    
+    print('+');     print_repeat('-', 77);                      print("+\n");
+    print('|');     print_center(77, "Sudoku Solver!");         print("|\n");
+    print('|');     print_center(77, "Written in Brainfuck!");  print("|\n");
+    print('|');     print_center(77, "By Cybis, 2017");         print("|\n");
+    print('+');     print_repeat('-', 77);                      print("+\n");
+    println();
+    println("Enter your sudoku puzzle.");
+    println("Digits only, 9 digits per line with 9 lines.");
+    println("Use 0 to represent blank cells.");
+    println();
+
+end
+
+function read_initial_values()
+
+    let values : (new [List Byte](81, 1)).init();
+    let buffer : (new [List BChar](50, 1)).init();
+    
+    for let i : byte(0) , i < 9 , ++i:
+        
+        readline(buffer);
+        let bufferEnum : buffer # 0;
+        bufferEnum.reset();
+        
+        for let j : byte(0) , j < 9 , ++j:
+        
+            ++bufferEnum;
+            let c : *bufferEnum;
+            values.append(c.ordinal - '0'.ordinal);
+        
+        end
+        
+    end
+
+    return values;
+    
+end
+
+
+
+
+print_title_screen();
+let initialValues : read_initial_values();
+let sudoku : (new Sudoku).init(initialValues # 0);
+

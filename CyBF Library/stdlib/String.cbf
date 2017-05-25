@@ -65,6 +65,12 @@ function bchar(chr:Character)
     
 end
 
+function bchar(byte:Byte)
+    
+    return cast byte : BChar
+    
+end
+
 function bstring(str:String)
 
     var bytes : [Array Byte](str.size);
@@ -138,6 +144,63 @@ end
 function println(bstr:BString)
     print(bstr);
     println();
+end
+
+
+
+` ================================================================
+` Formatting Print Functions
+` ================================================================
+
+function print_repeat(chr:Character, count:Const)
+
+    print_repeat(bchar(chr), count);
+    
+end
+
+function print_repeat(bchr:BChar, count:Const)
+
+    { bchr (.)*count }
+    
+end
+
+function print_repeat(str:String, count:Const)
+
+    { str (>[.>]<[<])*count }
+    
+end
+
+function print_repeat(bstr:BString, count:Const)
+
+    { bstr (>[.>]<[<])*count }
+    
+end
+
+
+
+function print_left(length:Const, str:String)
+
+    print(str);
+    print_repeat(' ', length - str.length);
+    
+end
+
+function print_center(length:Const, str:String)
+
+    let leftPaddingLength : (length - str.length) / 2;
+    let rightPaddingLength : (length - leftPaddingLength) - str.length;
+    
+    print_repeat(' ', leftPaddingLength);
+    print(str);
+    print_repeat(' ', rightPaddingLength);
+
+end
+
+function print_right(length:Const, str:String)
+
+    print_repeat(' ', length - str.length);
+    print(str);
+
 end
 
 

@@ -1,1 +1,1 @@
-..\CyBF\bin\Debug\cybf "." "Main.cbf" "stdlib\*.cbf" -run -echo
+..\CyBF\bin\Debug\cybf "." "Sudoku.cbf" "stdlib\*.cbf" -run -output "output.txt"

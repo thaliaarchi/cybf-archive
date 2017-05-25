@@ -102,6 +102,23 @@ struct [List ~T](capacity, enumerators)
     
     end
 
+    function init(this, items:Tuple)
+    
+        assert(items.size <= this.capacity, 
+            "Attempt to initialize list with more items than capacity allows.");
+    
+        this.init();
+    
+        iterate i : 0 while i < items.size:
+        
+            this.append(items[i]);
+        
+        next i + 1;
+    
+        return this
+    
+    end
+    
     selector current_item(this:[List ~T]) 
         : [ListItem ~T](this.total_enumerators)
         
@@ -171,17 +188,13 @@ struct [List ~T](capacity, enumerators)
     
     end
     
-    function extend(this:[List ~T], content:Tuple)
+    function extend(this, xs:[Enumerator ~L])
     
-        let success : byte(1);
-    
-        iterate i : 0 while i < content.size:
+        while this.push() & xs.move_next():
         
-            success = success & this.append(content[i]);
+            this.current_item().content = xs.current_item().content;
         
-        next i + 1;
-    
-        return success;
+        end
     
     end
     
