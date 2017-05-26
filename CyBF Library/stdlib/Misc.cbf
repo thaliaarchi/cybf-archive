@@ -116,3 +116,87 @@ function print_list(xs:[List BChar])
     println("+---+");
     
 end
+
+
+function print_list(xs:[List Byte])
+
+
+    print("+-----+---+---");
+    iterate i : 0 while i < xs.capacity:
+        print("+---");
+    next i + 1;
+    println("+---+");
+
+    
+    print("|     | H | B |");
+    iterate i : 0 while i < xs.capacity:
+        print(' ');
+        printb(byte(i));
+        print(" |");
+    next i + 1;
+    println(" F |");
+
+    
+    print("|BOUND| ");
+    printb(xs.header.boundary_element);
+    print(" | ");
+    printb(xs.begin.boundary_element);
+    print(" | ");
+    iterate i : 0 while i < xs.capacity:
+        printb(xs.items[i].boundary_element);
+        print(" | ");
+    next i + 1;
+    printb(xs.footer.boundary_element);
+    println(" |");
+    
+    
+    print("|STACK| ");
+    printb(xs.header.stack_element);
+    print(" | ");
+    printb(xs.begin.stack_element);
+    print(" | ");
+    iterate i : 0 while i < xs.capacity:
+        printb(xs.items[i].stack_element);
+        print(" | ");
+    next i + 1;
+    printb(xs.footer.stack_element);
+    println(" |");
+    
+
+    iterate enum : 0 while enum < xs.total_enumerators:
+        print("|ENUM");
+        printb(byte(enum));
+        print("| ");
+        printb(xs.header.enumerator_elements[enum]);
+        print(" | ");
+        printb(xs.begin.enumerator_elements[enum]);
+        print(" | ");
+        iterate i : 0 while i < xs.capacity:
+            printb(xs.items[i].enumerator_elements[enum]);
+            print(" | ");
+        next i + 1;
+        printb(xs.footer.enumerator_elements[enum]);
+        println(" |");
+    next enum + 1;
+
+
+    print("|DATA |");
+    print(bstring(xs.header.content));
+    print("|");
+    print(bstring(xs.begin.content));
+    print("|");
+    iterate i : 0 while i < xs.capacity:
+        print(bstring(xs.items[i].content));
+        print("|");
+    next i + 1;
+    print(bstring(xs.footer.content));
+    println("|");
+    
+    
+    print("+-----+---+---");
+    iterate i : 0 while i < xs.capacity:
+        print("+---");
+    next i + 1;
+    println("+---+");
+    
+end
