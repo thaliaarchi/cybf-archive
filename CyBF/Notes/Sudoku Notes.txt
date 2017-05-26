@@ -1,0 +1,252 @@
+
+struct Cell
+    index
+    row
+    column
+    block
+    value
+    options : [List Byte](9, 0)
+end
+
+function solve(this)
+
+    Declare a stack of bytes to hold cell indices.
+
+    While searching
+    
+        Find the next empty cell.
+        
+        If there isn't one
+            We're done! searching = 0, solved = true
+        
+        Otherwise
+            
+            Compute the options list for this cell.
+            
+            If the options list is empty
+
+                while backtracking
+                    
+                    pop an index off of the index stack.
+                    
+                    If there isn't one:
+                        backtracking = false. searching = false. 
+                    
+                    Otherwise
+                    
+                        Find a cell with this index.
+                        
+                        Pop a value off of its options list
+                        
+                        If there isn't one
+                            Mark the cell as empty.
+                        
+                        Otherwise
+                            Set the cell's value to that value.
+                            backtracking = false
+                    
+                end
+            
+            Otherwise
+            
+                Push the index of this cell onto the stack.
+                Pop the first value from the computed options list.
+                Set the cell's value to it.
+    
+    end
+
+end
+
+
+================================================================
+
+
+struct Cell
+    index : Byte
+    row : Byte
+    column : Byte
+    block : Byte
+    value : Byte
+end
+
+struct Sudoku
+
+    cells : [List Cell](81, 1)
+    
+    function init(this)
+    
+        this.cells.init();
+        
+        let blocks : (new [List Byte](81, 1)).init();
+        blocks.add_range((
+            , 0 , 0 , 0  ,  1 , 1 , 1  ,  2 , 2 , 2
+            , 0 , 0 , 0  ,  1 , 1 , 1  ,  2 , 2 , 2
+            , 0 , 0 , 0  ,  1 , 1 , 1  ,  2 , 2 , 2
+                                         
+            , 3 , 3 , 3  ,  4 , 4 , 4  ,  5 , 5 , 5
+            , 3 , 3 , 3  ,  4 , 4 , 4  ,  5 , 5 , 5
+            , 3 , 3 , 3  ,  4 , 4 , 4  ,  5 , 5 , 5
+                                         
+            , 6 , 6 , 6  ,  7 , 7 , 7  ,  8 , 8 , 8
+            , 6 , 6 , 6  ,  7 , 7 , 7  ,  8 , 8 , 8
+            , 6 , 6 , 6  ,  7 , 7 , 7  ,  8 , 8 , 8
+        ));
+    
+        for let row : byte(0) , row <= 9 , ++row:
+            for let column : byte(0) , column <= 9 ; ++columns:
+            
+                var cell : Cell
+                cell.row = row;
+                cell.column = column;
+                cell.block = *(++(blocks#0));
+                cell.value = 0;
+                this.cells.append(cell);
+            
+            end
+        end
+    
+    end
+
+end
+
+
+
+This is wrong. It assumes that cells reference into the list automatically.
+But it's close. empty_cells shouldn't be a copy of the cells, for example.
+
+Sudoku could probably define a selector to return - from the cells list enumerator - 
+the next empty cell. 
+
+But I'll need to be able to indicate whether or not there even WAS a next empty cell!
+Perhaps a flag as a parameter? Lol, that's backwards. But doable.
+
+
+function solve:
+
+    empty_cells = find_empty_cells();
+    search_stack = []
+    current : Cell
+    
+    current = empty_cells.pop();
+    options = get_available_options(current);
+    search_stack.push(current, options);
+    
+    while search_stack.pop(current, options):
+    
+        if options.pop(value):
+        
+            set current.value = value;
+            
+            if empty_cells.pop(current):
+            
+                options = get_available_options(current);
+                search_stack.push(current, options);
+            
+            else
+            
+                No more empty cells. Puzzle is actually solved!
+                Clear the search stack? Set a flag?
+            
+            end
+        
+        else:
+        
+            No more options for this cell. 
+            Umm... I guess continue popping items from the search stack?
+            Set the current cell to blank?
+        
+        end
+        
+    end
+    
+    Search stack empty. 
+    If solved, I'd have set a flag. 
+    
+end
+
+function get_available_options
+
+    get a list of the non-zero numbers in the same row/column/block.
+        How to iterate through the cells of a block?
+        How about just iterate through all cells, check whether the cell's 
+        coordinates match row, column, or block?
+
+    for let value : byte(1) , value <= 9 , ++value:
+    
+        if !(numbers#0).contains(value):
+            options.append(value);
+        end
+    
+    end
+        
+    how to convert this into a list of the numbers NOT referenced?
+    
+        
+end
+
+
+================================================================
+
+How to input a sudoku?
+
+Get the first 9 characters of the next 9 lines.
+Extend a list so that I have 81 byte values.
+Modify the init function to pass in this list of bytes.
+
+================================================================
+
+Two things I did kinda want, though...
+Properly scoped modules and type classes. 
+
+I think I can do properly scoped modules easily enough.
+Don't bother adding scoping just for its own sake.
+If I can figure out type classes, then scoping can be a thing to tag along with it.
+
+Part of the problem with type classes is that, as currently designed, I don't
+really care if type variables get set when attempting to "match" to a function that doesn't,
+since that function isn't going to get called. If I attempt to bind the same type instance
+in multiple different ways to a type parameter, I don't really have a good way of resetting
+type variables.
+
+    Well... I'll need a recursive function along the lines of "GetFreeTypeVariables",
+    where if matching fails I reset only those. That could work. It'd have to be called
+    *BEFORE* I do the matching, however.
+    
+    If I'm going to go this far with the type system, I'd also like a more flexible
+    "typeof" expression that works on patterns instead of instances.
+
+        I wish I could remember what it was that made me think type variables 
+        couldn't have nested scopes.
+        
+
+typeof object ':' <type parameter>
+
+    Returns 1 if success 0 if failure.
+    I can't really remove the type variables from the scope (compiler can't know
+    the data type of object if passed in as object:~T, for example, so it can't
+    know before actually compiling a function body whether the typeof succeeds or fails).
+    
+    They could be bound to Void types.
+    
+Let's just get the sudoku solver working first.
+    
+Oh, and change the name of Tuple's field from "size" to "length".
+    
+*** Double check logic of addressing variables within a repeater!
+    
+================================================================    
+    
+Something doesn't feel right, looking at the output.
+
+First, it initializes a bunch of memory to 0.
+    I guess this is to be expected. My list initializer sets all the headers
+    and elements and such to zeroes, since there's no way for List to know
+    whether or not the memory allocated to it is fresh.
+
+Second, most of the code consists of a whole lot of stretches of >>>>[>>]<<<<[<<]>>>[>>]<<<[<<] etc...
+
+It looks like a copy operation between two variables separated by vast distances in memory,
+on the order of 338 units away. Well... my Sudoku list structure is actually 588 bytes I think.
+
+    
+    
