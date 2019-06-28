@@ -1,0 +1,707 @@
+
+Do I want to compile in a new execution engine for each and every top-level recursive function call?
+Or just have a global execution engine?
+
+*** Why did I separate String from BString? Character from BChar? I don't think String is a compile-time constant,
+*** since I saw BF code to print it out. Anyway, maybe figure out a better String literal data type.
+
+Really... the only variables that have to get put onto the stack 
+are those which get accessed both prior to and after a recursive function call and function parameters.
+
+Even then, not all function parameters - "pass-though" parameters can stay, although they'll be harder to detect
+(supporting nested functions would be easier). Come to think of it... in "tail recursion" no stack is needed. 
+If the parameter values are not used again after the recursive call, they can be overwritten instead.
+
+What would function pointers allow that I can't do with clever use of structs?
+(or, at least, with "typeclass-y" structs?)
+
+===================================================================
+
+
+    function recursive hanoi_recursive(n:Byte, source:Byte, destination:Byte, temp:Byte)
+        <SEGMENT 0>
+        if n == 1:
+            <SEGMENT 1>
+            let disk = pegs[source].pop();
+            pegs[destination].push(disk);
+            print(("Moved disk", disk, "from", source, "to", destination));
+        else:
+            <SEGMENT 2>
+            hanoi(n-1, source, temp, destination);
+            <SEGMENT 3>
+            hanoi(1, source, destination, temp);
+            <SEGMENT 4>
+            hanoi(n-1, temp, destination, source);
+            <SEGMENT 5>
+        end
+        <SEGMENT 6>
+    end
+    
+    let total_disks : pegs[0].length;
+    
+    ` ========= hanoi_recursive(total_disks, byte(0), byte(2), byte(1));  ===============
+    
+    Create a stack frame at __STACK_START__ (the same address as __UNALLOCATED__ without a stack).
+    
+    Copy the values of total_disks, byte(0), byte(2), and byte(1) to 
+    parameter variables for n, source, destination, and temp on the stack frame.
+    
+    Parse 'hanoi_recursive' to identify the return type.
+    Allocate static space for a return variable.
+    
+    Move pointer to end of STACK_FRAME ( last byte of a stack frame could be a boundary element, e.g., 1,
+    whereas __STACK_START__ could always be zero ).
+    
+    let SEGMENT : byte(0);
+    
+    [   <-- while the stack is not empty.
+        
+        switch(SEGMENT) 
+        case 0:
+        
+            if n == 1:
+                SEGMENT = 1;
+            else:
+                SEGMENT = 2;
+            end
+            
+        case 1:
+            
+            let disk = pegs[source].pop();
+            pegs[destination].push(disk);
+            print(("Moved disk", disk, "from", source, "to", destination));
+            SEGMENT 
+    
+        case 2:
+            Create a new stack frame <-- Check I haven't reached the terminating boundary!
+                                         Last byte on stack frame = BEGIN boundary 
+                                         
+                                            (__STACK_START__ immediately preceedes any stack frames, so it aligns with
+                                             the ending byte on them).
+                                             
+                                         First byte on stack frame = END boundary?
+                                            Would allow me to avoid wasting the final stack frame.
+                                            But if there are more stack frames than the number of bytes in a frame,
+                                            then this approach would be *more* wasteful. 
+                                            
+                                        Anyway, immediately write out a message to memory
+                                        (doesn't matter where anymore), print it out, then enter an infinite loop.
+            
+            Copy n-1, source, temp, destination to the corresponding parameter locations.
+            Huh... I guess stack frames need a "RETURN_SEGMENT" variable!
+            Set "RETURN_SEGMENT" on the new stack frame to be 3.
+            SEGMENT = 0;
+            
+        case 3:
+            Similar to 2.
+            Set "RETURN_SEGMENT" on the new stack frame to be 4.
+        
+        case 4:
+            Similar to 2.
+            Set "RETURN_SEGMENT" on the new stack frame to be 5.
+            
+        case 5:
+            SEGMENT = 6.     Maybe I can leave this part out.
+            
+        case 6:
+            SEGMENT = RETURN_SEGMENT
+            Pop the stack frame.
+     
+    ]
+
+===================================================================
+
+Type variables and recursion?
+
+function test(x:~S, y:~T)
+
+    stuff;
+    
+    while(expression):
+        test(f(x), g(y));
+    end
+
+    stuff;
+
+end
+
+So... recursive calls to "test" might actually be passing in different types!
+Is there any way for the compiler to build a stack-frame in this situation?
+
+    -> Where test() is initially called, the compiler should be able to deduce the values 
+       of the type parameters.
+
+    -> The return types of f(x) and g(y) should similarly be deducible.
+    
+    -> The awkward bit is that this could result in a big chain of recursive calls
+       of completely different types. 
+       
+    X is of type A
+    f(A) returns a B
+    f(B) returns a C
+    f(C) returns a D
+    and so on
+
+    I guess the compiler can recognize these distinct types and treat them as function overloads.
+    It would have to - the functions called in the function can be totally different (overloads)
+    depending on the data type of the parameter.
+
+===================================================================
+
+What changes need to be made:
+
+* "recursive" modifier on functions.
+
+* Nested functions (should be straight forward, as I was able to easily add functions
+  to structs though I didn't plan for it).
+
+* Wherever a recursive function is called
+  Magic. Somehow translate into my execution engine model.
+
+  This requires:
+  
+    * Being able to break-up the body of a function (including calls to other recursive functions) into segments.
+      I need to be smart about this - the only flow control that needs to be recognized and removed 
+      are those which wrap recursive calls.
+
+    * Look at all object creations. Some objects need stack space, others don't. 
+      Recognize which objects could be allocated and freed within a single stack frame, and reserve 
+      static space for them instead. For all others, make space for them on the stack frame template.
+      Could try being smart as recognizing "pass-through" function parameters as not needing stack space either.
+      
+      All in all, the compiler generates a fixed stack-frame size for this recursive call.
+      
+    * Create a stack data structure suitable for handling recursive calls and return values.
+      Compilation option should specify maximum recursion depth, a boundary which ought to be checked
+      during runtime. This allows an __UNALLOCATED__ variable to still exist.
+      
+    * Create an execution engine that allows for 2-byte 'code segment' addresses 
+      as well as pushing/popping recursion stack frames. 
+      
+
+===================================================================
+
+Considering that CyBF was optimized to minimize memory usage at the cost of larger programs
+(making all functions inlined), I guess it makes sense to try and recognize which local variables
+can be made static and which have to be on the stack frame. 
+
+===================================================================
+
+It seems I'll need quite a large amount of memory. A stack frame large enough to hold
+all variables used for each iteration, though it is possible to recognize which variables
+won't need to be saved and reserve static space for them... that might actaully 
+be *less* efficient due to excess < and > operations to keep moving back to static memory.
+
+You know... I kind of do in a sense already have support for "function object" equivalents. 
+It's clunky, but seems to work well enough. Maybe adding type classes would improve this,
+but then again type classes (interfaces?) can *just about* be simulated via type parameters. 
+
+function map(xs:List, fn:~T)
+    for each index in xs
+        xs[index] = fn.invoke(xs[index]);
+    end
+end
+
+function hanoi(pegs:HanoiPegs)
+
+    ` I kind-of hate nested functions though. Functions should be small.
+    ` Maybe "hanoi_recursive" should be a private function on HanoiPegs instead?
+    ` Using the struct to hold "pegs", instead of nesting functions, might be a better approach.
+    
+    function recursive hanoi_recursive(n:Byte, source:Byte, destination:Byte, temp:Byte)
+        if n == 1:
+            let disk = pegs[source].pop();
+            pegs[destination].push(disk);
+            print(("Moved disk", disk, "from", source, "to", destination));
+        else:
+            hanoi(pegs, n-1, source, temp, destination);    ` <-- The temp variables for the arguments.
+            hanoi(pegs, 1, source, destination, temp);      `     Those shouldn't have their own
+            hanoi(pegs, n-1, temp, destination, source);    `     stack-frame space since they become
+        end                                                 `     parameters.
+    end
+    
+    let total_disks : pegs[0].length;
+    
+    hanoi_recursive(total_disks, byte(0), byte(2), byte(1));    ` This stack frame would be quite small.
+    
+end
+
+Wait just a moment.
+
+let x : macro();        <-- Would 'y' stomp over 'x' if this was translated to the execution engine model,
+let y : macro();            where macro() only had one body? 
+print(x);                   
+                            I think that's why I made everything a macro -
+                            to make everything pass-by-reference and return-by-reference, 
+                            so that *nothing* has to be copied implicitly.
+
+===================================================================
+
+Perhaps I haven't fully thought through the CyBF counterpart to what "await" might be.
+
+async function hanoi(pegs:HanoiPegs, n:Byte, source:Byte, destination:Byte, temp:Byte)
+
+    if n == 1:
+        let disk = pegs[source].pop();
+        pegs[destination].push(disk);
+        print(("Moved disk", disk, "from", source, "to", destination));
+    else:
+        await hanoi(pegs, n-1, source, temp, destination);
+        
+        ` Queue up the ID to "hanoi".
+        ` The real problem though is if the async execution engine lies outside of the scope 
+        ` of variable "pegs" (that is, "pegs" is allocated in a loop but the execution engine is not)
+        ` then there is no straight-forward way for the execution engine to refer to "pegs".
+        
+        ` Another problem with recursion really is the memory model.
+        ` CyBF was designed to specifically prevent implicit copying of data.
+
+        ` So... syntax to build an explicit stack frame?
+        ` A is a recursive function that calls B. B is also a recurisve function.
+        ` Do I make an execution engine run within an execution engine?
+        
+        await hanoi(pegs, 1, source, destination, temp);
+        await hanoi(pegs, n-1, temp, destination, source);
+    end
+
+end
+
+
+===================================================================
+
+struct hanoi_stack_frame
+    n : Byte
+    source : Byte
+    destination : Byte
+    temp : Byte
+    ` Plus any variables that span across recursive calls. test?
+end
+
+` I think stack frames can be variable sized. They'd get converted into byte arrays, and... oh!
+` The stack still needs a marker. BF blocks that assume contiguous variables (like most of them) won't work. 
+
+function hanoi(pegs:HanoiPegs, n:Byte, source:Byte, destination:Byte, temp:Byte)
+
+    if n == 1:
+        let disk = pegs[source].pop();
+        pegs[destination].push(disk);
+        print(("Moved disk", disk, "from", source, "to", destination));
+    else:
+        let test : byte(source);
+        hanoi(pegs, n-1, source, temp, destination);
+        hanoi(pegs, 1, source, destination, temp);
+        hanoi(pegs, n-1, temp, destination, source);
+        print(test);        ` Its not the case that only parameters need to be saved on the stack!
+                            ` The explicit async version is less likely to screw up.
+    end
+
+end
+
+` PRO of the above solution:
+` I think I can optimize out "pass-though" parameters, to avoid having to put them onto the stack.
+` Code will run in the expected order.
+` Can be seemless to use.
+
+` CON of the above solution:
+` Nesting of recursion can get really complicated.
+` Uncertain of what variables would need to be pushed onto the call stack.
+` Uncertain of how to implement a call stack (albeit same problem as below solution).
+
+` PRO of below solution:
+` Simpler to implement.
+` Easier to determine what variables need to be pushed onto the call stack.
+` Only one call stack and execution loop. 
+
+` CON of below solution:
+` Really clunky. Surprising when things run in the wrong order (no way to implement C#'s "await").
+` Less able to handle parameter-passthrough optimization (I think).
+
+` CON of both solutions:
+` CyBF never auto-copies anything. A copy operation needs to be explicitly constructed.
+` With recursion though, lots of things will need to get saved for later. 
+` Maybe use a different notation to explicitly define stack frames?
+
+` Only allow this function to be called in "async" mode?
+function async hanoi(pegs:HanoiPegs, n:Byte, source:Byte, destination:Byte, temp:Byte)
+
+    if n == 1:
+        let disk = pegs[source].pop();
+        pegs[destination].push(disk);
+        print(("Moved disk", disk, "from", source, "to", destination));
+    else:
+    
+        ` There's a substantial problem. 
+        ` 2 and 3 will get run *before* any recursive calls made inside the execution of 1.
+        async hanoi(pegs, n-1, source, temp, destination);  ` 1
+        async hanoi(pegs, 1, source, destination, temp);    ` 2
+        async hanoi(pegs, n-1, temp, destination, source);  ` 3
+        
+        ` This syntax is more reflective of what needs to happen, albeit its rather clunky.
+        ` Further, I don't see how I can optimize out the copying of "pegs".
+        
+        async hanoi(pegs, n-1, source, temp, destination) then
+            async hanoi(pegs, 1, source, destination, temp) then
+                async hanoi(pegs, n-1, temp, destination, source);
+            end
+        end
+        
+        
+    end
+
+end
+
+
+
+
+
+===============================================================
+
+It seems that I can actually transform the whole execution model.
+Instead of if statements, for loops, while loops being based on actual Brainfuck loops,
+I could move snippets of linear code into separate "switch"-style segments, controlled by a flag
+(kinda like what I have further down).
+
+So, I would have separate functions and macros (maybe macros would be the default).
+First I would expand all of the macros.
+Then convert all of the flow-control constructs into plain while loops.
+Then break up all of the code into "linear" segments runnable individually, 
+and make the conditions on the while loops control which segments get run next.
+I'll also need to add to the end of recurisve functions, some way of marking 
+whether to *actually* stop, or whether to merely decrement its recursion depth
+and flag the next segment to run.
+
+Improving variable placement in memory might also be a good thing. 
+No more
+a xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx b
+where a and b interact with each other a lot, but not so much with x.
+
+Lastly, recursion is often used for traversing "recursive" data structures.
+What would be a good example of a CyBF binary search tree and traversal algorithm?
+
+Also... how to handle "const" parameters again?
+
+
+==============================================================
+
+Idea: 
+
+    For constant parameters and symbols brought in, I could create a copy for every different set of values
+    used in the program. Don't think there'll be *that* many (and the compiler will be aware of them all).
+    
+    "Small" parameters are okay to be copied. What about things that shouldn't?
+    
+    function traverse(tree:BinaryTree)
+        
+        if tree.has_left():
+            async traverse(tree.left());    ` <-- I still need a "then" construct to handle return values.
+        end
+
+        async print(tree.content);          ` <-- Interesting though. "then" constructs aren't absolutely necessary.
+                                            `     to synchronize these.
+        if tree.has_right():
+            async traverse(tree.right());   ` <-- Question: What if tree.left() and tree.right() were selectors?
+        end                                 `     The whole point was to *NOT* have to copy information.
+                                        
+    end
+    
+    
+    Issues:
+    
+        If I had a "then something() end" construct at the end of each of these async calls, 
+        the code in something() would get copied twice. Of course, if these weren't async and I had a 
+        traverse(), something(), traverse(), something(), then the somethings would get copied twice anyway.
+        
+        How to avoid making copies of the subtrees? 
+        If tree.left() and tree.right() were selectors, even if I *could* preserve them, 
+        wouldn't they be liable to change by the time this code actually runs?
+        
+        At the very least, how do I preserve them?
+        
+
+==============================================================
+
+Basically, the only real problem is:
+1) Where to store async function arguments.
+2) How to use "outside" variables in the continuation of async function calls.
+3) How to use constants in both these cases.
+
+I think once I have the execution model for async functions, its limitations will become more apparent.
+The main thing about the execution model, is how to handle function arguments and... what are they called,
+closures? Should we copy the values of outside variables at the point of call? Well, no.
+The function may have side effects that the continuation *wants* to see. But local variables might get used after all,
+and they will need to be copied. Oh dear, this can get complicated.
+
+How do I create a relatively efficient async call queue?
+Ignoring arguments for now, how to handle *just* the function calls (two byte identifiers?)
+
+Two things to detect in the circular queue:
+1) The beginning and end of the queue.
+2) The next available "free" cell (the "write pointer")
+3) The next cell to pop (the "read pointer")
+
+If a pointer hits the end of the queue, go back to the beginning.
+If the read pointer passes the write pointer, we have an error.
+
+The read and write pointers should use different spots. Being a circular queue,
+we can't know which comes before which.
+
+struct AsyncFunctionIdentifier
+    page : Byte
+    code : Byte
+end
+
+struct AsyncCall
+    boundary_marker     : Byte
+    read_pointer        : Byte
+    write_pointer       : Byte
+    function_identifier : AsyncFunctionIdentifier
+end    
+    
+struct [AsyncQueue](CAPACITY)
+    async_queue : [Array AsyncCall](CAPACITY + 1)
+    
+    function init(this)     ` Setup the array markers.
+    end
+    
+    function push(this, fid:AsyncFunctionIdentifier)       ` <-- Were type specifiers optional?
+    end
+    
+    function pop(this) : AsyncFunctionIdentifier            ` <-- How errors handled (e.g., pop empty queue, push full queue)
+    end                                                     `     Turn off error checking via compiler options?
+
+    function has_data(this) : Byte                          ` <-- This will be important.
+    end                                                     `     Something to indicate whether the queue has data to read
+                                                            `     or is empty.
+end
+
+
+` Free-standing statements may have to be enqueued as a false "main" function call to get the ball rolling.
+` Perhaps a compiler option to enable/disable async function calls? This queue is a little bit wasteful for apps that don't need it.
+
+while queue.has_data()
+
+    let call : queue.pop();
+    
+    if call.page == 0:              <-- Is there a faster way of doing this kind of dispatch?
+        if call.function == 0:          Also... NO! Although the queue should be created prior to the 'main' code,
+            code for function 0/0       this while loop should only run *afterwards*. 
+        end
+        if call.function == 1:          This queue should ONLY take up the bare minimum needed for the async calls in the program.
+            code for function 0/1       
+        end
+        ...
+    end
+    
+    if call.page == 1:
+        if call.function == 0:
+            code for function 1/0
+        end
+        if call.fucntion == 1:
+            code for function 1/1
+        end
+        ...
+    end
+
+end
+
+
+
+struct Control
+    
+    t0 : Byte       <-- initialized to 0
+    data : Byte
+    
+    t1 : Byte       <-- initialized to 1
+    run : Byte      <-- initialized to 0
+    
+    t2 : Byte       <-- initialized to 1
+    null : Byte     <-- initialized to 0
+    
+end
+    
+let control : (new Control).init();     ` <-- How did 'new' work again?
+control.data = read();
+
+{
+    data+
+
+    run+
+    data- [run- null] <[<<]>                ` After the loop, I may either be on data or the null byte.
+    run [ *CODE FOR FUNCTION 0* run-]       ` <[<<]> jumps to data either way.
+    
+    run+
+    data- [run- null] <[<<]>
+    run [ *CODE FOR FUNCTION 1* run-]
+    
+    run+
+    data- [run- null] <[<<]>
+    run [ *CODE FOR FUNCTION 2* run-]
+    
+    run+                                    Starting from "run", this gives us
+    data- [run- null] <[<<]>                +<<-[>>->>]<[<<]>>>[CODE-]    for every single dispatch. Maybe slightly fewer
+    run [ *CODE FOR FUNCTION 3* run-]                                     > and < if I rearrange the variables in the struct.
+}   
+                                            +S-[S-S]S[S]S[CODE-]          Where each 'S' corresponds to a sequence of shift operators.
+                                                                          Not the nicest but it could work.
+                                                                          Pages will be a little more complicated though.
+
+
+=======================================================================================
+
+map(mylist, function(x:~T)          <-- Hmm... "function" keyword, or make a new "lambda" keyword?
+    return x * 2;                       It's not ambiguous, since an identifier following "function" represents a 
+end);                                   named definition rather than a lambda expression.
+
+
+map(mylist, double);                <-- Hmm... the "double" function might be an overload, capable of accepting
+                                        bytes, ints, consts, etc...
+                                        Except "map" is overloaded on the type of mylist. Deducing which overload
+                                        of "douple" to apply should be no different than deducing it for a normal
+                                        function call.
+
+async map(mylist, double);
+async let result : map(mylist, double);     <-- useless but valid? "result" should only exist in the continuation body though.
+
+async map(mylist, double) then
+    print("All Done!");                 <-- Not sure I like introducing the "then" keyword, but it works.
+end
+
+async let result : map(mylist, double) then     <-- I don't really like the "then", but it's acceptable syntax.
+    print("The result is ");                        My iterate syntax is totally bizarre for example.
+    println(result);
+end
+
+
+Question: Can functions, consts, and tuples be passed into async function calls?
+
+Off Topic Question: What about the ability to execute commands on the file system? 
+                    Meh, an "Esolang Shell" should be sufficient for that, allowing the language to make syscalls.
+
+Introducing the CyBF Programming Language and CyBF->Brainfuck compiler!
+
+CyBF is a high level programming language designed around the limitations of Brainfuck.
+The CyBF->Brainfuck compiler does *NOT* simulate a virtual machine. 
+All of its language features are designed around a tape memory model and "while loop only" flow control.
+
+Despite this, it has mechanisms for abstract data types, parameterized types, function templates,
+variables that *reference* (without having to copy) arbitrary elements of complex nested data structures, 
+lambda expressions and recursion!
+
+I'm no language designer proper and CyBF has a few rough edges. 
+
+How to detect an "end of file" quickly? Put a control byte either preceeding or following the NULL, to indicate what the NULL means
+(i.e., real data vs. end of file). There should be a quick way of encoding binary data this way.    
+
+=======================================================================================
+
+
+Although true recursion couldn't work exactly right... I could support asynchronous recursion!
+
+I could borrow the async/await construct from C#.
+
+The primary difference is that if I want to do something only upon the completion
+of that task, then I'll need to code an explicit function body. I'm really skeptical
+as to whether I can auto-generate a continuation, since I can't actually jump 
+into the middle of a loop.
+
+I'll need to study the semantics of parameter passing with constant vs. memory data types.
+(e.g., constant parameters can't be put onto an execution frame).
+
+What about Function types?
+    [Function] can be an ordinary const. Just like tuples.
+    Uncertain how to handle overloaded functions though.
+    
+    I think I avoided specifying argument types on tuples because
+    I didn't want to handle variable-length type parameters. 
+    For constant functions I think that's acceptible. I just won't be able to overload on the particular function I pass in.
+    But its the same way with tuples so whatever.
+
+Function Pointers   
+    This'll be a bit more tricky. I think this will actually need to have a signature.
+    But... damn, const parameters make async functions and function pointers... a teensy bit tricky to get right.
+    I would be able to optimize out const parameters that are passed verbatim in async recurisve calls.
+    But I don't think I could do that with generic functions. Unless... perhaps... the function/const
+    is a part of the type signature? Nope, nope. Only one kind of function pointer is allowed, since they'll
+    get queued onto a big list. Oh, that means I might not actually be able to have function signatures either. Hmm....
+    
+    Is it possible for there to be only one kind of function,
+    calling it normally is a macro expansion, calling it as "async" queues it?
+    How would const parameters be handled then?
+
+
+EXAMPLE:
+
+` Okay. Explore asynchronous recursive functions.
+
+var nodes : [List [BinaryNode]](50)
+
+struct BinaryNode
+
+    content : [String](50)
+    leftNodeIndex : Byte
+    rightNodeIndex : Byte
+    
+    function left()
+    end
+
+    function right()
+    end
+    
+end
+
+
+` LOL. I could copy C#'s async await syntax.
+
+async function pre-order(n : BinaryNode)
+
+    print(n.content);
+    
+    if n.hasLeft():
+        await pre-order(n.left());
+    end
+
+    if n.hasRight():
+        await pre-order(n.right());
+    end
+
+end
+
+
+async function in-order(n : BinaryNode)
+    
+    if n.hasLeft():
+        await in-order(n.left()):           # <-- I could do "await let x : func(a, b, c):  but that syntax is cluncky.
+            print(n.content);               # <-- Implicitly or explicitly make a copy of 'n'?
+            if n.hasRight():
+                await in-order(n.right());
+            end
+        end
+    end
+    
+end
+
+print("Hello ");
+let root : makeTree();
+await pre-order(root);
+print("World!");
+
+` This program would actually print out Hello World!
+` before printing out the in-order traversal of the binary tree.
+
+
+print("Hello ");
+let root : makeTree();
+await pre-order(root)
+    print("world!");        ` <-- Okay. Come to think of it, this would have to be counted as another function!
+                            `     I could support "async pages" - that is, pages of 256 functions each.
+                            `     A one-byte page would allow for 65536 total calls. That's certainly enough!
+end
+
+
+Allowing for asynchronous recursion is actually not a bad idea.
+
+
+
+
+
+
